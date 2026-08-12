@@ -1317,7 +1317,20 @@ function aplicar(d){
     S.rondaData=S.rondaData||[]; S.avisos=S.avisos||[]; S.prestamos=S.prestamos||[];
     S.mazo=S.mazo||[]; S.cursores=S.cursores||{};
     if(d.sector&&d.sector!==SECTOR_ID) cargarSector(d.sector);
-    S.jugadores=d.jugadores.map(j=>Object.assign({ultimoRendimiento:null,ultimoFactorDelta:null,_prev:j.capital},j));
+    S.jugadores=(d.jugadores||[]).map(j=>Object.assign({ultimoRendimiento:null,ultimoFactorDelta:null,_prev:j.capital},j,{
+      fortalezas:Array.isArray(j.fortalezas)?j.fortalezas:[],
+      debilidades:Array.isArray(j.debilidades)?j.debilidades:[],
+      cartas:Array.isArray(j.cartas)?j.cartas:[],
+      capital:Number(j.capital)||0, oro:Number(j.oro)||0, oroNuevo:Number(j.oroNuevo)||0,
+      riesgoFiscal:Number(j.riesgoFiscal)||0, turnosBancarrota:Number(j.turnosBancarrota)||0,
+      carcel:Number(j.carcel)||0, pillado:Number(j.pillado)||0,
+      eliminado:!!j.eliminado, carcelPendiente:!!j.carcelPendiente, desconectado:!!j.desconectado
+    }));
+    (S.rondaData||[]).forEach(d2=>{
+      if(!d2) return;
+      if(d2.tipo==='inversion'&&(!d2.item||!Array.isArray(d2.item.opts))) d2.item={opts:(d2.item&&d2.item.opts)||[]};
+      d2.resuelto=!!d2.resuelto;
+    });
     const idx=S.jugadores.findIndex(j=>j.uid===MP.yo);
     S.yo = idx>-1? idx : 0;
     S.activosTurno=activos().filter(j=>!j.carcel);
@@ -1378,10 +1391,21 @@ async function mpSincronizar(){
 }
 
 function repintar(){
-  renderTop();
-  if(S.fase==='cofres') renderRonda();
-  else if(S.fase==='deal_time'){ if(!document.getElementById('deal-timer')) renderDealTime(); else renderDealBody(); }
-  else if(S.fase==='factor_externo') renderFactor();
+  try{ renderTop(); }catch(e){ mostrarFallo('renderTop: '+e.message); }
+  try{
+    if(S.fase==='cofres') renderRonda();
+    else if(S.fase==='deal_time'){ if(!document.getElementById('deal-timer')) renderDealTime(); else renderDealBody(); }
+    else if(S.fase==='factor_externo') renderFactor();
+  }catch(e){ mostrarFallo('repintar('+S.fase+'): '+e.message); }
+}
+
+function mostrarFallo(msg){
+  try{
+    console.error(msg);
+    let av=document.getElementById('mp-fallo');
+    if(!av){ av=document.createElement('div'); av.id='mp-fallo'; av.className='mp-fallo'; document.body.appendChild(av); }
+    av.textContent=(LANG==='en'?'Error: ':'Error: ')+msg;
+  }catch(e){}
 }
 
 function comprobarRelojes(){
@@ -1743,7 +1767,7 @@ function arrancarLatido(){
           if(q<=0&&soyConductor()){ S._avance=0; avanzarRonda(); }
         } else S._avance=0;
       }
-    }catch(e){}
+    }catch(e){ mostrarFallo('latido: '+e.message); }
   },400);
 }
 
@@ -2288,6 +2312,8 @@ function reponerMercado(){
 }
 
 function prepararRonda(){
+  S.mazo=Array.isArray(S.mazo)?S.mazo:[];
+  if(!S.mazo.length) S.mazo=shuffle(POOL.inversion.map((c,i)=>({...c,id:i})));
   S.rondaFin=Date.now()+(S.cfgRonda||RONDA_SEG)*1000;
   const activosRonda=activos().filter(j=>!j.carcel);
   if(S.mazo.length < activosRonda.length*3) reponerMercado();
