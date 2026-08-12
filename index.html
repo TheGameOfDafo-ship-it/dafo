@@ -1362,9 +1362,10 @@ function repintar(){
 }
 
 function comprobarRelojes(){
-  if(!MP.on||!MP.host||!S.iniciada) return;
+  if(!MP.on||!S.iniciada) return;
   const ahora=Date.now();
-  if(S.fase==='cofres'&&S.rondaFin&&ahora>S.rondaFin){
+  const desfase=(S.jugadores||[]).findIndex(j=>j.uid===MP.yo)*900;
+  if(S.fase==='cofres'&&S.rondaFin&&ahora>S.rondaFin+desfase){
     let hubo=false;
     (S.rondaData||[]).forEach((d,i)=>{
       if(d.resuelto)return;
@@ -1381,7 +1382,7 @@ function comprobarRelojes(){
     });
     if(hubo) tocado();
   }
-  if(S.fase==='deal_time'&&S.dealFin&&ahora>S.dealFin) terminarDealTime();
+  if(S.fase==='deal_time'&&S.dealFin&&ahora>S.dealFin+desfase) terminarDealTime();
 }
 
 /* ---- Cursores compartidos ---- */
@@ -2162,9 +2163,7 @@ function renderFactor(){
     <p class="factor-desc">${f.descripcion}</p>
     ${(S.avisos||[]).length?`<div class="avisos-box">${S.avisos.map(a=>`<div class="efecto-mini">${a}</div>`).join('')}</div>`:''}
     ${(f.efectos||[]).map(e=>`<div class="efecto-mini ${e.tipo}"><b>${e.jugador}:</b> ${e.explicacion}</div>`).join('')}
-    ${(!MP.on||MP.host)
-      ?`<button class="btn block" style="margin-top:12px" onclick="comenzarCofres()">${T('abrirOrden')}</button>`
-      :`<div class="lb-nota" style="text-align:center">${LANG==='en'?'Waiting for the host…':'Esperando al anfitrión…'}</div>`}`;
+    <button class="btn block" style="margin-top:12px" onclick="comenzarCofres()">${T('abrirOrden')}</button>`;
 }
 
 function iniciar(){
@@ -2174,7 +2173,6 @@ function iniciar(){
 }
 
 function comenzarCofres(){
-  if(MP.on&&!MP.host){ toast(LANG==='en'?'Waiting for the host':'Esperando al anfitrión'); return; }
   pararTemblor();
   S.fase='cofres';
   S.activosTurno=activos();
@@ -2285,9 +2283,7 @@ function renderRonda(){
     <p class="factor-desc">${T('todasVez')} ${faltan?`${T('faltan')} ${faltan} ${T('porDecidir')}`:T('todasDecidido')} · <b>${S.mazo.length} ${T('libresMercado')}</b></p>
     ${activos().filter(j=>j.carcel).map(j=>`<div class="preso-aviso"><b style="color:${j.color}">${j.nombre}</b> está en prisión: no abre expedientes este turno, pero sigue cobrando rendimientos y dividendos.</div>`).join('')}
     <div class="exp-grid">${S.rondaData.map((d,i)=>panelExpediente(d,i)).join('')}</div>
-    ${faltan?'':(!MP.on||MP.host
-        ?`<button class="btn block" style="margin-top:14px" onclick="avanzarRonda()">${S.ronda>=3?T('irDeal'):T('siguienteRonda')}</button>`
-        :`<div class="lb-nota" style="text-align:center">${LANG==='en'?'Waiting for the host to continue…':'Esperando a que el anfitrión continúe…'}</div>`)}`;
+    ${faltan?'':`<button class="btn block" style="margin-top:14px" onclick="avanzarRonda()">${S.ronda>=3?T('irDeal'):T('siguienteRonda')}</button>`}`;
   renderTop();
 }
 
@@ -2354,7 +2350,6 @@ function mitigar(i,imp,rel){
 }
 
 function avanzarRonda(){
-  if(MP.on&&!MP.host) return;
   S.ronda++;
   if(S.ronda>=4){iniciarDealTime();return;}
   prepararRonda(); tocado();
@@ -2404,7 +2399,7 @@ function iniciarDealTime(){
   pararTemblor();
   const _dt=S.cfgDeal||DEAL_SEG;
   S.fase='deal_time';S.dealSec=_dt;S.dealTab='mesa';
-  if(!MP.on||MP.host) S.dealFin=Date.now()+_dt*1000;
+  if(!MP.on||!S.dealFin||S.dealFin<Date.now()) S.dealFin=Date.now()+_dt*1000;
   const a=activos().filter(x=>!x.carcel);
   S.mesa={ladoA:a[0]?a[0].nombre:null,ladoB:a[1]?a[1].nombre:null,selA:[],selB:[],dinA:'',dinB:''};
   document.getElementById('fase-tag').textContent=T('dealTime');
@@ -2413,7 +2408,7 @@ function iniciarDealTime(){
     if(MP.on&&S.dealFin) S.dealSec=Math.max(0,Math.ceil((S.dealFin-Date.now())/1000)); else S.dealSec--;
     const m=Math.floor(S.dealSec/60),s=String(S.dealSec%60).padStart(2,'0');
     const e=document.getElementById('deal-timer');if(e)e.textContent=`${m}:${s}`;
-    if(S.dealSec<=0&&(!MP.on||MP.host))terminarDealTime();},1000);
+    if(S.dealSec<=0)terminarDealTime();},1000);
 }
 function renderDealTime(){
   const _m=Math.floor((S.cfgDeal||DEAL_SEG)/60), _s=String((S.cfgDeal||DEAL_SEG)%60).padStart(2,'0');
@@ -2738,7 +2733,6 @@ function fin(g,motivo){
   renderTop();
 }
 function terminarDealTime(){
-  if(MP.on&&!MP.host){ toast(LANG==='en'?'Only the host can end Deal Time':'Solo el anfitrión puede terminar el Deal Time'); return; }
   clearInterval(S.dealTimer);S.turno++;S.avisos=[];
   bancarrotas();
   if(victoria())return;
@@ -2832,7 +2826,6 @@ async function pedirFactorIA(){
 
 async function generarFactor(){
   S.fase='factor_externo';
-  if(MP.on&&!MP.host){ renderFactor(); return; }
   document.getElementById('fase-tag').textContent=T('factorExterno');
   document.getElementById('fase-content').innerHTML=`<div class="market-loading">
     ${graficoMercado()}
