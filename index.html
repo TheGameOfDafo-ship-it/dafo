@@ -682,6 +682,9 @@
   .mp-badge{position:fixed;top:10px;right:14px;z-index:60;background:rgba(44,30,74,.9);color:#fff;
     font-family:var(--f);font-size:11px;font-weight:800;padding:7px 14px;border-radius:999px;letter-spacing:.06em;}
   .mp-badge.off{background:rgba(226,27,60,.92);}
+  .mp-fallo{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:70;max-width:min(92vw,560px);
+    background:#e21b3c;color:#fff;font-family:var(--f);font-size:12.5px;font-weight:700;padding:11px 18px;
+    border-radius:14px;text-align:center;box-shadow:0 8px 22px rgba(0,0,0,.35);}
   .lang-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
   .lang-btn{font-family:var(--f);font-size:12px;font-weight:800;padding:8px 16px;border-radius:999px;
     border:2px solid #e4dff2;background:#fff;color:var(--ink-dim);cursor:pointer;}
@@ -1291,9 +1294,11 @@ function serializar(){
       eliminado:j.eliminado,turnosBancarrota:j.turnosBancarrota,oro:j.oro||0,oroNuevo:j.oroNuevo||0,
       carcel:j.carcel||0,carcelPendiente:!!j.carcelPendiente,pillado:j.pillado||0,
       desconectado:!!j.desconectado,uid:j.uid})),
-    interes:S.interes, mazo:S.mazo, prestamos:S.prestamos, avisos:S.avisos,
+    interesL:Object.keys(S.interes||{}).map(k=>({n:k,v:S.interes[k]})),
+    cofreOrdersL:Object.keys(S.cofreOrders||{}).map(k=>({n:k,v:S.cofreOrders[k]})),
+    mazo:S.mazo, prestamos:S.prestamos, avisos:S.avisos,
     factorActual:S.factorActual, rachaLider:S.rachaLider, rachaGanada:!!S.rachaGanada,
-    banco:S.banco, cofreOrders:S.cofreOrders, mesa:S.mesa,
+    banco:S.banco, mesa:S.mesa,
     rondaFin:S.rondaFin||0, dealFin:S.dealFin||0, cursores:S.cursores||{},
     cfgRonda:S.cfgRonda||RONDA_SEG, cfgDeal:S.cfgDeal||DEAL_SEG, sector:S.sector||'industrial', factorFin:S.factorFin||0
   };
@@ -1302,9 +1307,15 @@ function serializar(){
 function aplicar(d){
   MP.aplicando=true;
   try{
-    ['ver','iniciada','host','turno','fase','ronda','rondaData','interes','mazo','prestamos',
-     'avisos','factorActual','rachaLider','rachaGanada','banco','cofreOrders','mesa',
+    ['ver','iniciada','host','turno','fase','ronda','rondaData','mazo','prestamos',
+     'avisos','factorActual','rachaLider','rachaGanada','banco','mesa',
      'rondaFin','dealFin','cursores','cfgRonda','cfgDeal','sector','factorFin'].forEach(k=>{ if(d[k]!==undefined) S[k]=d[k]; });
+    if(d.interesL){ S.interes={}; (d.interesL||[]).forEach(o=>{ if(o&&o.n!=null) S.interes[o.n]=o.v; }); }
+    else if(d.interes) S.interes=d.interes;
+    if(d.cofreOrdersL){ S.cofreOrders={}; (d.cofreOrdersL||[]).forEach(o=>{ if(o&&o.n!=null) S.cofreOrders[o.n]=o.v; }); }
+    else if(d.cofreOrders) S.cofreOrders=d.cofreOrders;
+    S.rondaData=S.rondaData||[]; S.avisos=S.avisos||[]; S.prestamos=S.prestamos||[];
+    S.mazo=S.mazo||[]; S.cursores=S.cursores||{};
     if(d.sector&&d.sector!==SECTOR_ID) cargarSector(d.sector);
     S.jugadores=d.jugadores.map(j=>Object.assign({ultimoRendimiento:null,ultimoFactorDelta:null,_prev:j.capital},j));
     const idx=S.jugadores.findIndex(j=>j.uid===MP.yo);
@@ -1322,7 +1333,7 @@ async function mpGuardar(){
     const datos=serializar();
     await ALMACEN.set(claveSala(MP.code), ALMACEN.tipo==='servidor'? datos : JSON.stringify(datos));
     marcaConexion(true);
-  }catch(e){ console.warn('mpGuardar',e); marcaConexion(false); }
+  }catch(e){ console.warn('mpGuardar',e); MP.ultimoError=(e&&e.message)||'error'; marcaConexion(false); }
   finally{
     MP.guardando=false;
     if(MP.pendiente){ MP.pendiente=false; setTimeout(mpGuardar,120); }
@@ -1341,7 +1352,13 @@ async function mpLeer(){
 
 function marcaConexion(ok){
   let b=document.getElementById('mp-badge');
-  if(!MP.on){ if(b) b.remove(); return; }
+  if(!MP.on){ if(b) b.remove(); const v=document.getElementById('mp-fallo'); if(v) v.remove(); return; }
+  let av=document.getElementById('mp-fallo');
+  if(!ok){
+    if(!av){ av=document.createElement('div'); av.id='mp-fallo'; av.className='mp-fallo'; document.body.appendChild(av); }
+    av.textContent=(LANG==='en'?'Connection problem: ':'Problema de conexión: ')+(MP.ultimoError||'')+
+      (LANG==='en'?' — changes are not being saved.':' — no se están guardando los cambios.');
+  } else if(av) av.remove();
   if(!b){ b=document.createElement('div'); b.id='mp-badge'; b.className='mp-badge'; document.body.appendChild(b); }
   b.className='mp-badge'+(ok?'':' off');
   b.textContent=(ok?'● ':'○ ')+MP.code+' · '+(S.jugadores?S.jugadores.filter(j=>!j.desconectado).length:0)+(LANG==='en'?' players':' jugadores')+(ALMACEN.tipo==='pestanas'?' · '+(LANG==='en'?'this browser':'este navegador'):'');
