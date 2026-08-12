@@ -1,0 +1,2765 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAFO</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Cinzel:wght@600;700;900&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --p1:#5b2bd9; --p2:#8b2fb0; --p3:#c2379a;
+    --card:#ffffff; --ink:#2c1e4a; --ink-dim:#6b6180;
+    --rojo:#e21b3c; --azul:#1368ce; --amar:#e8a600; --verde:#26890c;
+    --pos:#1a9c4a; --neg:#e21b3c;
+    --gold:#e0a800; --silver:#9fb0c4;
+    --f:'Poppins',system-ui,sans-serif;
+    --lux:'Cinzel',serif; --lux2:'Playfair Display',serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--f);color:var(--ink);min-height:100vh;padding:14px 18px 20px;
+    background:linear-gradient(160deg,var(--p1) 0%,var(--p2) 55%,var(--p3) 100%);
+    background-attachment:fixed;
+  }
+  #billete{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);height:94vh;width:auto;
+    opacity:.07;pointer-events:none;z-index:0;filter:grayscale(1) brightness(3);}
+
+  #escena{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3;}
+  #escena svg{width:100%;height:100%;}
+  .pantalla{animation:flick 3.1s steps(1) infinite;}
+  .pantalla.d2{animation-duration:2.3s;animation-delay:.6s;}
+  .pantalla.d3{animation-duration:4.1s;animation-delay:1.2s;}
+  @keyframes flick{0%,88%{opacity:1}90%{opacity:.25}92%{opacity:1}96%{opacity:.4}100%{opacity:1}}
+  .brazo{transform-origin:20px 44px;animation:llamada 2.4s ease-in-out infinite;}
+  .brazo.b2{transform-origin:-20px 44px;animation-duration:3.1s;animation-delay:.4s;}
+  .brazo.b3{animation-duration:2.8s;animation-delay:1.1s;}
+  @keyframes llamada{0%,100%{transform:rotate(0)}50%{transform:rotate(-7deg)}}
+  .onda{animation:onda 1.6s ease-out infinite;}
+  .onda.o2{animation-delay:.8s;}
+  @keyframes onda{0%{opacity:0;transform:translateX(0)}30%{opacity:.9}100%{opacity:0;transform:translateX(14px)}}
+  .tick-a{animation:desliza 9s linear infinite;}
+  .tick-b{animation:desliza 13s linear infinite reverse;}
+  @keyframes desliza{from{transform:translateX(0)}to{transform:translateX(-60px)}}
+  .papel{animation:vuela 7s ease-in-out infinite;}
+  .papel.p2{animation-duration:9s;animation-delay:1.5s;}
+  .papel.p3{animation-duration:11s;animation-delay:3s;}
+  @keyframes vuela{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(18px,-26px) rotate(24deg)}}
+
+  /* ---- CAPA DE EFECTOS ---- */
+  #fx{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
+    pointer-events:none;opacity:0;transition:opacity .2s ease;background:rgba(28,18,52,.34);backdrop-filter:blur(2px);}
+  #fx.on{opacity:1;}
+  .fx-box{display:flex;flex-direction:column;align-items:center;gap:10px;
+    animation:fxPop .3s cubic-bezier(.2,1.4,.4,1);}
+  @keyframes fxPop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+  .fx-txt{font-family:var(--lux);font-weight:900;font-size:24px;letter-spacing:.16em;color:#ffd76e;
+    text-transform:uppercase;text-shadow:0 3px 0 rgba(0,0,0,.4);}
+
+  .manos{position:relative;width:min(88vw,440px);height:270px;display:flex;align-items:center;justify-content:center;
+    filter:drop-shadow(0 12px 26px rgba(0,0,0,.55));}
+  .mano-f{position:absolute;width:100%;height:auto;opacity:0;will-change:opacity,transform;}
+  .mano-f.f1{animation:mf1 1.25s cubic-bezier(.34,.9,.4,1) forwards;}
+  .mano-f.f2{animation:mf2 1.25s steps(1,end) forwards;}
+  .mano-f.f3{animation:mf3 1.25s steps(1,end) forwards;}
+  @keyframes mf1{
+    0%{opacity:0;transform:scale(.72)}
+    18%{opacity:1;transform:scale(.93)}
+    30%{opacity:1;transform:scale(1)}
+    31%{opacity:0;transform:scale(1)}
+    100%{opacity:0}}
+  @keyframes mf2{
+    0%,30%{opacity:0}
+    31%{opacity:1}
+    44%{opacity:0}
+    56%{opacity:1}
+    68%{opacity:0}
+    80%{opacity:1}
+    88%{opacity:0}
+    100%{opacity:0}}
+  @keyframes mf3{
+    0%,43%{opacity:0}
+    44%{opacity:1}
+    55%{opacity:0}
+    67%{opacity:1}
+    79%{opacity:0}
+    87%{opacity:1}
+    100%{opacity:1}}
+
+  .sello-esc{position:relative;width:min(62vw,290px);height:330px;display:flex;align-items:center;justify-content:center;
+    filter:drop-shadow(0 12px 26px rgba(0,0,0,.55));}
+  .sello-f{position:absolute;bottom:0;width:100%;height:auto;opacity:0;will-change:opacity,transform;}
+  .sello-f.e1{animation:se1 1.25s cubic-bezier(.4,.05,.6,1) forwards;}
+  .sello-f.e2{animation:se2 1.25s steps(1,end) forwards;}
+  .sello-f.e3{animation:se3 1.25s steps(1,end) forwards;}
+  @keyframes se1{
+    0%{opacity:0;transform:translateY(-38px) scale(.94)}
+    14%{opacity:1;transform:translateY(-30px) scale(.97)}
+    30%{opacity:1;transform:translateY(0) scale(1)}
+    31%{opacity:0}100%{opacity:0}}
+  @keyframes se2{
+    0%,30%{opacity:0}
+    31%{opacity:1}
+    50%{opacity:0}
+    58%{opacity:1}
+    66%{opacity:0}
+    100%{opacity:0}}
+  @keyframes se3{
+    0%,49%{opacity:0}
+    50%{opacity:1}
+    57%{opacity:0}
+    66%{opacity:1}
+    100%{opacity:1}}
+  .destello-sello{position:absolute;bottom:34%;width:38px;height:38px;border-radius:50%;background:#fff;opacity:0;
+    box-shadow:0 0 60px 26px rgba(226,27,60,.85);animation:destSello .45s ease .38s;}
+  @keyframes destSello{0%{opacity:0;transform:scale(.3)}30%{opacity:.9;transform:scale(1.8)}100%{opacity:0;transform:scale(3.6)}}
+
+  .firma-esc{position:relative;width:min(56vw,255px);height:330px;display:flex;align-items:flex-end;justify-content:center;
+    filter:drop-shadow(0 12px 26px rgba(0,0,0,.55));}
+  .firma-f{position:absolute;bottom:0;width:100%;height:auto;opacity:0;will-change:opacity,transform;}
+  .firma-f.g1{animation:fi1 1.25s cubic-bezier(.4,.05,.6,1) forwards;}
+  .firma-f.g2{animation:fi2 1.25s steps(1,end) forwards;}
+  .firma-f.g3{animation:fi3 1.25s steps(1,end) forwards;}
+  @keyframes fi1{
+    0%{opacity:0;transform:translate(-16px,-30px) scale(.97)}
+    14%{opacity:1;transform:translate(-8px,-14px) scale(.99)}
+    30%{opacity:1;transform:translate(0,0) scale(1)}
+    31%{opacity:0}100%{opacity:0}}
+  @keyframes fi2{
+    0%,30%{opacity:0}
+    31%{opacity:1}
+    45%{opacity:0}
+    52%{opacity:1}
+    62%{opacity:0}
+    100%{opacity:0}}
+  @keyframes fi3{
+    0%,44%{opacity:0}
+    45%{opacity:1}
+    51%{opacity:0}
+    63%{opacity:1}
+    100%{opacity:1}}
+  .destello-firma{position:absolute;bottom:16%;width:34px;height:34px;border-radius:50%;background:#fff;opacity:0;
+    box-shadow:0 0 56px 24px rgba(201,162,39,.85);animation:destFirma .5s ease .7s;}
+  @keyframes destFirma{0%{opacity:0;transform:scale(.3)}35%{opacity:.9;transform:scale(1.8)}100%{opacity:0;transform:scale(3.4)}}
+  .destello-trato{position:absolute;width:44px;height:44px;border-radius:50%;background:#fff;opacity:0;
+    box-shadow:0 0 70px 34px #ffd76e;animation:destTrato .5s ease .3s;}
+  @keyframes destTrato{0%{opacity:0;transform:scale(.3)}30%{opacity:.95;transform:scale(2)}100%{opacity:0;transform:scale(4.2)}}
+  .fx-box .fx-txt{animation:txtEntra .3s ease .75s both;}
+  @keyframes txtEntra{from{opacity:0;transform:translateY(10px) scale(.9)}to{opacity:1;transform:none}}
+  .mano-izq{animation:manoIzq .7s cubic-bezier(.2,1.3,.4,1);}
+  .mano-der{animation:manoDer .7s cubic-bezier(.2,1.3,.4,1);}
+  @keyframes manoIzq{0%{transform:translateX(-260px)}70%{transform:translateX(10px)}100%{transform:translateX(0)}}
+  @keyframes manoDer{0%{transform:translateX(260px)}70%{transform:translateX(-10px)}100%{transform:translateX(0)}}
+  .chispa{opacity:0;animation:chispa .5s ease .62s 2;}
+  @keyframes chispa{0%{opacity:0;transform:scale(.5)}45%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:scale(1.3)}}
+  .sello-mango{animation:sellar 1s cubic-bezier(.4,1.6,.5,1);}
+  @keyframes sellar{0%{transform:translateY(-190px)}42%{transform:translateY(96px)}56%{transform:translateY(84px)}
+    70%{transform:translateY(96px)}100%{transform:translateY(-190px)}}
+  .sello-marca{opacity:0;animation:marcar .1s ease .43s forwards;}
+  @keyframes marcar{to{opacity:1}}
+  .moneda{position:fixed;z-index:130;pointer-events:none;width:30px;height:30px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-family:var(--lux);font-weight:900;font-size:15px;color:#7a5c00;
+    background:radial-gradient(circle at 34% 30%,#fff6cf,#e8b900 62%,#a37b00);
+    box-shadow:0 3px 0 #8a6800,0 0 14px rgba(255,215,110,.7);animation:caeMoneda 1.3s cubic-bezier(.5,0,.8,1) forwards;}
+  @keyframes caeMoneda{0%{transform:translateY(0) rotate(0);opacity:0}
+    12%{opacity:1}75%{transform:translateY(190px) rotate(320deg);opacity:1}
+    88%{transform:translateY(174px) rotate(340deg)}100%{transform:translateY(186px) rotate(350deg);opacity:0}}
+  .oro-cifra.rebote{animation:rebote .6s cubic-bezier(.2,1.6,.4,1);}
+  @keyframes rebote{0%{transform:scale(1)}35%{transform:scale(1.32) translateY(-7px)}65%{transform:scale(.95)}100%{transform:scale(1)}}
+
+  /* ---- CAPITAL QUE SALTA O TIEMBLA ---- */
+  .cap-up{animation:capUp .6s cubic-bezier(.2,1.6,.4,1);}
+  @keyframes capUp{0%{transform:scale(1)}32%{transform:scale(1.26) translateY(-7px)}64%{transform:scale(.96)}100%{transform:scale(1)}}
+  .cap-down{animation:capDown 1s ease;}
+  @keyframes capDown{
+    0%{transform:translateX(0);color:#e21b3c}
+    10%{transform:translateX(-6px);color:#e21b3c}
+    22%{transform:translateX(6px)}34%{transform:translateX(-5px)}
+    46%{transform:translateX(4px)}58%{transform:translateX(-3px)}
+    70%{transform:translateX(0);color:#e21b3c}
+    100%{transform:translateX(0);color:inherit}}
+
+  /* ---- MERCADO EN VIVO ---- */
+  .mercado-fx{width:100%;overflow:hidden;border-radius:14px;background:#f7f4fd;padding:6px 0;}
+  .cinta{animation:cinta 3.4s linear infinite;}
+  @keyframes cinta{from{transform:translateX(0)}to{transform:translateX(-520px)}}
+  .cinta2{animation-name:cinta2;}
+  @keyframes cinta2{from{transform:translateX(520px)}to{transform:translateX(0)}}
+
+  /* ---- MESA DE DESPACHO ---- */
+  .brasa{animation:brasa 1.7s ease-in-out infinite;}
+  @keyframes brasa{0%,100%{fill:#ff7a1a;filter:drop-shadow(0 0 4px #ff7a1a)}50%{fill:#ffd15c;filter:drop-shadow(0 0 11px #ff9a2a)}}
+  .humo{animation:humo 4.5s ease-in-out infinite;transform-origin:96px 56px;}
+  @keyframes humo{0%{opacity:0;transform:translateY(6px) scaleY(.8)}25%{opacity:.6}
+    100%{opacity:0;transform:translateY(-26px) scaleY(1.25) translateX(6px)}}
+
+  /* ---- FUSIÓN ---- */
+  .fusion-zona{position:relative;width:min(90vw,520px);height:300px;display:flex;align-items:center;justify-content:center;}
+  .carta-vuela{position:absolute;width:120px;padding:12px 10px;border-radius:12px;color:#fff;font-family:var(--f);
+    font-weight:800;font-size:11.5px;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.4);
+    animation:vuelaCentro .85s cubic-bezier(.5,0,.3,1) forwards;}
+  @keyframes vuelaCentro{
+    0%{transform:translate(var(--dx),var(--dy)) rotate(-12deg) scale(1);opacity:1}
+    72%{transform:translate(0,0) rotate(0) scale(.72);opacity:1}
+    100%{transform:translate(0,0) rotate(0) scale(.2);opacity:0}}
+  .destello{position:absolute;width:40px;height:40px;border-radius:50%;background:#fff;opacity:0;
+    box-shadow:0 0 60px 30px var(--col);animation:destello .7s ease .8s;}
+  @keyframes destello{0%{opacity:0;transform:scale(.2)}35%{opacity:1;transform:scale(2.6)}100%{opacity:0;transform:scale(5)}}
+  .carta-nueva{position:absolute;background:#fff;border:5px solid;border-radius:18px;padding:22px 26px;text-align:center;
+    opacity:0;animation:apareceCarta .8s cubic-bezier(.2,1.5,.4,1) 1.1s forwards;box-shadow:0 12px 40px rgba(0,0,0,.45);}
+  @keyframes apareceCarta{0%{opacity:0;transform:scale(.3) rotate(-14deg)}70%{opacity:1;transform:scale(1.1) rotate(3deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+  .cn-tier{font-family:var(--lux);font-weight:900;font-size:13px;letter-spacing:.14em;margin-bottom:6px;}
+  .cn-nombre{font-family:var(--f);font-weight:800;font-size:19px;color:var(--ink);}
+
+  /* ---- BANCARROTA ---- */
+  .sello-rojo{border:8px solid #e21b3c;border-radius:14px;padding:20px 34px;transform:rotate(-11deg);
+    background:rgba(255,255,255,.06);animation:sellaRojo .55s cubic-bezier(.3,1.7,.5,1);}
+  @keyframes sellaRojo{0%{transform:rotate(-11deg) scale(3.4);opacity:0}60%{transform:rotate(-11deg) scale(.92);opacity:1}100%{transform:rotate(-11deg) scale(1)}}
+  .sr-txt{font-family:var(--lux);font-weight:900;font-size:32px;letter-spacing:.1em;color:#e21b3c;}
+  .sr-sub{font-family:var(--f);font-weight:800;font-size:14px;color:#ff8f9f;text-align:center;margin-top:4px;}
+
+  /* ---- CÁRCEL ---- */
+  .rejas{position:absolute;inset:0;pointer-events:none;display:flex;justify-content:space-around;
+    border-radius:inherit;overflow:hidden;z-index:3;}
+  .rejas i{width:7px;background:linear-gradient(180deg,#3b3b46,#20202a);box-shadow:0 0 6px rgba(0,0,0,.5);}
+  .rejas.cae i{animation:bajanRejas .75s cubic-bezier(.3,1.5,.5,1);}
+  @keyframes bajanRejas{0%{transform:translateY(-110%)}70%{transform:translateY(4%)}100%{transform:translateY(0)}}
+
+  /* ---- VICTORIA ---- */
+  .lluvia-billetes{position:fixed;inset:0;pointer-events:none;overflow:hidden;}
+  .billete-caida{position:absolute;top:-70px;width:52px;height:26px;border-radius:3px;
+    background:repeating-linear-gradient(90deg,#3f8f5a 0 4px,#57ab72 4px 8px);
+    border:1.5px solid #2b6b41;animation:caeBillete 3s linear infinite;}
+  @keyframes caeBillete{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(108vh) rotate(560deg)}}
+  .victoria-box{gap:6px;}
+  .vic-avatar{width:auto;height:auto;border-radius:20px;background:transparent;border:none;
+    display:flex;align-items:center;justify-content:center;animation:vicPop .8s cubic-bezier(.2,1.6,.4,1);}
+  @keyframes vicPop{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.15) rotate(8deg)}100%{transform:scale(1) rotate(0)}}
+  .cartel-oro{position:relative;overflow:hidden;border-radius:26px;padding:30px 46px 26px;text-align:center;
+    background:linear-gradient(150deg,#8a6a10 0%,#f5d873 28%,#fffbe8 47%,#f0cf68 62%,#a37f16 100%);
+    border:6px solid #fff3c4;box-shadow:0 0 0 4px #a37f16,0 20px 60px rgba(0,0,0,.6),0 0 90px rgba(255,215,110,.6);
+    animation:carteles .9s cubic-bezier(.2,1.5,.35,1);display:flex;flex-direction:column;align-items:center;gap:8px;}
+  @keyframes carteles{0%{transform:scale(.35) rotate(-9deg);opacity:0}
+    62%{transform:scale(1.1) rotate(2.5deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+  .co-brillo{position:absolute;top:0;left:-60%;width:45%;height:100%;pointer-events:none;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.85),transparent);
+    animation:barrido 2.6s ease-in-out .9s infinite;}
+  @keyframes barrido{0%{left:-60%}55%,100%{left:120%}}
+  .co-nombre{font-family:var(--lux);font-weight:900;font-size:34px;letter-spacing:.05em;color:#3a2c00;
+    text-shadow:0 2px 0 rgba(255,255,255,.6);line-height:1.1;}
+  .co-frase{font-family:var(--lux);font-weight:900;font-size:26px;letter-spacing:.09em;color:#6b4f00;
+    text-shadow:0 2px 0 rgba(255,255,255,.55);animation:pulsoFrase 1.1s ease-in-out infinite;}
+  @keyframes pulsoFrase{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  .co-sub{font-family:var(--lux2);font-style:italic;font-size:15px;color:#7a5c00;}
+  .chispa-oro{position:absolute;width:12px;height:12px;pointer-events:none;
+    background:radial-gradient(circle,#fffbe8 0%,#ffd76e 45%,transparent 70%);
+    animation:brillaChispa 1.9s ease-in-out infinite;}
+  @keyframes brillaChispa{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1.6) rotate(120deg)}}
+  .dominio.ganada{background:linear-gradient(135deg,#a37f16,#ffd76e 45%,#f0cf68);animation:latidoOro 1.1s ease-in-out infinite;}
+  @keyframes latidoOro{0%,100%{box-shadow:0 4px 0 rgba(0,0,0,.2)}50%{box-shadow:0 4px 0 rgba(0,0,0,.2),0 0 26px rgba(255,215,110,.95)}}
+  .dominio.ganada .dom-txt{color:#3a2c00;opacity:1;font-weight:800;}
+  .dominio.ganada .dom-pie{color:#3a2c00;}
+  .dominio.ganada .dom-pips i{background:rgba(58,44,0,.25);}
+  .dominio.ganada .dom-pips i.on{background:#3a2c00;box-shadow:0 0 9px rgba(58,44,0,.5);}
+  .retrato{display:block;image-rendering:auto;}
+  .derrota-av{filter:drop-shadow(0 8px 18px rgba(0,0,0,.5));animation:cae .5s cubic-bezier(.3,1.3,.5,1);}
+  @keyframes cae{0%{transform:translateY(-40px) scale(.8);opacity:0}100%{transform:none;opacity:1}}
+  .vic-avatar{filter:drop-shadow(0 10px 22px rgba(0,0,0,.45));}
+  .vic-sub{font-family:var(--lux2);font-style:italic;font-size:19px;color:#fff;opacity:.9;}
+  .billete-fx{position:fixed;z-index:130;pointer-events:none;width:46px;height:23px;border-radius:3px;
+    background:repeating-linear-gradient(90deg,#3f8f5a 0 4px,#57ab72 4px 8px);border:1.5px solid #2b6b41;
+    animation:caeMoneda 1.6s cubic-bezier(.5,0,.8,1) forwards;}
+
+  /* ---- GOLPE DE AMENAZA ---- */
+  .exp.golpe{animation:golpe .75s ease-out;}
+  @keyframes golpe{
+    0%{box-shadow:0 0 0 0 rgba(226,27,60,.75), inset 0 0 0 rgba(226,27,60,0);border-color:#e21b3c;background:#fff0f2;}
+    18%{box-shadow:0 0 0 16px rgba(226,27,60,0), inset 0 0 42px rgba(226,27,60,.32);border-color:#e21b3c;background:#fff0f2;}
+    55%{box-shadow:0 0 0 0 rgba(226,27,60,0), inset 0 0 24px rgba(226,27,60,.14);border-color:#f0a4b1;}
+    100%{box-shadow:none;border-color:#ece6fa;background:#faf8ff;}}
+
+  /* ---- CRONÓMETRO URGENTE ---- */
+  .timer.urgente{color:var(--neg);animation:late .6s ease-in-out infinite;}
+  @keyframes late{0%,100%{transform:scale(1);text-shadow:none}
+    45%{transform:scale(1.16);text-shadow:0 0 22px rgba(226,27,60,.6)}}
+
+  /* ---- VIBRACIÓN DE PANTALLA ---- */
+  body.temblor .col-center{animation:tiembloPantalla .45s cubic-bezier(.36,.07,.19,.97);}
+  @keyframes tiembloPantalla{0%,100%{transform:translate(0,0)}
+    10%{transform:translate(-7px,2px)}22%{transform:translate(6px,-3px)}
+    36%{transform:translate(-6px,3px)}50%{transform:translate(5px,-2px)}
+    66%{transform:translate(-4px,1px)}82%{transform:translate(3px,0)}}
+  .wrap{max-width:1720px;margin:0 auto;position:relative;z-index:1;}
+
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;}
+  h1{font-size:28px;font-weight:800;letter-spacing:.06em;margin:0;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.22);}
+  .meta{background:rgba(255,255,255,.2);color:#fff;font-weight:700;font-size:13px;
+    padding:8px 16px;border-radius:999px;backdrop-filter:blur(4px);}
+
+  .card{background:rgba(255,255,255,.955);backdrop-filter:blur(3px);border-radius:20px;padding:16px 18px;margin-bottom:14px;
+    box-shadow:0 8px 0 rgba(0,0,0,.13), 0 14px 30px rgba(0,0,0,.16);}
+  .card-title{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);
+    margin:0 0 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .pill-banco{background:#fff4d2;color:#8a6800;padding:5px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.04em;}
+
+  .dominio{background:linear-gradient(135deg,#3a2a6b,#5b2bd9);border-radius:14px;padding:11px 13px;margin-bottom:12px;
+    box-shadow:0 4px 0 rgba(0,0,0,.2);}
+  .dominio.critico{background:linear-gradient(135deg,#8a1027,#e21b3c);animation:latidoDom 1.3s ease-in-out infinite;}
+  @keyframes latidoDom{0%,100%{box-shadow:0 4px 0 rgba(0,0,0,.2)}50%{box-shadow:0 4px 0 rgba(0,0,0,.2),0 0 22px rgba(226,27,60,.75)}}
+  .dom-cab{display:flex;flex-direction:column;gap:1px;margin-bottom:8px;}
+  .dom-emp{font-size:14px;font-weight:800;line-height:1.15;filter:brightness(1.7);}
+  .dom-txt{font-size:10.5px;font-weight:700;color:#fff;opacity:.88;text-transform:uppercase;letter-spacing:.05em;}
+  .dom-pips{display:flex;gap:6px;margin-bottom:6px;}
+  .dom-pips i{flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.22);}
+  .dom-pips i.on{background:#ffd76e;box-shadow:0 0 9px rgba(255,215,110,.9);}
+  .dom-pie{font-size:10.5px;font-weight:800;color:#ffd76e;}
+  .inv-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .inv-name{width:150px;flex-shrink:0;font-weight:700;font-size:13px;}
+  .inv-bar-bg{flex:1;background:#ece8f5;height:16px;border-radius:999px;overflow:hidden;}
+  .inv-bar{height:100%;border-radius:999px;transition:width .5s ease;}
+  .inv-pct{width:46px;text-align:right;font-weight:800;font-size:13px;}
+
+  .players{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;}
+  .player{background:#faf8ff;border-radius:18px;padding:14px;border:3px solid transparent;position:relative;overflow:hidden;}
+  .player:before{content:'';position:absolute;top:0;left:0;right:0;height:7px;background:var(--pc,#888);}
+  .player.activo{border-color:var(--pc);box-shadow:0 0 0 4px rgba(255,255,255,.5);}
+  .player.eliminado{opacity:.5;filter:saturate(.3);}
+  .player-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 6px;}
+  .player-name{font-weight:800;font-size:16px;}
+  .bank-chip{background:#ffe3e7;color:var(--neg);font-size:10px;font-weight:800;padding:3px 9px;border-radius:999px;text-transform:uppercase;}
+  .player-cap{font-size:24px;font-weight:800;color:var(--pos);letter-spacing:-.02em;}
+  .player-cap.neg{color:var(--neg);}
+  .player-debt,.player-fund,.player-yield,.player-factor{font-size:12px;font-weight:600;margin-top:3px;}
+  .player-debt{color:var(--neg);} .player-fund{color:var(--ink-dim);}
+  .player-yield{color:var(--pos);} .player-factor.pos{color:var(--pos);} .player-factor.neg{color:var(--neg);}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
+  .tag{font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:999px;}
+  .tag.f{background:#dff5e1;color:var(--verde);}
+  .tag.d{background:#ffe3e7;color:var(--neg);}
+  .tag.rf{background:#fff1cf;color:#9a6f00;}
+
+  .cards-list{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+  .mini-card{border-radius:13px;padding:9px 12px;background:#eef3ff;border-left:6px solid var(--azul);}
+  .mini-card.consolidada{background:#eef1f6;border-left-color:var(--silver);}
+  .mini-card.holding{background:#fff6da;border-left-color:var(--gold);}
+  .mc-name{font-weight:800;font-size:13px;}
+  .mc-data{font-size:11px;color:var(--ink-dim);font-weight:600;}
+
+  .btn-silver,.btn-gold{margin-top:12px;width:100%;font-family:var(--f);font-size:13px;font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;cursor:pointer;padding:12px;border:none;border-radius:14px;
+    background-size:250% 100%;animation:shine 3.2s linear infinite;}
+  .btn-silver{color:#1f2a38;box-shadow:0 5px 0 #7d8ea3;
+    background-image:linear-gradient(100deg,#94a3b6 0%,#e6edf5 42%,#fff 50%,#e6edf5 58%,#94a3b6 100%);}
+  .btn-gold{color:#3a2c00;box-shadow:0 5px 0 #a37b00;
+    background-image:linear-gradient(100deg,#c99a10 0%,#ffe08a 42%,#fffbe6 50%,#ffe08a 58%,#c99a10 100%);}
+  .btn-silver:active,.btn-gold:active{transform:translateY(3px);box-shadow:0 2px 0 #7d8ea3;}
+  @keyframes shine{0%{background-position:180% 0;}100%{background-position:-80% 0;}}
+
+  .fase-tag{display:inline-block;background:var(--p1);color:#fff;font-size:11px;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;padding:7px 16px;border-radius:999px;margin-bottom:14px;}
+  .factor-cat{display:inline-block;background:#efe9ff;color:var(--p1);font-size:11px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;padding:5px 13px;border-radius:999px;margin-bottom:10px;}
+  .factor-titulo{font-size:25px;font-weight:800;margin:0 0 8px;line-height:1.15;}
+  .factor-desc{font-size:15px;color:var(--ink-dim);margin:0 0 14px;line-height:1.5;font-weight:500;}
+  .efecto-mini{font-size:13px;color:var(--ink-dim);margin-bottom:6px;font-weight:500;
+    background:#f5f2fb;border-radius:11px;padding:9px 13px;}
+  .efecto-mini b{color:var(--ink);font-weight:800;}
+  .efecto-mini.positivo{background:#e8f7ea;} .efecto-mini.positivo b{color:var(--verde);}
+  .efecto-mini.negativo{background:#ffeef1;} .efecto-mini.negativo b{color:var(--neg);}
+
+  .cofre-header{font-size:21px;font-weight:800;margin-bottom:8px;}
+  .cofre-header .tipo{color:var(--p2);}
+  .cofre-item{font-size:14px;color:var(--ink-dim);margin-bottom:16px;font-weight:500;line-height:1.5;}
+  .opciones{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;}
+  .opt-btn{font-family:var(--f);font-size:14px;font-weight:700;color:#fff;border:none;border-radius:16px;
+    padding:16px 18px;cursor:pointer;text-align:left;line-height:1.35;transition:transform .08s ease;}
+  .opt-btn:nth-child(4n+1){background:var(--rojo);box-shadow:0 6px 0 #a81230;}
+  .opt-btn:nth-child(4n+2){background:var(--azul);box-shadow:0 6px 0 #0d4b96;}
+  .opt-btn:nth-child(4n+3){background:var(--amar);box-shadow:0 6px 0 #a87800;}
+  .opt-btn:nth-child(4n+4){background:var(--verde);box-shadow:0 6px 0 #1a6108;}
+  .opt-btn:hover{transform:translateY(-4px) scale(1.015);filter:brightness(1.09);}
+  .opt-btn:active{transform:translateY(4px) scale(.99);filter:brightness(.96);}
+  .btn:hover{filter:brightness(1.1);transform:translateY(-2px);}
+  .deal-tab:hover{filter:brightness(.97);transform:translateY(-2px);}
+  .mini-card{transition:transform .12s ease;}
+  .mini-card:hover{transform:translateX(4px);}
+  .player{transition:transform .15s ease,box-shadow .15s ease;}
+  .player:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.12);}
+  .flash{font-size:16px;font-weight:600;line-height:1.6;background:#f5f2fb;border-radius:14px;padding:16px;margin-top:6px;}
+
+  .btn{font-family:var(--f);font-size:15px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    background:var(--p1);color:#fff;border:none;border-radius:16px;padding:15px 22px;cursor:pointer;box-shadow:0 6px 0 #3d1a99;}
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 #3d1a99;}
+  .btn.block{width:100%;}
+
+  .timer{font-size:40px;font-weight:800;color:var(--p1);text-align:center;line-height:1;margin:2px 0 10px;}
+  .deal-sub{text-align:center;color:var(--ink-dim);font-size:12.5px;font-weight:600;margin-bottom:4px;}
+  .deal-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;}
+  .deal-tab{font-family:var(--f);font-size:12px;font-weight:800;text-transform:uppercase;padding:9px 15px;
+    background:#efe9ff;border:none;border-radius:999px;color:var(--p1);cursor:pointer;}
+  .deal-tab.on{background:var(--p1);color:#fff;box-shadow:0 4px 0 #3d1a99;}
+
+  .mesa{display:grid;grid-template-columns:minmax(0,1fr) 110px minmax(0,1fr);gap:10px;align-items:stretch;margin-bottom:16px;}
+  @media(max-width:820px){.mesa{grid-template-columns:1fr;}}
+  .lado{min-width:0;overflow:hidden;}
+  .lado *{max-width:100%;}
+  .lado select,.lado input{min-width:0;width:100%;}
+  .lado .pick-card{word-break:break-word;}
+  .mesa-centro{min-width:0;padding:10px 6px;}
+  .lado{background:#faf8ff;border-radius:18px;padding:14px;border:3px solid var(--lc,#ddd);}
+  .lado-head{display:flex;flex-direction:column;gap:7px;margin-bottom:10px;}
+  .lado-head select{width:100%;min-width:0;}
+  .lado-cap{font-size:13px;font-weight:800;color:var(--pos);}
+  .pick-label{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-dim);margin:12px 0 7px;}
+  .pick-card{border-radius:12px;background:#fff;border:2px solid #e4dff2;padding:9px 12px;font-size:12px;
+    font-weight:600;cursor:pointer;margin-bottom:7px;transition:all .12s ease;}
+  .pick-card:hover{border-color:var(--p2);}
+  .pick-card.sel{background:var(--p1);border-color:var(--p1);color:#fff;}
+  .pick-empty{font-size:12px;color:var(--ink-dim);font-style:italic;}
+  .money-in{width:100%;min-width:0;}
+  .pick-card{display:flex;align-items:center;gap:8px;}
+  .pc-punto{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+  .pc-txt{flex:1;line-height:1.35;}
+  .pc-sub{font-size:10px;font-weight:600;opacity:.75;}
+  .cupos{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px;}
+  .cupo{font-size:9px;font-weight:800;color:#fff;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em;}
+  .cupo.hueco{background:#cfc7e0;color:#4a4160;}
+  .mesa{background:
+      repeating-linear-gradient(92deg,rgba(90,55,24,.10) 0 3px,transparent 3px 11px) ,
+      linear-gradient(150deg,#8a5a2b,#6b4320 45%,#7d5127) !important;
+    border-radius:20px;padding:12px;box-shadow:inset 0 0 44px rgba(0,0,0,.45);}
+  .mesa .lado{box-shadow:0 6px 16px rgba(0,0,0,.34);}
+  .mesa .mesa-label{color:#f4e3c4;}
+  .mesa .mesa-arrows{color:#ffd76e;}
+  .mesa .cenicero{filter:drop-shadow(0 5px 8px rgba(0,0,0,.45));}
+  .mesa-centro{background:transparent !important;box-shadow:none;border-radius:18px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:14px 10px;}
+  .mesa-arrows{font-size:34px;color:var(--p1);line-height:1;}
+  .mesa-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--p1);text-align:center;}
+  .mesa-resumen{font-size:11px;color:var(--ink-dim);text-align:center;line-height:1.45;font-weight:500;}
+
+  select,input[type=number]{font-family:var(--f);font-size:14px;font-weight:600;color:var(--ink);
+    background:#fff;border:2px solid #e4dff2;border-radius:12px;padding:10px 12px;min-width:0;max-width:100%;outline:none;}
+  select:focus,input:focus{border-color:var(--p2);}
+
+  .contrato{position:relative;background:linear-gradient(#fdfaf0,#f6efdc);border-radius:18px;
+    padding:18px 20px 20px;margin-bottom:12px;border:3px dashed #d9c9a0;overflow:hidden;}
+  .contrato-title{font-size:19px;font-weight:800;color:#6b5320;text-align:center;margin:0 0 3px;letter-spacing:.04em;}
+  .contrato-sub{font-size:12px;color:#9a8757;text-align:center;margin:0 0 18px;font-weight:600;}
+  .contrato-linea{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px;font-weight:600;color:#5a4a24;margin-bottom:12px;}
+  .contrato-linea select,.contrato-linea input{background:#fffdf6;border:2px solid #ddcda6;min-width:120px;}
+  .contrato-nota{font-size:12px;color:#9a8757;margin:6px 0 14px;line-height:1.55;font-weight:500;}
+  .sello{position:absolute;right:16px;bottom:14px;opacity:.75;}
+  .contrato-btn{font-family:var(--f);background:#c9a227;color:#3a2c00;border:none;border-radius:14px;
+    font-size:14px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:14px 24px;cursor:pointer;box-shadow:0 5px 0 #94770f;}
+  .contrato-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #94770f;}
+  .prestamos-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-dim);margin:14px 0 7px;}
+
+
+  /* ---- SOLICITUD AL BANCO ---- */
+  .slider-row{margin-bottom:16px;}
+  .slider-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px;}
+  .slider-lab{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#8a7340;}
+  .slider-val{font-size:22px;font-weight:800;color:#5a4a24;line-height:1;}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:14px;border-radius:999px;
+    background:#e6d7b4;outline:none;border:2px solid #d0bb8c;padding:0;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;
+    background:radial-gradient(circle at 32% 30%,#fff3cf,#c9a227);border:3px solid #8a6f16;cursor:grab;box-shadow:0 3px 0 rgba(0,0,0,.2);}
+  input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;
+    background:radial-gradient(circle at 32% 30%,#fff3cf,#c9a227);border:3px solid #8a6f16;cursor:grab;}
+  input[type=range]:active::-webkit-slider-thumb{cursor:grabbing;}
+  .veredicto{border-radius:14px;padding:12px 15px;margin:6px 0 14px;font-size:13px;font-weight:700;line-height:1.5;}
+  .veredicto.ok{background:#e8f7ea;color:#1a6108;}
+  .veredicto.ko{background:#ffe3e7;color:#a81230;}
+  .cifras{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:6px;}
+  .cifra{background:#fffdf6;border:2px solid #e2d3ac;border-radius:14px;padding:10px 12px;}
+  .cifra-lab{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#9a8757;}
+  .cifra-num{font-size:17px;font-weight:800;color:#5a4a24;line-height:1.2;}
+  .cifra.malo{border-color:var(--neg);background:#fff1f3;}
+  .cifra.malo .cifra-num,.cifra.malo .cifra-lab{color:var(--neg);}
+  .tiembla{animation:tiembla .35s ease-in-out infinite;}
+  @keyframes tiembla{0%,100%{transform:translateX(0) rotate(0);}25%{transform:translateX(-3px) rotate(-.8deg);}
+    75%{transform:translateX(3px) rotate(.8deg);}}
+  .contrato-btn:disabled{background:#d8cdb0;color:#9a8f78;box-shadow:0 5px 0 #bcae8d;cursor:not-allowed;}
+
+  /* ---- TABLERO A TRES COLUMNAS ---- */
+  .board{display:grid;grid-template-columns:320px minmax(0,1fr) 310px;gap:16px;align-items:start;}
+  @media(max-width:1500px){.board{grid-template-columns:290px minmax(0,1fr) 280px;}}
+  @media(max-width:1180px){.board{grid-template-columns:1fr;}}
+  @media(min-width:1181px){
+    .col-left,.col-right,.col-center{max-height:calc(100vh - 86px);overflow-y:auto;overflow-x:hidden;
+      scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.45) transparent;padding-right:5px;}
+    .col-left,.col-right{position:sticky;top:12px;}
+    .col-left::-webkit-scrollbar,.col-right::-webkit-scrollbar,.col-center::-webkit-scrollbar{width:8px;}
+    .col-left::-webkit-scrollbar-thumb,.col-right::-webkit-scrollbar-thumb,.col-center::-webkit-scrollbar-thumb{
+      background:rgba(255,255,255,.42);border-radius:99px;}
+    .col-left::-webkit-scrollbar-track,.col-right::-webkit-scrollbar-track,.col-center::-webkit-scrollbar-track{background:transparent;}
+  }
+  .col{display:flex;flex-direction:column;gap:14px;}
+  .col-center .card{min-height:0;}
+  .yo-card{background:#faf8ff;border-radius:18px;padding:14px;border:3px solid var(--pc);position:relative;overflow:hidden;}
+  .yo-card:before{content:'';position:absolute;top:0;left:0;right:0;height:8px;background:var(--pc);}
+  .yo-badge{display:inline-block;background:var(--p1);color:#fff;font-size:9.5px;font-weight:800;letter-spacing:.1em;
+    text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:8px;}
+  .rival{background:#faf8ff;border-radius:15px;padding:11px 12px;border-left:6px solid var(--pc);margin-bottom:10px;position:relative;overflow:hidden;}
+  .rival-head{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+  .rival-name{font-weight:800;font-size:13px;line-height:1.15;}
+  .rival-cap{font-size:17px;font-weight:800;color:var(--pos);}
+  .rival-cap.neg{color:var(--neg);}
+  .rival-line{font-size:10.5px;font-weight:600;color:var(--ink-dim);}
+  .rival-line.deuda{color:var(--neg);}
+  .rival-cards{display:flex;flex-direction:column;gap:4px;margin-top:6px;}
+  .rc{font-size:10px;font-weight:600;border-radius:9px;padding:5px 8px;background:#eef3ff;border-left:4px solid var(--azul);}
+  .rc.consolidada{background:#eef1f6;border-left-color:var(--silver);}
+  .rc.holding{background:#fff6da;border-left-color:var(--gold);}
+  .rival.eliminado{opacity:.45;filter:saturate(.3);}
+  .avatar-rival{width:34px;height:34px;border-radius:10px;background:linear-gradient(160deg,#fff,#f1ecfb);border:2px solid var(--pc);
+    display:inline-flex;align-items:flex-end;justify-content:center;overflow:hidden;flex-shrink:0;}
+  .avatar-rival .retrato{width:36px!important;margin-bottom:-2px;}
+  .quien-soy{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .quien-soy select{min-width:0;flex:1;font-size:13px;padding:8px 10px;}
+  .quien-lab{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-dim);}
+  .avisos-box{background:#f7f4fd;border-radius:14px;padding:10px 13px;margin-bottom:12px;}
+  .avisos-box .efecto-mini{background:none;padding:3px 0;margin:0;font-size:12px;}
+
+  /* ---- RONDA SIMULTÁNEA ---- */
+  .exp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
+  .exp{background:#faf8ff;border-radius:18px;padding:13px 14px;border:3px solid #ece6fa;transition:opacity .2s;}
+  .exp.mio{border-color:var(--pc);box-shadow:0 5px 0 rgba(0,0,0,.07);}
+  .exp.listo{opacity:.72;background:#f2f7f2;border-color:#cde5cf;}
+  .exp-head{display:flex;align-items:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;}
+  .exp-name{font-weight:800;font-size:13.5px;}
+  .exp-tipo{background:#efe9ff;color:var(--p1);font-size:9.5px;font-weight:800;letter-spacing:.06em;
+    text-transform:uppercase;padding:3px 9px;border-radius:999px;margin-left:auto;}
+  .exp-tick{color:var(--verde);font-weight:800;font-size:17px;}
+  .exp-item{font-size:12.5px;color:var(--ink-dim);font-weight:600;margin-bottom:10px;line-height:1.45;}
+  .exp-ops{display:flex;flex-direction:column;gap:8px;}
+  .exp-ops .opt-btn{font-size:12.5px;padding:11px 13px;}
+  .opt-btn.bloqueada{cursor:not-allowed;filter:saturate(.45) brightness(.82);opacity:.9;}
+  .opt-btn.bloqueada:hover{transform:none;filter:saturate(.55) brightness(.86);}
+  .opt-btn.negada{animation:negada .5s ease;}
+  @keyframes negada{
+    0%{transform:translateX(0);}
+    12%{transform:translateX(-7px);background:#e21b3c !important;filter:none;}
+    26%{transform:translateX(7px);}
+    40%{transform:translateX(-6px);background:#e21b3c !important;filter:none;}
+    54%{transform:translateX(6px);}
+    68%{transform:translateX(-4px);background:#e21b3c !important;filter:none;}
+    82%{transform:translateX(3px);}
+    100%{transform:translateX(0);}
+  }
+  .bank-chip.preso{background:#2c1e4a;color:#ffd76e;}
+  .bank-chip.condenado{background:#7a4a00;color:#ffd76e;animation:pulsoCondena 1.6s ease-in-out infinite;}
+  @keyframes pulsoCondena{0%,100%{opacity:1}50%{opacity:.5}}
+  .preso-aviso{background:#2c1e4a;color:#fff;border-radius:14px;padding:11px 15px;margin-bottom:12px;font-size:12.5px;font-weight:600;line-height:1.5;}
+  .exp-result{font-size:12.5px;font-weight:600;background:#fff;border-radius:12px;padding:10px 12px;line-height:1.5;}
+
+  /* ---- TESORERÍA ---- */
+  .gest-bloque{margin-bottom:14px;}
+  .gest-bloque:last-child{margin-bottom:0;}
+  .gest-tit{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-dim);margin-bottom:7px;}
+  .gest-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+  .gest-lab{flex:1;font-size:11.5px;font-weight:600;color:var(--ink);}
+  .gest-btn{font-family:var(--f);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;
+    background:var(--p1);color:#fff;border:none;border-radius:11px;padding:8px 12px;cursor:pointer;box-shadow:0 4px 0 #3d1a99;}
+  .gest-btn:hover{filter:brightness(1.1);}
+  .gest-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #3d1a99;}
+  .gest-btn.off{background:#c9c2d8;box-shadow:0 4px 0 #a9a1bd;}
+  .gest-btn.oro{flex:1;background:linear-gradient(100deg,#c99a10,#ffe08a 50%,#c99a10);color:#3a2c00;box-shadow:0 4px 0 #a37b00;}
+  .gest-vacio{font-size:11.5px;color:var(--ink-dim);font-style:italic;}
+  .oro-espera{font-size:10.5px;font-weight:700;color:#9a7a2a;margin:-4px 0 8px;line-height:1.4;}
+  .carta-gest{position:relative;border-left:6px solid;border-radius:12px;padding:9px 34px 9px 11px;margin-bottom:7px;}
+  .cg-nombre{font-size:12px;font-weight:800;line-height:1.25;}
+  .cg-datos{font-size:10.5px;font-weight:600;color:var(--ink-dim);}
+  .x-descartar{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:none;
+    background:#ffe3e7;color:var(--neg);font-family:var(--f);font-weight:800;font-size:13px;cursor:pointer;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:transform .12s ease;}
+  .x-descartar:hover{transform:scale(1.16);background:var(--neg);color:#fff;}
+  .confirm-box{background:#fff;border-radius:20px;padding:24px 28px;max-width:min(90vw,420px);text-align:center;
+    box-shadow:0 14px 40px rgba(0,0,0,.4);}
+  .cf-txt{font-size:16px;font-weight:600;color:var(--ink);line-height:1.5;margin-bottom:18px;}
+  .cf-btns{display:flex;gap:12px;justify-content:center;}
+  .cf-si,.cf-no{font-family:var(--f);font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+    border:none;border-radius:14px;padding:13px 34px;cursor:pointer;color:#fff;}
+  .cf-si{background:var(--rojo);box-shadow:0 5px 0 #a81230;}
+  .cf-no{background:var(--azul);box-shadow:0 5px 0 #0d4b96;}
+  .cf-si:active,.cf-no:active{transform:translateY(3px);}
+  .oro-cifra{font-size:22px;font-weight:800;color:#b8860b;margin-bottom:8px;}
+  .gest-nota{font-size:10px;color:var(--ink-dim);line-height:1.45;margin-top:6px;font-weight:500;}
+  #toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-140%);z-index:99;
+    background:#2c1e4a;color:#fff;font-family:var(--f);font-weight:700;font-size:13.5px;
+    padding:14px 22px;border-radius:14px;box-shadow:0 8px 26px rgba(0,0,0,.35);max-width:min(90vw,520px);
+    transition:transform .3s cubic-bezier(.2,1.2,.4,1);text-align:center;}
+  #toast.show{transform:translate(-50%,0);}
+  .oro-input{width:100%;min-width:0;font-size:14px;}
+  .market-loading{display:flex;flex-direction:column;align-items:center;gap:14px;padding:34px 0;}
+  .clock-hand{transform-origin:20px 20px;animation:spin 1.1s linear infinite;}
+  @keyframes spin{from{transform:rotate(0);}to{transform:rotate(360deg);}}
+
+  /* ---- PANTALLA DE INICIO ---- */
+  .hero{text-align:center;margin-bottom:22px;}
+  .hero h1{font-size:64px;letter-spacing:.12em;margin:0 0 6px;}
+  .hero p{color:#fff;opacity:.9;font-weight:600;font-size:16px;margin:0;text-shadow:0 2px 0 rgba(0,0,0,.18);}
+  .slot{background:#faf8ff;border-radius:20px;padding:16px;margin-bottom:14px;border:3px solid #ece6fa;}
+  .slot-top{display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+  .slot-avatar{width:76px;height:76px;flex-shrink:0;border-radius:16px;background:linear-gradient(160deg,#fff,#f1ecfb);border:3px solid var(--sc,#ddd);
+    display:flex;align-items:flex-end;justify-content:center;overflow:hidden;}
+  .slot-avatar .retrato{width:80px!important;margin-bottom:-5px;}
+  .slot-name{flex:1;min-width:190px;}
+  .slot-name input{width:100%;font-size:16px;font-weight:700;}
+  .slot-label{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-dim);margin-bottom:5px;}
+  .slot-del{background:#ffe3e7;color:var(--neg);border:none;border-radius:12px;font-family:var(--f);font-weight:800;
+    font-size:12px;padding:10px 14px;cursor:pointer;}
+  .chars{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:9px;}
+  .char{background:linear-gradient(170deg,#fff,#f4efff);border:3px solid #ece6fa;border-radius:16px;padding:6px 4px 4px;cursor:pointer;text-align:center;overflow:hidden;
+    transition:transform .13s ease,border-color .13s ease;}
+  .char:hover{transform:translateY(-4px) rotate(-2deg);}
+  .char.on{border-color:var(--cc);background:#fff;box-shadow:0 5px 0 var(--cc);transform:translateY(-3px);}
+  .char.taken{opacity:.3;pointer-events:none;filter:grayscale(1);}
+  .char-name{font-size:10.5px;font-weight:800;color:var(--ink-dim);margin-top:2px;}
+
+  .modo-grid{display:grid;gap:12px;}
+  .modo-btn{font-family:var(--f);text-align:left;background:#faf8ff;border:3px solid #ece6fa;border-radius:16px;
+    padding:16px 18px;cursor:pointer;transition:transform .12s ease,border-color .12s ease;}
+  .modo-btn:hover{transform:translateY(-3px);border-color:var(--p2);}
+  .modo-btn.destacado{border-color:var(--p1);background:#f3eeff;}
+  .modo-tit{font-size:17px;font-weight:800;color:var(--ink);}
+  .modo-sub{font-size:12.5px;font-weight:600;color:var(--ink-dim);margin-top:2px;}
+  .codigo-in{width:100%;font-family:var(--lux);font-weight:900;font-size:30px;letter-spacing:.4em;text-align:center;
+    text-transform:uppercase;padding:14px;}
+  .codigo-caja{background:linear-gradient(150deg,#8a6a10,#f5d873 45%,#c99a10);border-radius:18px;padding:18px;text-align:center;}
+  .codigo-lab{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#5a4400;}
+  .codigo-val{font-family:var(--lux);font-weight:900;font-size:46px;letter-spacing:.22em;color:#3a2c00;line-height:1.1;}
+  .codigo-ayuda{font-size:11.5px;font-weight:600;color:#6b5320;}
+  .sala-jug{display:flex;align-items:center;gap:10px;background:#faf8ff;border-radius:14px;padding:9px 12px;
+    margin-bottom:8px;border-left:6px solid var(--pc);}
+  .sala-jug .sj-nombre{font-weight:800;font-size:14px;flex:1;}
+  .sala-jug .sj-rol{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+    background:#efe9ff;color:var(--p1);padding:3px 9px;border-radius:999px;}
+
+
+  .sec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:9px;}
+  .sec-btn{font-family:var(--f);background:#fff;border:3px solid #ece6fa;border-radius:15px;padding:11px 7px 9px;
+    cursor:pointer;text-align:center;transition:transform .12s ease,border-color .12s ease;}
+  .sec-btn:hover:not(:disabled){transform:translateY(-4px);border-color:var(--p2);}
+  .sec-btn:disabled{cursor:default;opacity:.75;}
+  .sec-btn.on{border-color:var(--p1);background:#f3eeff;box-shadow:0 5px 0 var(--p1);transform:translateY(-3px);opacity:1;}
+  .sec-ico{font-size:26px;line-height:1.1;}
+  .sec-nom{font-size:11.5px;font-weight:800;color:var(--ink);margin:3px 0 5px;line-height:1.2;}
+  .sec-cols{display:flex;gap:3px;justify-content:center;}
+  .sec-cols i{width:9px;height:9px;border-radius:50%;display:block;}
+  .ajustes-caja{background:#faf8ff;border:3px solid #ece6fa;border-radius:16px;padding:13px 15px;margin-top:14px;}
+  .aj-fila{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px;}
+  .aj-tit{font-size:12.5px;font-weight:700;color:var(--ink);min-width:120px;}
+  .aj-ops{display:flex;gap:6px;flex-wrap:wrap;}
+  .aj-btn{font-family:var(--f);font-size:11.5px;font-weight:800;padding:7px 12px;border-radius:999px;
+    border:2px solid #e4dff2;background:#fff;color:var(--ink-dim);cursor:pointer;}
+  .aj-btn:hover{border-color:var(--p2);}
+  .aj-btn.on{background:var(--p1);border-color:var(--p1);color:#fff;}
+  .aj-val{font-size:13px;font-weight:800;color:var(--p1);}
+  .aj-nota{font-size:11px;color:var(--ink-dim);font-weight:600;margin-top:4px;line-height:1.45;}
+  .lb-error{color:var(--neg);font-size:12.5px;font-weight:700;margin-top:10px;min-height:16px;}
+  .lb-nota{color:var(--ink-dim);font-size:12px;font-weight:600;margin-top:10px;}
+  .ronda-timer{font-family:var(--lux);font-weight:900;font-size:19px;color:var(--p1);text-align:center;
+    background:#efe9ff;border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:10px;}
+  .ronda-timer.urge{background:#ffe3e7;color:var(--neg);animation:late .6s ease-in-out infinite;}
+  .exp.ajeno{opacity:.9;}
+  .exp.ajeno .opt-btn{cursor:not-allowed;filter:saturate(.5) brightness(.93);}
+  .cursor-tag{position:absolute;top:-9px;right:-6px;display:flex;gap:3px;}
+  .cursor-tag i{width:15px;height:15px;border-radius:50%;border:2px solid #fff;display:block;
+    box-shadow:0 2px 5px rgba(0,0,0,.3);animation:pop .25s ease;}
+  @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+  .opt-btn{position:relative;}
+  .mp-badge{position:fixed;top:10px;right:14px;z-index:60;background:rgba(44,30,74,.9);color:#fff;
+    font-family:var(--f);font-size:11px;font-weight:800;padding:7px 14px;border-radius:999px;letter-spacing:.06em;}
+  .mp-badge.off{background:rgba(226,27,60,.92);}
+  .lang-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .lang-btn{font-family:var(--f);font-size:12px;font-weight:800;padding:8px 16px;border-radius:999px;
+    border:2px solid #e4dff2;background:#fff;color:var(--ink-dim);cursor:pointer;}
+  .lang-btn.on{background:var(--p1);border-color:var(--p1);color:#fff;}
+  .setup-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;}
+  .btn-ghost{background:#efe9ff;color:var(--p1);box-shadow:0 5px 0 #cfc0f2;}
+  .avatar-mini{width:38px;height:38px;border-radius:11px;background:linear-gradient(160deg,#fff,#f1ecfb);border:2.5px solid var(--pc);
+    display:inline-flex;align-items:flex-end;justify-content:center;overflow:hidden;flex-shrink:0;}
+  .avatar-mini .retrato{width:40px!important;margin-bottom:-3px;}
+  .market-label{font-size:16px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--p2);}
+</style>
+</head>
+<body>
+
+<div id="escena" aria-hidden="true">
+<svg viewBox="0 0 1400 700" preserveAspectRatio="xMidYMid slice">
+  <g stroke="#fff" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- ventanales -->
+    <g opacity=".5">
+      <rect x="60" y="60" width="240" height="150" rx="6"/><line x1="180" y1="60" x2="180" y2="210"/>
+      <rect x="1100" y="60" width="240" height="150" rx="6"/><line x1="1220" y1="60" x2="1220" y2="210"/>
+      <path d="M70 200 l40 -60 l35 45 l50 -80 l45 70 l50 -45"/>
+      <path d="M1110 195 l45 -50 l40 35 l55 -70 l40 60 l40 -35"/>
+    </g>
+    <!-- panel de cotizaciones -->
+    <g opacity=".65"><rect x="470" y="52" width="460" height="120" rx="8"/>
+      <g class="tick-a"><path d="M485 140 l40 -30 l35 22 l45 -48 l40 34 l50 -60 l45 44 l40 -28 l55 -34"/></g>
+      <g class="tick-b"><path d="M485 120 l50 26 l40 -40 l45 30 l40 -52 l55 46 l45 -30 l40 36 l50 -24"/></g>
+    </g>
+    <!-- mesas y ordenadores -->
+    <g class="fila">
+      <g transform="translate(120,380)"><rect x="0" y="60" width="260" height="14" rx="5"/><line x1="30" y1="74" x2="30" y2="140"/><line x1="230" y1="74" x2="230" y2="140"/>
+        <rect class="pantalla" x="60" y="0" width="90" height="58" rx="5"/><path d="M105 58 v10 h-22 M105 68 h22"/>
+        <rect x="170" y="34" width="70" height="24" rx="4"/></g>
+      <g transform="translate(560,380)"><rect x="0" y="60" width="260" height="14" rx="5"/><line x1="30" y1="74" x2="30" y2="140"/><line x1="230" y1="74" x2="230" y2="140"/>
+        <rect class="pantalla d2" x="60" y="0" width="90" height="58" rx="5"/><path d="M105 58 v10 h-22 M105 68 h22"/>
+        <rect x="170" y="34" width="70" height="24" rx="4"/></g>
+      <g transform="translate(1000,380)"><rect x="0" y="60" width="260" height="14" rx="5"/><line x1="30" y1="74" x2="30" y2="140"/><line x1="230" y1="74" x2="230" y2="140"/>
+        <rect class="pantalla d3" x="60" y="0" width="90" height="58" rx="5"/><path d="M105 58 v10 h-22 M105 68 h22"/>
+        <rect x="170" y="34" width="70" height="24" rx="4"/></g>
+    </g>
+    <!-- ejecutivos al teléfono -->
+    <g transform="translate(300,300)"><circle cx="0" cy="0" r="26"/><path d="M-26 34 q26 -20 52 0 l6 60 h-64 z"/>
+      <g class="brazo"><path d="M22 44 q34 -16 30 -52"/><rect x="40" y="-26" width="20" height="30" rx="6"/></g>
+      <path class="onda" d="M66 -20 q12 8 0 20" opacity=".9"/></g>
+    <g transform="translate(742,300)"><circle cx="0" cy="0" r="26"/><path d="M-26 34 q26 -20 52 0 l6 60 h-64 z"/>
+      <g class="brazo b2"><path d="M-22 44 q-34 -16 -30 -52"/><rect x="-60" y="-26" width="20" height="30" rx="6"/></g>
+      <path class="onda o2" d="M-66 -20 q-12 8 0 20" opacity=".9"/></g>
+    <g transform="translate(1182,300)"><circle cx="0" cy="0" r="26"/><path d="M-26 34 q26 -20 52 0 l6 60 h-64 z"/>
+      <g class="brazo b3"><path d="M22 44 q34 -16 30 -52"/><rect x="40" y="-26" width="20" height="30" rx="6"/></g></g>
+    <!-- papeles al aire -->
+    <g class="papel p1"><rect x="440" y="250" width="34" height="44" rx="3" transform="rotate(-18 457 272)"/></g>
+    <g class="papel p2"><rect x="880" y="230" width="30" height="40" rx="3" transform="rotate(22 895 250)"/></g>
+    <g class="papel p3"><rect x="640" y="210" width="26" height="34" rx="3" transform="rotate(-8 653 227)"/></g>
+  </g>
+</svg>
+</div>
+
+
+
+<div id="lobby" class="wrap">
+  <div class="hero">
+    <h1>DAFO</h1>
+    <p id="lb-tag">Convierte tu empresa en la líder del sector industrial</p>
+  </div>
+
+  <div class="card" style="padding:12px 16px;margin-bottom:12px">
+    <div class="lang-row">
+      <span class="quien-lab">Idioma / Language</span>
+      <button class="lang-btn on" data-l="es" onclick="setLang('es')">Español</button>
+      <button class="lang-btn" data-l="en" onclick="setLang('en')">English</button>
+    </div>
+  </div>
+
+  <div class="card" id="lb-menu">
+    <p class="card-title"><span>Modo de juego</span></p>
+    <div class="modo-grid">
+      <button class="modo-btn" onclick="irLocal()">
+        <div class="modo-tit">Un solo dispositivo</div>
+        <div class="modo-sub">Todos alrededor de la misma pantalla</div>
+      </button>
+      <button class="modo-btn destacado" onclick="mostrarCrear()">
+        <div class="modo-tit">Crear sala online</div>
+        <div class="modo-sub">Cada jugador con su móvil u ordenador</div>
+      </button>
+      <button class="modo-btn" onclick="mostrarUnirse()">
+        <div class="modo-tit">Unirse a una sala</div>
+        <div class="modo-sub">Con el código que te han pasado</div>
+      </button>
+    </div>
+  </div>
+
+  <div class="card" id="lb-form" style="display:none">
+    <p class="card-title"><span id="lb-form-tit">Crear sala</span></p>
+    <div id="lb-codigo-campo" style="display:none">
+      <div class="slot-label">Código de la sala</div>
+      <input type="text" id="lb-codigo" maxlength="6" class="codigo-in" placeholder="ABCD" oninput="this.value=this.value.toUpperCase()">
+    </div>
+    <div class="slot-label" style="margin-top:12px">Nombre de tu empresa</div>
+    <input type="text" id="lb-nombre" maxlength="26" placeholder="Forjacero S.A." style="width:100%">
+    <div class="slot-label" style="margin-top:14px">Elige personaje</div>
+    <div class="chars" id="lb-chars"></div>
+    <div class="setup-actions">
+      <button class="btn btn-ghost" onclick="volverMenu()">Atrás</button>
+      <button class="btn" style="flex:1" id="lb-ok" onclick="confirmarLobby()">Continuar</button>
+    </div>
+    <div id="lb-error" class="lb-error"></div>
+  </div>
+
+  <div class="card" id="lb-sala" style="display:none">
+    <p class="card-title"><span>Sala de espera</span></p>
+    <div class="codigo-caja">
+      <div class="codigo-lab">Código de la sala</div>
+      <div class="codigo-val" id="sala-codigo">····</div>
+      <div class="codigo-ayuda">Compártelo con los demás jugadores</div>
+    </div>
+    <div id="sala-ajustes"></div>
+    <div class="slot-label" style="margin-top:16px" id="lbl-conectados">Jugadores conectados</div>
+    <div id="sala-lista"></div>
+    <div class="setup-actions">
+      <button class="btn btn-ghost" onclick="salirSala()">Salir</button>
+      <button class="btn" style="flex:1" id="sala-empezar" onclick="empezarOnline()">Empezar partida</button>
+    </div>
+    <div id="sala-nota" class="lb-nota"></div>
+  </div>
+</div>
+
+<div id="setup" class="wrap" style="display:none">
+  <div class="hero">
+    <h1>DAFO</h1>
+    <p>Convierte tu empresa en la líder del sector industrial</p>
+  </div>
+  <div class="card" style="padding:12px 16px;margin-bottom:12px">
+    <div class="lang-row">
+      <span class="quien-lab" id="lang-lab">Idioma / Language</span>
+      <button class="lang-btn on" data-l="es" onclick="setLang('es')">Español</button>
+      <button class="lang-btn" data-l="en" onclick="setLang('en')">English</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <p class="card-title"><span id="lbl-elige-sector">Elige el sector</span></p>
+    <div id="setup-sectores"></div>
+  </div>
+  <div class="card">
+    <p class="card-title"><span>Crea las empresas</span><span id="setup-count"></span></p>
+    <div id="slots"></div>
+    <div class="setup-actions">
+      <button class="btn btn-ghost" id="btn-add" onclick="anadirSlot()">+ Añadir empresa</button>
+      <button class="btn" style="flex:1" id="btn-play" onclick="empezarPartida()">Jugar</button>
+    </div>
+  </div>
+</div>
+
+<div id="game" class="wrap" style="display:none">
+  <header>
+    <h1>DAFO</h1>
+    <div class="meta"><span id="lbl-turno">Turno</span> <b id="m-turno">1</b> · <span id="lbl-trim">Trimestre</span> <b id="m-trim">1</b></div>
+  </header>
+
+  <div class="board">
+
+    <div class="col col-left">
+      <div class="card" style="padding:14px 15px">
+        <div class="quien-soy">
+          <span class="quien-lab" id="lbl-juegascomo">Juegas como</span>
+          <select id="sel-yo" onchange="cambiarYo(this.value)"></select>
+        </div>
+        <div id="mp-salir"></div>
+      </div>
+      <div class="card" style="padding:15px">
+        <p class="card-title"><span id="lbl-tuempresa">Tu empresa</span></p>
+        <div id="mi-empresa"></div>
+      </div>
+      <div id="gestion"></div>
+    </div>
+
+    <div class="col col-center">
+      <div class="card">
+        <span class="fase-tag" id="fase-tag">Factor externo</span>
+        <div id="fase-content"></div>
+      </div>
+    </div>
+
+    <div class="col col-right">
+      <div class="card" style="padding:14px 15px">
+        <p class="card-title"><span id="lbl-inversores">Inversores</span><span class="pill-banco" id="banco-chip"></span></p>
+        <div id="alerta-dominio"></div>
+        <div id="inversores"></div>
+      </div>
+      <div class="card" style="padding:14px 15px">
+        <p class="card-title"><span id="lbl-rivales">Rivales</span></p>
+        <div id="rivales"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const TIPOS=['impuestos','inversion','oportunidades','amenazas'];
+const NOMBRES_TIPO={impuestos:'Impuestos',inversion:'Inversión',oportunidades:'Oportunidades',amenazas:'Amenazas'};
+const YIELD={normal:.12,consolidada:.18,holding:.26};
+const DIVIDENDO_POR_PUNTO=800;
+const MAX_POR_TIER=4;
+const BANCO_POR_JUGADOR=120000;
+const BANCO_TOPE_PRESTAMO=.4;
+const BANCO_INTERES=.25;
+const ROJO_MAXIMO=40000;
+const DEUDA_MAX_PCT=1;
+const MAX_PRESTAMOS_BANCO=2;
+const ORO_CRECIMIENTO=.05;
+const COSTE_LIMPIAR_RF=5000;
+const LIQUIDAR_PCT=.6;
+const BONO_COLOR={1:1,2:1.3,3:1.7,4:2.2};
+const PALETTE=['#d68a34','#5b8db1','#8a7fc9','#4fa8a0','#c9707f','#9fb86a'];
+
+const SECTORES={
+  industrial:{nombre:{"es": "Industrial", "en": "Industrial"},icono:"🏭",
+    cats:{"infraestructura": "#1368ce", "marketing": "#e21b3c", "i+d": "#8b2fb0", "talento": "#26890c", "logística": "#e8760c", "sostenibilidad": "#12a5a0"},
+    inversion:[{nombre:"Automatización de planta",coste:20000,cat:"infraestructura"},{nombre:"Ampliación de nave",coste:22000,cat:"infraestructura"},{nombre:"Línea de ensamblaje",coste:17000,cat:"infraestructura"},{nombre:"Fundición propia",coste:26000,cat:"infraestructura"},{nombre:"Prensa hidráulica pesada",coste:19000,cat:"infraestructura"},{nombre:"Segunda planta regional",coste:28000,cat:"infraestructura"},{nombre:"Taller de mantenimiento",coste:11000,cat:"infraestructura"},{nombre:"Red eléctrica propia",coste:15000,cat:"infraestructura"},{nombre:"Distribución internacional",coste:15000,cat:"marketing"},{nombre:"Campaña de posicionamiento",coste:9000,cat:"marketing"},{nombre:"Distribuidor regional",coste:11000,cat:"marketing"},{nombre:"Feria del sector",coste:7000,cat:"marketing"},{nombre:"Showroom industrial",coste:13000,cat:"marketing"},{nombre:"Contrato con gran cuenta",coste:21000,cat:"marketing"},{nombre:"Rebranding corporativo",coste:12000,cat:"marketing"},{nombre:"Fuerza comercial propia",coste:18000,cat:"marketing"},{nombre:"Aleación anticorrosión",coste:25000,cat:"i+d"},{nombre:"Sensorización IoT",coste:19000,cat:"i+d"},{nombre:"Patente de proceso",coste:23000,cat:"i+d"},{nombre:"Laboratorio de materiales",coste:21000,cat:"i+d"},{nombre:"Gemelo digital de planta",coste:24000,cat:"i+d"},{nombre:"Control de calidad por visión",coste:16000,cat:"i+d"},{nombre:"Prototipado rápido",coste:14000,cat:"i+d"},{nombre:"Licencia tecnológica",coste:20000,cat:"i+d"},{nombre:"Ingenieros de robótica",coste:12000,cat:"talento"},{nombre:"Formación técnica",coste:8000,cat:"talento"},{nombre:"Dirección de operaciones",coste:16000,cat:"talento"},{nombre:"Turno de noche cualificado",coste:13000,cat:"talento"},{nombre:"Plan de seguridad laboral",coste:10000,cat:"talento"},{nombre:"Convenio con el sindicato",coste:9000,cat:"talento"},{nombre:"Escuela de aprendices",coste:14000,cat:"talento"},{nombre:"Comité de innovación",coste:11000,cat:"talento"},{nombre:"Flota de transporte propia",coste:18000,cat:"logística"},{nombre:"Almacén automatizado",coste:20000,cat:"logística"},{nombre:"Acuerdo portuario",coste:14000,cat:"logística"},{nombre:"Software de rutas",coste:10000,cat:"logística"},{nombre:"Centro de distribución",coste:22000,cat:"logística"},{nombre:"Ramal ferroviario",coste:26000,cat:"logística"},{nombre:"Stock de seguridad",coste:12000,cat:"logística"},{nombre:"Proveedor alternativo",coste:9000,cat:"logística"},{nombre:"Planta de reciclaje",coste:19000,cat:"sostenibilidad"},{nombre:"Filtros de emisiones",coste:12000,cat:"sostenibilidad"},{nombre:"Autoconsumo solar",coste:16000,cat:"sostenibilidad"},{nombre:"Certificación ambiental",coste:9000,cat:"sostenibilidad"},{nombre:"Depuradora de vertidos",coste:15000,cat:"sostenibilidad"},{nombre:"Flota eléctrica",coste:23000,cat:"sostenibilidad"},{nombre:"Economía circular de chatarra",coste:17000,cat:"sostenibilidad"},{nombre:"Huella de carbono",coste:8000,cat:"sostenibilidad"}],
+    impuestos:[{titulo:"Impuesto de emisiones",coste:8000},{titulo:"Arancel a maquinaria pesada",coste:6000},{titulo:"Inspección de seguridad laboral",coste:5000}],
+    oportunidades:[{nombre:"Proveedor de acero preferente",coste:10000},{nombre:"Contrato con la administración",coste:0},{nombre:"Fusión con logística",coste:18000}],
+    amenazas:[{nombre:"Accidente laboral",impacto:-9000,relacion:"talento"},{nombre:"Huelga sindical",impacto:-7000,relacion:"talento"},{nombre:"Avería crítica en planta",impacto:-10000,relacion:"infraestructura"},{nombre:"Ciberataque al control industrial",impacto:-11000,relacion:"i+d"},{nombre:"Producto defectuoso en serie",impacto:-9000,relacion:"i+d"},{nombre:"Boicot de un gran cliente",impacto:-8000,relacion:"marketing"},{nombre:"Crisis de reputación",impacto:-7000,relacion:"marketing"},{nombre:"Colapso de la cadena de suministro",impacto:-10000,relacion:"logística"},{nombre:"Avería en la flota",impacto:-9000,relacion:"logística"},{nombre:"Multa por vertidos",impacto:-11000,relacion:"sostenibilidad"},{nombre:"Normativa de emisiones más dura",impacto:-8000,relacion:"sostenibilidad"}]},
+  tecnologico:{nombre:{"es": "Tecnológico", "en": "Technology"},icono:"💻",
+    cats:{"infraestructura": "#1368ce", "marketing": "#e21b3c", "i+d": "#8b2fb0", "talento": "#26890c", "datos": "#e8760c", "seguridad": "#12a5a0"},
+    inversion:[{nombre:"Servidores propios",coste:22000,cat:"infraestructura"},{nombre:"Migración a la nube",coste:18000,cat:"infraestructura"},{nombre:"Centro de datos regional",coste:28000,cat:"infraestructura"},{nombre:"Red de distribución de contenido",coste:14000,cat:"infraestructura"},{nombre:"Arquitectura de microservicios",coste:16000,cat:"infraestructura"},{nombre:"Sistema de respaldo",coste:11000,cat:"infraestructura"},{nombre:"Escalado automático",coste:13000,cat:"infraestructura"},{nombre:"Segunda región de servidores",coste:24000,cat:"infraestructura"},{nombre:"Campaña de captación",coste:9000,cat:"marketing"},{nombre:"Programa de afiliados",coste:11000,cat:"marketing"},{nombre:"Comunidad de desarrolladores",coste:13000,cat:"marketing"},{nombre:"Congreso del sector",coste:8000,cat:"marketing"},{nombre:"Contrato empresarial grande",coste:23000,cat:"marketing"},{nombre:"Posicionamiento en buscadores",coste:10000,cat:"marketing"},{nombre:"Prueba gratuita masiva",coste:15000,cat:"marketing"},{nombre:"Alianza con distribuidor",coste:17000,cat:"marketing"},{nombre:"Modelo de IA propio",coste:27000,cat:"i+d"},{nombre:"Patente de algoritmo",coste:22000,cat:"i+d"},{nombre:"Laboratorio de innovación",coste:20000,cat:"i+d"},{nombre:"Interfaz de nueva generación",coste:16000,cat:"i+d"},{nombre:"Motor de recomendación",coste:19000,cat:"i+d"},{nombre:"Aplicación móvil nativa",coste:14000,cat:"i+d"},{nombre:"Interfaz para terceros",coste:12000,cat:"i+d"},{nombre:"Automatización de pruebas",coste:10000,cat:"i+d"},{nombre:"Equipo de ingeniería sénior",coste:21000,cat:"talento"},{nombre:"Científicos de datos",coste:19000,cat:"talento"},{nombre:"Dirección de producto",coste:17000,cat:"talento"},{nombre:"Diseño de experiencia",coste:13000,cat:"talento"},{nombre:"Soporte técnico 24 horas",coste:15000,cat:"talento"},{nombre:"Trabajo en remoto global",coste:11000,cat:"talento"},{nombre:"Plan de acciones para empleados",coste:18000,cat:"talento"},{nombre:"Programa de becarios",coste:7000,cat:"talento"},{nombre:"Almacén de datos",coste:20000,cat:"datos"},{nombre:"Panel de analítica",coste:12000,cat:"datos"},{nombre:"Segmentación de clientes",coste:14000,cat:"datos"},{nombre:"Datos en tiempo real",coste:18000,cat:"datos"},{nombre:"Compra de datos del sector",coste:16000,cat:"datos"},{nombre:"Modelo predictivo de bajas",coste:15000,cat:"datos"},{nombre:"Pruebas comparativas",coste:9000,cat:"datos"},{nombre:"Gobernanza del dato",coste:13000,cat:"datos"},{nombre:"Auditoría de seguridad",coste:12000,cat:"seguridad"},{nombre:"Cifrado de extremo a extremo",coste:17000,cat:"seguridad"},{nombre:"Cumplimiento de privacidad",coste:14000,cat:"seguridad"},{nombre:"Centro de operaciones de seguridad",coste:22000,cat:"seguridad"},{nombre:"Programa de recompensas por fallos",coste:10000,cat:"seguridad"},{nombre:"Autenticación en dos pasos",coste:8000,cat:"seguridad"},{nombre:"Plan de recuperación ante desastres",coste:19000,cat:"seguridad"},{nombre:"Certificación de seguridad",coste:11000,cat:"seguridad"}],
+    impuestos:[{titulo:"Impuesto digital",coste:9000},{titulo:"Sanción por protección de datos",coste:7000},{titulo:"Auditoría de licencias",coste:5000}],
+    oportunidades:[{nombre:"Ronda de inversión",coste:0},{nombre:"Adquirir una startup",coste:20000},{nombre:"Alianza con una gran plataforma",coste:12000}],
+    amenazas:[{nombre:"Caída del servicio",impacto:-10000,relacion:"infraestructura"},{nombre:"Fuga de datos",impacto:-12000,relacion:"seguridad"},{nombre:"Multa de privacidad",impacto:-11000,relacion:"seguridad"},{nombre:"Fuga de talento a un rival",impacto:-9000,relacion:"talento"},{nombre:"Competidor lanza gratis",impacto:-8000,relacion:"marketing"},{nombre:"Fallo crítico en producción",impacto:-9000,relacion:"i+d"},{nombre:"Cambio de algoritmo externo",impacto:-7000,relacion:"marketing"},{nombre:"Sesgo detectado en el modelo",impacto:-10000,relacion:"datos"},{nombre:"Bloqueo de una tienda de apps",impacto:-8000,relacion:"marketing"},{nombre:"Deuda técnica insostenible",impacto:-9000,relacion:"i+d"},{nombre:"Datos corruptos en producción",impacto:-8000,relacion:"datos"}]},
+  alimentacion:{nombre:{"es": "Alimentación", "en": "Food & Beverage"},icono:"🍽️",
+    cats:{"producción": "#1368ce", "marketing": "#e21b3c", "i+d": "#8b2fb0", "talento": "#26890c", "distribución": "#e8760c", "sostenibilidad": "#12a5a0"},
+    inversion:[{nombre:"Planta embotelladora",coste:24000,cat:"producción"},{nombre:"Línea de envasado",coste:18000,cat:"producción"},{nombre:"Obrador artesanal",coste:15000,cat:"producción"},{nombre:"Cámara de maduración",coste:13000,cat:"producción"},{nombre:"Segunda fábrica",coste:27000,cat:"producción"},{nombre:"Control de temperatura",coste:11000,cat:"producción"},{nombre:"Molino propio",coste:19000,cat:"producción"},{nombre:"Planta de conservas",coste:21000,cat:"producción"},{nombre:"Campaña en televisión",coste:20000,cat:"marketing"},{nombre:"Rediseño de packaging",coste:10000,cat:"marketing"},{nombre:"Cata en supermercados",coste:8000,cat:"marketing"},{nombre:"Colaboración con chef famoso",coste:16000,cat:"marketing"},{nombre:"Feria gastronómica",coste:9000,cat:"marketing"},{nombre:"Marca blanca para cadena",coste:14000,cat:"marketing"},{nombre:"Publicidad en redes",coste:11000,cat:"marketing"},{nombre:"Patrocinio deportivo",coste:18000,cat:"marketing"},{nombre:"Nueva receta insignia",coste:17000,cat:"i+d"},{nombre:"Alargar la caducidad",coste:14000,cat:"i+d"},{nombre:"Línea sin gluten",coste:12000,cat:"i+d"},{nombre:"Laboratorio de sabores",coste:20000,cat:"i+d"},{nombre:"Reducción de azúcares",coste:15000,cat:"i+d"},{nombre:"Proteína alternativa",coste:23000,cat:"i+d"},{nombre:"Fermentación propia",coste:18000,cat:"i+d"},{nombre:"Análisis sensorial",coste:9000,cat:"i+d"},{nombre:"Maestro cervecero",coste:16000,cat:"talento"},{nombre:"Equipo de calidad alimentaria",coste:13000,cat:"talento"},{nombre:"Dirección de compras",coste:15000,cat:"talento"},{nombre:"Formación en higiene",coste:7000,cat:"talento"},{nombre:"Nutricionista de plantilla",coste:10000,cat:"talento"},{nombre:"Jefe de producción",coste:17000,cat:"talento"},{nombre:"Comerciales de hostelería",coste:12000,cat:"talento"},{nombre:"Panel de catadores",coste:8000,cat:"talento"},{nombre:"Flota refrigerada",coste:21000,cat:"distribución"},{nombre:"Acuerdo con gran superficie",coste:22000,cat:"distribución"},{nombre:"Almacén frigorífico",coste:19000,cat:"distribución"},{nombre:"Reparto a hostelería",coste:13000,cat:"distribución"},{nombre:"Venta directa por internet",coste:12000,cat:"distribución"},{nombre:"Exportación a Europa",coste:24000,cat:"distribución"},{nombre:"Red de mayoristas",coste:15000,cat:"distribución"},{nombre:"Tienda propia",coste:17000,cat:"distribución"},{nombre:"Envase compostable",coste:14000,cat:"sostenibilidad"},{nombre:"Proveedores de proximidad",coste:12000,cat:"sostenibilidad"},{nombre:"Certificación ecológica",coste:16000,cat:"sostenibilidad"},{nombre:"Cero desperdicio",coste:13000,cat:"sostenibilidad"},{nombre:"Placas solares en fábrica",coste:18000,cat:"sostenibilidad"},{nombre:"Ahorro de agua",coste:10000,cat:"sostenibilidad"},{nombre:"Comercio justo",coste:15000,cat:"sostenibilidad"},{nombre:"Huella de carbono en etiqueta",coste:8000,cat:"sostenibilidad"}],
+    impuestos:[{titulo:"Impuesto al azúcar",coste:8000},{titulo:"Tasa de envases",coste:6000},{titulo:"Inspección sanitaria",coste:7000}],
+    oportunidades:[{nombre:"Contrato con cadena de supermercados",coste:14000},{nombre:"Denominación de origen",coste:0},{nombre:"Comprar una marca local",coste:19000}],
+    amenazas:[{nombre:"Alerta sanitaria",impacto:-12000,relacion:"producción"},{nombre:"Retirada de lote",impacto:-10000,relacion:"producción"},{nombre:"Plaga en los cultivos",impacto:-9000,relacion:"distribución"},{nombre:"Subida del precio de la materia prima",impacto:-8000,relacion:"distribución"},{nombre:"Escándalo en redes sociales",impacto:-9000,relacion:"marketing"},{nombre:"Cambio de gustos del consumidor",impacto:-7000,relacion:"i+d"},{nombre:"Rotura de la cadena de frío",impacto:-10000,relacion:"distribución"},{nombre:"Multa por etiquetado",impacto:-7000,relacion:"sostenibilidad"},{nombre:"Fuga del maestro de producción",impacto:-8000,relacion:"talento"},{nombre:"Sequía prolongada",impacto:-11000,relacion:"sostenibilidad"},{nombre:"Entrada de una marca blanca",impacto:-8000,relacion:"marketing"}]},
+  energia:{nombre:{"es": "Energía", "en": "Energy"},icono:"⚡",
+    cats:{"generación": "#1368ce", "mercado": "#e21b3c", "i+d": "#8b2fb0", "talento": "#26890c", "red": "#e8760c", "sostenibilidad": "#12a5a0"},
+    inversion:[{nombre:"Parque solar",coste:26000,cat:"generación"},{nombre:"Aerogeneradores",coste:28000,cat:"generación"},{nombre:"Central hidráulica",coste:30000,cat:"generación"},{nombre:"Planta de biomasa",coste:18000,cat:"generación"},{nombre:"Ciclo combinado",coste:24000,cat:"generación"},{nombre:"Geotermia",coste:22000,cat:"generación"},{nombre:"Solar en cubiertas",coste:12000,cat:"generación"},{nombre:"Repotenciar el parque antiguo",coste:16000,cat:"generación"},{nombre:"Comercializadora propia",coste:20000,cat:"mercado"},{nombre:"Tarifa para hogares",coste:11000,cat:"mercado"},{nombre:"Contratos a largo plazo",coste:23000,cat:"mercado"},{nombre:"Mesa de negociación energética",coste:17000,cat:"mercado"},{nombre:"Campaña de cambio de compañía",coste:9000,cat:"mercado"},{nombre:"Acuerdo con gran industria",coste:21000,cat:"mercado"},{nombre:"Marca de energía verde",coste:13000,cat:"mercado"},{nombre:"Comparador propio",coste:8000,cat:"mercado"},{nombre:"Baterías de gran escala",coste:25000,cat:"i+d"},{nombre:"Hidrógeno verde",coste:27000,cat:"i+d"},{nombre:"Predicción de demanda",coste:14000,cat:"i+d"},{nombre:"Redes inteligentes",coste:19000,cat:"i+d"},{nombre:"Nuevos materiales fotovoltaicos",coste:22000,cat:"i+d"},{nombre:"Captura de carbono",coste:24000,cat:"i+d"},{nombre:"Optimización de turbinas",coste:15000,cat:"i+d"},{nombre:"Centro de investigación",coste:20000,cat:"i+d"},{nombre:"Ingenieros de red",coste:17000,cat:"talento"},{nombre:"Equipo de mantenimiento",coste:14000,cat:"talento"},{nombre:"Dirección regulatoria",coste:18000,cat:"talento"},{nombre:"Técnicos de alta tensión",coste:15000,cat:"talento"},{nombre:"Formación en seguridad eléctrica",coste:9000,cat:"talento"},{nombre:"Analistas de mercado",coste:13000,cat:"talento"},{nombre:"Jefe de operaciones",coste:16000,cat:"talento"},{nombre:"Escuela de oficios",coste:10000,cat:"talento"},{nombre:"Línea de alta tensión",coste:26000,cat:"red"},{nombre:"Subestación propia",coste:21000,cat:"red"},{nombre:"Puntos de recarga",coste:16000,cat:"red"},{nombre:"Interconexión regional",coste:24000,cat:"red"},{nombre:"Centro de control",coste:19000,cat:"red"},{nombre:"Mantenimiento predictivo",coste:13000,cat:"red"},{nombre:"Contadores inteligentes",coste:12000,cat:"red"},{nombre:"Microrredes locales",coste:15000,cat:"red"},{nombre:"Certificación de origen renovable",coste:11000,cat:"sostenibilidad"},{nombre:"Restauración de terrenos",coste:14000,cat:"sostenibilidad"},{nombre:"Compensación de emisiones",coste:12000,cat:"sostenibilidad"},{nombre:"Plan de biodiversidad",coste:13000,cat:"sostenibilidad"},{nombre:"Reciclaje de paneles",coste:16000,cat:"sostenibilidad"},{nombre:"Comunidad energética local",coste:18000,cat:"sostenibilidad"},{nombre:"Auditoría ambiental",coste:9000,cat:"sostenibilidad"},{nombre:"Cierre limpio de instalaciones",coste:20000,cat:"sostenibilidad"}],
+    impuestos:[{titulo:"Impuesto a la generación",coste:9000},{titulo:"Peaje de acceso a la red",coste:7000},{titulo:"Canon hidráulico",coste:6000}],
+    oportunidades:[{nombre:"Subasta pública de renovables",coste:0},{nombre:"Contrato con gran consumidor",coste:16000},{nombre:"Comprar un parque en operación",coste:24000}],
+    amenazas:[{nombre:"Apagón en la red",impacto:-12000,relacion:"red"},{nombre:"Caída del precio de la luz",impacto:-9000,relacion:"mercado"},{nombre:"Temporal daña instalaciones",impacto:-11000,relacion:"generación"},{nombre:"Cambio regulatorio adverso",impacto:-10000,relacion:"mercado"},{nombre:"Oposición vecinal a un parque",impacto:-8000,relacion:"sostenibilidad"},{nombre:"Avería en un aerogenerador",impacto:-9000,relacion:"generación"},{nombre:"Sequía reduce la producción",impacto:-10000,relacion:"generación"},{nombre:"Ciberataque al centro de control",impacto:-11000,relacion:"red"},{nombre:"Fuga de ingenieros",impacto:-8000,relacion:"talento"},{nombre:"Retraso en los permisos",impacto:-7000,relacion:"i+d"},{nombre:"Multa ambiental",impacto:-9000,relacion:"sostenibilidad"}]},
+  moda:{nombre:{"es": "Moda y lujo", "en": "Fashion & Luxury"},icono:"👗",
+    cats:{"producción": "#1368ce", "marca": "#e21b3c", "diseño": "#8b2fb0", "talento": "#26890c", "retail": "#e8760c", "sostenibilidad": "#12a5a0"},
+    inversion:[{nombre:"Taller propio",coste:22000,cat:"producción"},{nombre:"Maquinaria de corte",coste:15000,cat:"producción"},{nombre:"Producción en serie corta",coste:13000,cat:"producción"},{nombre:"Fábrica de calzado",coste:24000,cat:"producción"},{nombre:"Control de calidad textil",coste:11000,cat:"producción"},{nombre:"Tejeduría propia",coste:20000,cat:"producción"},{nombre:"Estampación digital",coste:14000,cat:"producción"},{nombre:"Atelier de alta costura",coste:27000,cat:"producción"},{nombre:"Desfile en pasarela",coste:23000,cat:"marca"},{nombre:"Embajador famoso",coste:21000,cat:"marca"},{nombre:"Campaña de autor",coste:17000,cat:"marca"},{nombre:"Perfume de la casa",coste:19000,cat:"marca"},{nombre:"Colaboración con artista",coste:15000,cat:"marca"},{nombre:"Archivo histórico de marca",coste:12000,cat:"marca"},{nombre:"Revista propia",coste:9000,cat:"marca"},{nombre:"Fiesta de temporada",coste:11000,cat:"marca"},{nombre:"Estudio de diseño",coste:18000,cat:"diseño"},{nombre:"Tejido exclusivo",coste:20000,cat:"diseño"},{nombre:"Patronaje digital",coste:13000,cat:"diseño"},{nombre:"Prototipado 3D",coste:15000,cat:"diseño"},{nombre:"Investigación de tendencias",coste:10000,cat:"diseño"},{nombre:"Línea cápsula",coste:16000,cat:"diseño"},{nombre:"Diseñador estrella",coste:26000,cat:"diseño"},{nombre:"Laboratorio de color",coste:12000,cat:"diseño"},{nombre:"Modistas artesanas",coste:17000,cat:"talento"},{nombre:"Dirección creativa",coste:24000,cat:"talento"},{nombre:"Equipo de estilismo",coste:13000,cat:"talento"},{nombre:"Escuela de patronaje",coste:10000,cat:"talento"},{nombre:"Personal de tienda formado",coste:12000,cat:"talento"},{nombre:"Jefe de producto",coste:16000,cat:"talento"},{nombre:"Relaciones con prensa",coste:14000,cat:"talento"},{nombre:"Cazador de tendencias",coste:11000,cat:"talento"},{nombre:"Tienda insignia",coste:28000,cat:"retail"},{nombre:"Corner en gran almacén",coste:18000,cat:"retail"},{nombre:"Tienda en línea propia",coste:14000,cat:"retail"},{nombre:"Franquicias",coste:20000,cat:"retail"},{nombre:"Pop-up de temporada",coste:9000,cat:"retail"},{nombre:"Venta en plataforma de lujo",coste:16000,cat:"retail"},{nombre:"Outlet propio",coste:12000,cat:"retail"},{nombre:"Expansión internacional",coste:26000,cat:"retail"},{nombre:"Algodón orgánico",coste:14000,cat:"sostenibilidad"},{nombre:"Trazabilidad de la cadena",coste:16000,cat:"sostenibilidad"},{nombre:"Programa de reventa",coste:13000,cat:"sostenibilidad"},{nombre:"Tinte sin agua",coste:18000,cat:"sostenibilidad"},{nombre:"Auditoría de proveedores",coste:11000,cat:"sostenibilidad"},{nombre:"Fibra reciclada",coste:15000,cat:"sostenibilidad"},{nombre:"Reparación gratuita",coste:10000,cat:"sostenibilidad"},{nombre:"Cero plástico en envíos",coste:9000,cat:"sostenibilidad"}],
+    impuestos:[{titulo:"Arancel textil",coste:7000},{titulo:"Impuesto al lujo",coste:9000},{titulo:"Tasa de residuos textiles",coste:5000}],
+    oportunidades:[{nombre:"Portada en revista de moda",coste:0},{nombre:"Licencia de una marca clásica",coste:20000},{nombre:"Alianza con gran almacén",coste:15000}],
+    amenazas:[{nombre:"Copia masiva del diseño",impacto:-9000,relacion:"diseño"},{nombre:"Temporada invendida",impacto:-11000,relacion:"retail"},{nombre:"Escándalo laboral en proveedor",impacto:-12000,relacion:"sostenibilidad"},{nombre:"Salida del director creativo",impacto:-10000,relacion:"talento"},{nombre:"Cambio brusco de tendencia",impacto:-9000,relacion:"diseño"},{nombre:"Crítica demoledora en prensa",impacto:-8000,relacion:"marca"},{nombre:"Falsificaciones en el mercado",impacto:-10000,relacion:"marca"},{nombre:"Cierre de una tienda clave",impacto:-9000,relacion:"retail"},{nombre:"Retraso en la colección",impacto:-8000,relacion:"producción"},{nombre:"Denuncia de greenwashing",impacto:-9000,relacion:"sostenibilidad"},{nombre:"Devoluciones masivas",impacto:-7000,relacion:"retail"}]},
+  farmaceutico:{nombre:{"es": "Farmacéutico", "en": "Pharma & Health"},icono:"⚕️",
+    cats:{"producción": "#1368ce", "mercado": "#e21b3c", "i+d": "#8b2fb0", "talento": "#26890c", "distribución": "#e8760c", "regulatorio": "#12a5a0"},
+    inversion:[{nombre:"Planta de producción estéril",coste:28000,cat:"producción"},{nombre:"Línea de comprimidos",coste:19000,cat:"producción"},{nombre:"Sala blanca",coste:22000,cat:"producción"},{nombre:"Producción de vacunas",coste:30000,cat:"producción"},{nombre:"Envasado unidosis",coste:13000,cat:"producción"},{nombre:"Segunda planta",coste:26000,cat:"producción"},{nombre:"Control de calidad analítico",coste:15000,cat:"producción"},{nombre:"Producción de genéricos",coste:17000,cat:"producción"},{nombre:"Red de visitadores médicos",coste:20000,cat:"mercado"},{nombre:"Congreso médico",coste:12000,cat:"mercado"},{nombre:"Acuerdo con hospitales",coste:24000,cat:"mercado"},{nombre:"Campaña de concienciación",coste:10000,cat:"mercado"},{nombre:"Marca de farmacia",coste:14000,cat:"mercado"},{nombre:"Licencia internacional",coste:23000,cat:"mercado"},{nombre:"Programa de fidelidad",coste:9000,cat:"mercado"},{nombre:"Portal para profesionales",coste:11000,cat:"mercado"},{nombre:"Ensayo clínico fase 1",coste:21000,cat:"i+d"},{nombre:"Ensayo clínico fase 3",coste:30000,cat:"i+d"},{nombre:"Laboratorio de biotecnología",coste:26000,cat:"i+d"},{nombre:"Patente de molécula",coste:28000,cat:"i+d"},{nombre:"Descubrimiento asistido por IA",coste:23000,cat:"i+d"},{nombre:"Terapia génica",coste:29000,cat:"i+d"},{nombre:"Reposicionar un fármaco",coste:16000,cat:"i+d"},{nombre:"Alianza con universidad",coste:14000,cat:"i+d"},{nombre:"Equipo de investigación sénior",coste:24000,cat:"talento"},{nombre:"Dirección médica",coste:19000,cat:"talento"},{nombre:"Farmacéuticos de calidad",coste:15000,cat:"talento"},{nombre:"Especialistas en regulación",coste:17000,cat:"talento"},{nombre:"Bioestadísticos",coste:14000,cat:"talento"},{nombre:"Formación en buenas prácticas",coste:9000,cat:"talento"},{nombre:"Coordinadores de ensayos",coste:13000,cat:"talento"},{nombre:"Jefe de farmacovigilancia",coste:16000,cat:"talento"},{nombre:"Almacén con temperatura controlada",coste:21000,cat:"distribución"},{nombre:"Red de mayoristas farmacéuticos",coste:18000,cat:"distribución"},{nombre:"Reparto a hospitales",coste:16000,cat:"distribución"},{nombre:"Exportación regulada",coste:23000,cat:"distribución"},{nombre:"Trazabilidad por lote",coste:13000,cat:"distribución"},{nombre:"Cadena de ultrafrío",coste:25000,cat:"distribución"},{nombre:"Venta a farmacias",coste:12000,cat:"distribución"},{nombre:"Distribuidor internacional",coste:20000,cat:"distribución"},{nombre:"Registro sanitario",coste:15000,cat:"regulatorio"},{nombre:"Certificación de buenas prácticas",coste:18000,cat:"regulatorio"},{nombre:"Sistema de farmacovigilancia",coste:14000,cat:"regulatorio"},{nombre:"Expediente para la agencia",coste:20000,cat:"regulatorio"},{nombre:"Auditoría de calidad",coste:12000,cat:"regulatorio"},{nombre:"Aprobación en un nuevo país",coste:24000,cat:"regulatorio"},{nombre:"Comité de ética",coste:10000,cat:"regulatorio"},{nombre:"Cumplimiento normativo",coste:13000,cat:"regulatorio"}],
+    impuestos:[{titulo:"Tasa de la agencia del medicamento",coste:9000},{titulo:"Impuesto sanitario",coste:7000},{titulo:"Inspección de buenas prácticas",coste:6000}],
+    oportunidades:[{nombre:"Financiación pública de investigación",coste:0},{nombre:"Licenciar una patente",coste:22000},{nombre:"Alianza con una biotecnológica",coste:18000}],
+    amenazas:[{nombre:"Ensayo clínico fallido",impacto:-13000,relacion:"i+d"},{nombre:"Retirada de un lote",impacto:-11000,relacion:"producción"},{nombre:"Efecto adverso detectado",impacto:-12000,relacion:"regulatorio"},{nombre:"Patente que expira",impacto:-10000,relacion:"i+d"},{nombre:"Rechazo de la agencia reguladora",impacto:-12000,relacion:"regulatorio"},{nombre:"Entrada de un genérico rival",impacto:-9000,relacion:"mercado"},{nombre:"Rotura de la cadena de frío",impacto:-10000,relacion:"distribución"},{nombre:"Fuga de investigadores",impacto:-9000,relacion:"talento"},{nombre:"Demanda por efectos secundarios",impacto:-12000,relacion:"regulatorio"},{nombre:"Escasez de principio activo",impacto:-9000,relacion:"distribución"},{nombre:"Recorte en el precio público",impacto:-8000,relacion:"mercado"}]},
+  construccion:{nombre:{"es": "Construcción", "en": "Construction"},icono:"🏗️",
+    cats:{"obra": "#1368ce", "comercial": "#e21b3c", "i+d": "#8b2fb0", "talento": "#26890c", "suelo": "#e8760c", "sostenibilidad": "#12a5a0"},
+    inversion:[{nombre:"Grúas torre propias",coste:24000,cat:"obra"},{nombre:"Maquinaria de movimiento de tierras",coste:22000,cat:"obra"},{nombre:"Planta de hormigón",coste:26000,cat:"obra"},{nombre:"Encofrados industriales",coste:14000,cat:"obra"},{nombre:"Prefabricados propios",coste:20000,cat:"obra"},{nombre:"Equipo de cimentación",coste:18000,cat:"obra"},{nombre:"Andamios propios",coste:11000,cat:"obra"},{nombre:"Taller de ferralla",coste:16000,cat:"obra"},{nombre:"Caseta de ventas",coste:10000,cat:"comercial"},{nombre:"Piso piloto",coste:17000,cat:"comercial"},{nombre:"Campaña de preventa",coste:13000,cat:"comercial"},{nombre:"Red de agentes",coste:15000,cat:"comercial"},{nombre:"Portal inmobiliario propio",coste:12000,cat:"comercial"},{nombre:"Feria del inmueble",coste:9000,cat:"comercial"},{nombre:"Acuerdo con banca para hipotecas",coste:20000,cat:"comercial"},{nombre:"Marca residencial de prestigio",coste:22000,cat:"comercial"},{nombre:"Modelado digital de obra",coste:19000,cat:"i+d"},{nombre:"Construcción modular",coste:23000,cat:"i+d"},{nombre:"Materiales de alta resistencia",coste:18000,cat:"i+d"},{nombre:"Impresión 3D de estructuras",coste:25000,cat:"i+d"},{nombre:"Aislamiento de nueva generación",coste:15000,cat:"i+d"},{nombre:"Domótica integrada",coste:16000,cat:"i+d"},{nombre:"Control de obra por drones",coste:12000,cat:"i+d"},{nombre:"Estudio de estructuras",coste:14000,cat:"i+d"},{nombre:"Jefe de obra veterano",coste:18000,cat:"talento"},{nombre:"Equipo de encofradores",coste:14000,cat:"talento"},{nombre:"Arquitecto de renombre",coste:26000,cat:"talento"},{nombre:"Aparejadores propios",coste:15000,cat:"talento"},{nombre:"Formación en prevención",coste:9000,cat:"talento"},{nombre:"Dirección técnica",coste:17000,cat:"talento"},{nombre:"Gruistas cualificados",coste:12000,cat:"talento"},{nombre:"Escuela de oficios",coste:10000,cat:"talento"},{nombre:"Solar en el centro",coste:30000,cat:"suelo"},{nombre:"Bolsa de suelo urbanizable",coste:26000,cat:"suelo"},{nombre:"Nave industrial",coste:20000,cat:"suelo"},{nombre:"Suelo en la periferia",coste:16000,cat:"suelo"},{nombre:"Edificio para rehabilitar",coste:22000,cat:"suelo"},{nombre:"Derechos de edificabilidad",coste:18000,cat:"suelo"},{nombre:"Parcela costera",coste:28000,cat:"suelo"},{nombre:"Suelo logístico",coste:24000,cat:"suelo"},{nombre:"Certificación energética alta",coste:15000,cat:"sostenibilidad"},{nombre:"Placas solares en cubierta",coste:17000,cat:"sostenibilidad"},{nombre:"Materiales reciclados",coste:13000,cat:"sostenibilidad"},{nombre:"Gestión de residuos de obra",coste:11000,cat:"sostenibilidad"},{nombre:"Aljibe de aguas pluviales",coste:12000,cat:"sostenibilidad"},{nombre:"Edificio de consumo casi nulo",coste:24000,cat:"sostenibilidad"},{nombre:"Madera estructural",coste:19000,cat:"sostenibilidad"},{nombre:"Zonas verdes en promoción",coste:14000,cat:"sostenibilidad"}],
+    impuestos:[{titulo:"Licencia de obra",coste:9000},{titulo:"Impuesto sobre bienes inmuebles",coste:7000},{titulo:"Inspección de seguridad en obra",coste:6000}],
+    oportunidades:[{nombre:"Concurso de obra pública",coste:0},{nombre:"Comprar una promoción parada",coste:24000},{nombre:"Alianza con un fondo inmobiliario",coste:18000}],
+    amenazas:[{nombre:"Accidente en la obra",impacto:-11000,relacion:"talento"},{nombre:"Retraso en las licencias",impacto:-9000,relacion:"suelo"},{nombre:"Subida del precio del cemento",impacto:-8000,relacion:"obra"},{nombre:"Subida de los tipos de interés",impacto:-10000,relacion:"comercial"},{nombre:"Vicios ocultos en una promoción",impacto:-12000,relacion:"i+d"},{nombre:"Huelga de la construcción",impacto:-9000,relacion:"talento"},{nombre:"Hallazgo arqueológico",impacto:-10000,relacion:"suelo"},{nombre:"Temporal paraliza la obra",impacto:-8000,relacion:"obra"},{nombre:"Promoción sin vender",impacto:-11000,relacion:"comercial"},{nombre:"Recurso vecinal al proyecto",impacto:-9000,relacion:"sostenibilidad"},{nombre:"Multa por residuos",impacto:-7000,relacion:"sostenibilidad"}]},
+};
+
+let SECTOR_ID='industrial';
+let POOL={}, CATS=[], COLOR_CAT={};
+function cargarSector(id){
+  if(!SECTORES[id]) id='industrial';
+  SECTOR_ID=id;
+  const sec=SECTORES[id];
+  POOL={inversion:sec.inversion,impuestos:sec.impuestos,oportunidades:sec.oportunidades,amenazas:sec.amenazas};
+  CATS=Object.keys(sec.cats);
+  COLOR_CAT=Object.assign({},sec.cats);
+}
+function nombreSector(id){
+  const s=SECTORES[id||SECTOR_ID]; if(!s) return '';
+  return (s.nombre[LANG]||s.nombre.es);
+}
+cargarSector('industrial');
+
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pick(a,n){return shuffle(a).slice(0,n);}
+function negar(el){
+  el.classList.remove('negada'); void el.offsetWidth; el.classList.add('negada');
+  toast('Cartera llena (4/4). Fusiona 4 del mismo color, descarta una en Tesorería o negocia en Deal Time.');
+}
+function toast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t);}
+  t.textContent=msg; t.className='show';
+  clearTimeout(window._tt); window._tt=setTimeout(()=>{t.className='';},4200);
+}
+function fmt(n){return (n<0?'-$':'$')+Math.abs(Math.round(n)).toLocaleString('es-ES');}
+function yieldPct(c,j){
+  const base=YIELD[c.tier]||YIELD.normal;
+  if(!j||tierDe(c)!=='normal')return base;
+  const n=j.cartas.filter(x=>tierDe(x)==='normal'&&x.cat===c.cat).length;
+  return base*(BONO_COLOR[Math.min(4,n)]||1);
+}
+function bonoColor(j,cat){
+  const n=j.cartas.filter(x=>tierDe(x)==='normal'&&x.cat===cat).length;
+  return BONO_COLOR[Math.min(4,n)]||1;
+}
+function tierDe(c){return c.tier||'normal';}
+
+
+
+
+const RETRATOS={
+  'buho_derrota':ASSETS+'personajes/buho_derrota.webp',
+  'buho_normal':ASSETS+'personajes/buho_normal.webp',
+  'buho_victoria':ASSETS+'personajes/buho_victoria.webp',
+  'dragon_derrota':ASSETS+'personajes/dragon_derrota.webp',
+  'dragon_normal':ASSETS+'personajes/dragon_normal.webp',
+  'dragon_victoria':ASSETS+'personajes/dragon_victoria.webp',
+  'duende_derrota':ASSETS+'personajes/duende_derrota.webp',
+  'duende_normal':ASSETS+'personajes/duende_normal.webp',
+  'duende_victoria':ASSETS+'personajes/duende_victoria.webp',
+  'pulpo_derrota':ASSETS+'personajes/pulpo_derrota.webp',
+  'pulpo_normal':ASSETS+'personajes/pulpo_normal.webp',
+  'pulpo_victoria':ASSETS+'personajes/pulpo_victoria.webp',
+  'robot_derrota':ASSETS+'personajes/robot_derrota.webp',
+  'robot_normal':ASSETS+'personajes/robot_normal.webp',
+  'robot_victoria':ASSETS+'personajes/robot_victoria.webp',
+  'unicornio_derrota':ASSETS+'personajes/unicornio_derrota.webp',
+  'unicornio_normal':ASSETS+'personajes/unicornio_normal.webp',
+  'unicornio_victoria':ASSETS+'personajes/unicornio_victoria.webp',
+};
+const ASSETS='assets/';
+const FIRMA={
+  g1:ASSETS+'firma/g1.webp',
+  g2:ASSETS+'firma/g2.webp',
+  g3:ASSETS+'firma/g3.webp',
+};
+const SELLO={
+  s1:ASSETS+'sello/s1.webp',
+  s2:ASSETS+'sello/s2.webp',
+  s3:ASSETS+'sello/s3.webp',
+};
+const MANOS={
+  f1:ASSETS+'apreton/f1.webp',
+  f2:ASSETS+'apreton/f2.webp',
+  f3:ASSETS+'apreton/f3.webp',
+};
+
+(function(){ try{ ['f1','f2','f3'].forEach(function(k){ var i=new Image(); i.src=MANOS[k]; });
+  ['s1','s2','s3'].forEach(function(k){ var i=new Image(); i.src=SELLO[k]; });
+  ['g1','g2','g3'].forEach(function(k){ var i=new Image(); i.src=FIRMA[k]; }); }catch(e){} })();
+
+/* ================== ANIMACIONES ================== */
+function overlayFX(html,ms){
+  let o=document.getElementById('fx');
+  if(!o){o=document.createElement('div');o.id='fx';document.body.appendChild(o);}
+  o.innerHTML=html; o.classList.add('on');
+  clearTimeout(window._fxT);
+  window._fxT=setTimeout(function(){o.classList.remove('on');setTimeout(function(){o.innerHTML='';},260);},ms||2000);
+}
+
+function fxApreton(){
+  try{
+  overlayFX('<div class="fx-box">'+
+    '<div class="manos">'+
+      '<img class="mano-f f1" src="'+MANOS.f1+'" alt="">'+
+      '<img class="mano-f f2" src="'+MANOS.f2+'" alt="">'+
+      '<img class="mano-f f3" src="'+MANOS.f3+'" alt="">'+
+      '<div class="destello-trato"></div>'+
+    '</div>'+
+    '<div class="fx-txt">'+(LANG==='en'?'Deal closed':'Trato cerrado')+'</div></div>',1750);
+  }catch(e){console.warn('fxApreton',e);}
+}
+
+function fxSello(){
+  try{
+  overlayFX('<div class="fx-box">'+
+    '<div class="sello-esc">'+
+      '<img class="sello-f e1" src="'+SELLO.s1+'" alt="">'+
+      '<img class="sello-f e2" src="'+SELLO.s2+'" alt="">'+
+      '<img class="sello-f e3" src="'+SELLO.s3+'" alt="">'+
+      '<div class="destello-sello"></div>'+
+    '</div>'+
+    '<div class="fx-txt">'+(LANG==='en'?'Contract sealed':'Contrato sellado')+'</div></div>',1750);
+  }catch(e){console.warn('fxSello',e);}
+}
+
+function fxFirma(){
+  try{
+  overlayFX('<div class="fx-box">'+
+    '<div class="firma-esc">'+
+      '<img class="firma-f g1" src="'+FIRMA.g1+'" alt="">'+
+      '<img class="firma-f g2" src="'+FIRMA.g2+'" alt="">'+
+      '<img class="firma-f g3" src="'+FIRMA.g3+'" alt="">'+
+      '<div class="destello-firma"></div>'+
+    '</div>'+
+    '<div class="fx-txt">'+(LANG==='en'?'Contract signed':'Contrato firmado')+'</div></div>',1750);
+  }catch(e){console.warn('fxFirma',e);}
+}
+
+function fxMonedas(){
+  try{
+    var ancla=document.querySelector('.oro-cifra');
+    if(!ancla)return;
+    var r=ancla.getBoundingClientRect();
+    for(var k=0;k<14;k++){
+      var c=document.createElement('div');
+      c.className='moneda';
+      c.style.left=(r.left+r.width*0.5+(Math.random()*120-60))+'px';
+      c.style.top=(r.top-160-Math.random()*80)+'px';
+      c.style.animationDelay=(Math.random()*0.5)+'s';
+      c.textContent='$';
+      document.body.appendChild(c);
+      (function(el){setTimeout(function(){el.remove();},1800);})(c);
+    }
+    ancla.classList.remove('rebote'); void ancla.offsetWidth; ancla.classList.add('rebote');
+  }catch(e){console.warn('fxMonedas',e);}
+}
+
+function graficoMercado(){
+  try{
+    var N=26,W=520,H=110,pts=[],y=H/2,i;
+    for(i=0;i<=N;i++){ y+=(Math.random()*44-22); y=Math.max(14,Math.min(H-14,y)); pts.push([i*(W/N),y]); }
+    var seg='',barras='';
+    for(i=0;i<N;i++){
+      var sube=pts[i+1][1]<pts[i][1];
+      seg+='<line x1="'+pts[i][0].toFixed(1)+'" y1="'+pts[i][1].toFixed(1)+'" x2="'+pts[i+1][0].toFixed(1)+'" y2="'+pts[i+1][1].toFixed(1)+
+        '" stroke="'+(sube?'#1a9c4a':'#e21b3c')+'" stroke-width="3.5" stroke-linecap="round"/>';
+      var alto=8+Math.random()*26, up=Math.random()>.5;
+      barras+='<rect x="'+(i*(W/N)+3).toFixed(1)+'" y="'+(H-alto).toFixed(1)+'" width="8" height="'+alto.toFixed(1)+
+        '" rx="2" fill="'+(up?'#1a9c4a':'#e21b3c')+'" opacity=".28"/>';
+    }
+    return '<div class="mercado-fx"><svg viewBox="0 0 '+W+' '+H+'" width="100%" height="120" preserveAspectRatio="none">'+
+      '<g class="cinta">'+barras+seg+'</g>'+
+      '<g class="cinta cinta2" transform="translate('+W+',0)">'+barras+seg+'</g></svg></div>';
+  }catch(e){ console.warn('graficoMercado',e); return ''; }
+}
+
+
+function lluviaSobre(el,n,tipo){
+  try{
+    if(!el)return;
+    var r=el.getBoundingClientRect();
+    for(var k=0;k<n;k++){
+      var c=document.createElement('div');
+      c.className = tipo==='billete'?'billete-fx':'moneda';
+      c.style.left=(r.left+Math.random()*r.width)+'px';
+      c.style.top=(r.top-150-Math.random()*90)+'px';
+      c.style.animationDelay=(Math.random()*0.6)+'s';
+      if(tipo!=='billete') c.textContent='$';
+      document.body.appendChild(c);
+      (function(e){setTimeout(function(){e.remove();},2200);})(c);
+    }
+  }catch(e){console.warn('lluviaSobre',e);}
+}
+
+function pararTemblor(){
+  try{ clearTimeout(window._tembT); document.body.classList.remove('temblor'); }catch(e){}
+}
+function sacudirPantalla(faseEsperada){
+  try{
+    if(S && S.fase==='cofres') return;
+    if(faseEsperada && S && S.fase!==faseEsperada) return;
+    document.body.classList.remove('temblor'); void document.body.offsetWidth;
+    document.body.classList.add('temblor');
+    clearTimeout(window._tembT);
+    window._tembT=setTimeout(function(){document.body.classList.remove('temblor');},480);
+  }catch(e){console.warn('sacudirPantalla',e);}
+}
+
+function fxFusion(usadas,nombreNuevo,tier){
+  try{
+    var col = tier==='holding' ? '#e0a800' : (COLOR_CAT[usadas[0].cat]||'#9fb0c4');
+    var pos=[['-320px','-190px'],['320px','-190px'],['-320px','190px'],['320px','190px']];
+    var vuelo='';
+    for(var i=0;i<usadas.length;i++){
+      var c=usadas[i], cc=COLOR_CAT[c.cat]||'#9fb0c4';
+      vuelo+='<div class="carta-vuela" style="--dx:'+pos[i%4][0]+';--dy:'+pos[i%4][1]+';background:'+cc+';animation-delay:'+(i*0.07)+'s">'+
+        '<span>'+c.nombre+'</span></div>';
+    }
+    overlayFX('<div class="fx-box fusion-box">'+
+      '<div class="fusion-zona">'+vuelo+
+        '<div class="destello" style="--col:'+col+'"></div>'+
+        '<div class="carta-nueva" style="border-color:'+col+';color:'+col+'">'+
+          '<div class="cn-tier">'+(tier==='holding'?'INDUSTRIAL HOLDING':'CONSOLIDATED PORTFOLIO')+'</div>'+
+          '<div class="cn-nombre">'+nombreNuevo+'</div></div>'+
+      '</div></div>',2600);
+  }catch(e){console.warn('fxFusion',e);}
+}
+
+function fxBancarrota(nombre,cuenta){
+  try{
+    var jj=(S.jugadores||[]).find(function(x){return x.nombre===nombre;});
+    overlayFX('<div class="fx-box">'+
+      (jj?'<div class="derrota-av">'+charSVG(jj.charId,150,'derrota')+'</div>':'')+
+      '<div class="sello-rojo">'+
+      '<div class="sr-txt">'+(LANG==='en'?'IN THE RED':'EN NÚMEROS ROJOS')+'</div>'+
+      '<div class="sr-sub">'+nombre+' · '+cuenta+'/3</div></div></div>',2200);
+    sacudirPantalla();
+  }catch(e){console.warn('fxBancarrota',e);}
+}
+
+function fxVictoria(j){
+  try{
+    var bill='';
+    for(var k=0;k<60;k++){
+      bill+='<div class="billete-caida" style="left:'+(Math.random()*98)+'%;animation-delay:'+(Math.random()*3.4)+'s;'+
+        'animation-duration:'+(2.2+Math.random()*2.6)+'s;transform:scale('+(0.7+Math.random()*0.7)+')"></div>';
+    }
+    var destellos='';
+    for(var d=0;d<10;d++){
+      destellos+='<div class="chispa-oro" style="left:'+(8+Math.random()*84)+'%;top:'+(12+Math.random()*74)+'%;'+
+        'animation-delay:'+(Math.random()*2.4)+'s"></div>';
+    }
+    overlayFX('<div class="lluvia-billetes">'+bill+destellos+'</div>'+
+      '<div class="fx-box victoria-box">'+
+        '<div class="cartel-oro">'+
+          '<div class="co-brillo"></div>'+
+          '<div class="vic-avatar">'+charSVG(j.charId,190,'victoria')+'</div>'+
+          '<div class="co-nombre">'+j.nombre+'</div>'+
+          '<div class="co-frase">'+(LANG==='en'?'HAS TAKEN OVER THE MARKET!':'¡SE COMIÓ EL MERCADO!')+'</div>'+
+          '<div class="co-sub">'+(LANG==='en'?'Total market domination · 3/3':'Dominio absoluto del mercado · 3/3')+'</div>'+
+        '</div>'+
+      '</div>',11000);
+  }catch(e){console.warn('fxVictoria',e);}
+}
+
+
+/* ================== MULTIJUGADOR ================== */
+const MP={on:false,code:null,yo:null,host:false,timer:null,aplicando:false,guardando:false,
+  pendiente:false,ultCursor:0,ultHover:null,accion:'crear'};
+const RONDA_SEG=90, DEAL_SEG=300;
+
+function codigoAleatorio(){
+  const L='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let c=''; for(let i=0;i<4;i++) c+=L[Math.floor(Math.random()*L.length)];
+  return c;
+}
+function claveSala(c){ return 'dafo-sala-'+c; }
+
+function serializar(){
+  return {
+    ver:S.ver||0, iniciada:!!S.iniciada, host:S.host,
+    turno:S.turno, fase:S.fase, ronda:S.ronda, rondaData:S.rondaData||[],
+    jugadores:S.jugadores.map(j=>({nombre:j.nombre,charId:j.charId,color:j.color,capital:j.capital,
+      fortalezas:j.fortalezas,debilidades:j.debilidades,cartas:j.cartas,riesgoFiscal:j.riesgoFiscal,
+      eliminado:j.eliminado,turnosBancarrota:j.turnosBancarrota,oro:j.oro||0,oroNuevo:j.oroNuevo||0,
+      carcel:j.carcel||0,carcelPendiente:!!j.carcelPendiente,pillado:j.pillado||0,
+      desconectado:!!j.desconectado,uid:j.uid})),
+    interes:S.interes, mazo:S.mazo, prestamos:S.prestamos, avisos:S.avisos,
+    factorActual:S.factorActual, rachaLider:S.rachaLider, rachaGanada:!!S.rachaGanada,
+    banco:S.banco, cofreOrders:S.cofreOrders, mesa:S.mesa,
+    rondaFin:S.rondaFin||0, dealFin:S.dealFin||0, cursores:S.cursores||{},
+    cfgRonda:S.cfgRonda||RONDA_SEG, cfgDeal:S.cfgDeal||DEAL_SEG, sector:S.sector||'industrial'
+  };
+}
+
+function aplicar(d){
+  MP.aplicando=true;
+  try{
+    ['ver','iniciada','host','turno','fase','ronda','rondaData','interes','mazo','prestamos',
+     'avisos','factorActual','rachaLider','rachaGanada','banco','cofreOrders','mesa',
+     'rondaFin','dealFin','cursores','cfgRonda','cfgDeal','sector'].forEach(k=>{ if(d[k]!==undefined) S[k]=d[k]; });
+    if(d.sector&&d.sector!==SECTOR_ID) cargarSector(d.sector);
+    S.jugadores=d.jugadores.map(j=>Object.assign({ultimoRendimiento:null,ultimoFactorDelta:null,_prev:j.capital},j));
+    const idx=S.jugadores.findIndex(j=>j.uid===MP.yo);
+    S.yo = idx>-1? idx : 0;
+    S.activosTurno=activos().filter(j=>!j.carcel);
+  } finally { MP.aplicando=false; }
+}
+
+async function mpGuardar(){
+  if(!MP.on||MP.aplicando) return;
+  if(MP.guardando){ MP.pendiente=true; return; }
+  MP.guardando=true;
+  try{
+    S.ver=(S.ver||0)+1;
+    await window.storage.set(claveSala(MP.code), JSON.stringify(serializar()), true);
+    marcaConexion(true);
+  }catch(e){ console.warn('mpGuardar',e); marcaConexion(false); }
+  finally{
+    MP.guardando=false;
+    if(MP.pendiente){ MP.pendiente=false; setTimeout(mpGuardar,120); }
+  }
+}
+function tocado(){ if(MP.on) mpGuardar(); }
+
+async function mpLeer(){
+  try{
+    const r=await window.storage.get(claveSala(MP.code), true);
+    marcaConexion(true);
+    return r? JSON.parse(r.value) : null;
+  }catch(e){ marcaConexion(false); return null; }
+}
+
+function marcaConexion(ok){
+  let b=document.getElementById('mp-badge');
+  if(!MP.on){ if(b) b.remove(); return; }
+  if(!b){ b=document.createElement('div'); b.id='mp-badge'; b.className='mp-badge'; document.body.appendChild(b); }
+  b.className='mp-badge'+(ok?'':' off');
+  b.textContent=(ok?'● ':'○ ')+MP.code+' · '+(S.jugadores?S.jugadores.filter(j=>!j.desconectado).length:0)+(LANG==='en'?' players':' jugadores');
+}
+
+async function mpSincronizar(){
+  if(!MP.on) return;
+  const d=await mpLeer();
+  if(!d) return;
+  if((d.ver||0)<=(S.ver||0)) { comprobarRelojes(); return; }
+  const faseAnterior=S.fase, iniAnterior=S.iniciada;
+  aplicar(d);
+  if(!S.iniciada){ renderSala(); return; }
+  if(!iniAnterior && S.iniciada){ entrarAlJuego(); return; }
+  repintar();
+  comprobarRelojes();
+}
+
+function repintar(){
+  renderTop();
+  if(S.fase==='cofres') renderRonda();
+  else if(S.fase==='deal_time'){ if(!document.getElementById('deal-timer')) renderDealTime(); else renderDealBody(); }
+  else if(S.fase==='factor_externo') renderFactor();
+}
+
+function comprobarRelojes(){
+  if(!MP.on||!MP.host||!S.iniciada) return;
+  const ahora=Date.now();
+  if(S.fase==='cofres'&&S.rondaFin&&ahora>S.rondaFin){
+    let hubo=false;
+    (S.rondaData||[]).forEach((d,i)=>{
+      if(d.resuelto)return;
+      hubo=true;
+      if(d.tipo==='impuestos') resolverPara(i,{delta:-d.item.coste,curaRF:true,msg:'Tiempo agotado: se paga el impuesto.'});
+      else if(d.tipo==='inversion') resolverPara(i,{delta:0,interes:-2,msg:'Tiempo agotado: no invierte.'});
+      else if(d.tipo==='oportunidades') resolverPara(i,{delta:0,interes:-1,msg:'Tiempo agotado: rechaza la oportunidad.'});
+      else {
+        const j=porNombre(d.nombre);
+        const prot=j.fortalezas.includes(d.item.relacion)||j.fortalezas.includes('consolidada')||j.fortalezas.includes('holding');
+        const imp=prot?Math.round(d.item.impacto/2):d.item.impacto;
+        resolverPara(i,{delta:imp,msg:'Tiempo agotado: absorbe el golpe ('+fmt(imp)+').'});
+      }
+    });
+    if(hubo) tocado();
+  }
+  if(S.fase==='deal_time'&&S.dealFin&&ahora>S.dealFin) terminarDealTime();
+}
+
+/* ---- Cursores compartidos ---- */
+function marcarHover(idxExp,opt){
+  if(!MP.on) return;
+  const clave=idxExp+':'+opt;
+  if(MP.ultHover===clave) return;
+  MP.ultHover=clave;
+  const ahora=Date.now();
+  if(ahora-MP.ultCursor<600) return;
+  MP.ultCursor=ahora;
+  S.cursores=S.cursores||{};
+  if(opt===null) delete S.cursores[MP.yo]; else S.cursores[MP.yo]={exp:idxExp,opt:opt,t:ahora};
+  mpGuardar();
+}
+function cursoresEn(idxExp,opt){
+  if(!MP.on||!S.cursores) return '';
+  const ahora=Date.now();
+  const ids=Object.keys(S.cursores).filter(uid=>{
+    const c=S.cursores[uid];
+    return c&&c.exp===idxExp&&c.opt===opt&&(ahora-c.t)<9000&&uid!==MP.yo;
+  });
+  if(!ids.length) return '';
+  return '<span class="cursor-tag">'+ids.map(uid=>{
+    const j=S.jugadores.find(x=>x.uid===uid);
+    return j?'<i style="background:'+j.color+'"></i>':'';
+  }).join('')+'</span>';
+}
+
+/* ---- Lobby ---- */
+let LB={charId:'duende'};
+function pintarCharsLobby(){
+  const usados=(MP.on&&S.jugadores)?S.jugadores.map(j=>j.charId):[];
+  document.getElementById('lb-chars').innerHTML=CHARACTERS.map(c=>{
+    const mio=LB.charId===c.id;
+    return `<div class="char ${mio?'on':''}" style="--cc:${c.color}" onclick="LB.charId='${c.id}';pintarCharsLobby()">
+      ${charSVG(c.id,52)}<div class="char-name">${c.nombre}</div></div>`;
+  }).join('');
+}
+function mostrarCrear(){ MP.accion='crear'; abrirForm('Crear sala',false); }
+function mostrarUnirse(){ MP.accion='unirse'; abrirForm('Unirse a una sala',true); }
+function abrirForm(tit,pideCodigo){
+  document.getElementById('lb-menu').style.display='none';
+  document.getElementById('lb-form').style.display='';
+  document.getElementById('lb-form-tit').textContent=tit;
+  document.getElementById('lb-codigo-campo').style.display=pideCodigo?'':'none';
+  document.getElementById('lb-error').textContent='';
+  pintarCharsLobby();
+}
+function volverMenu(){
+  document.getElementById('lb-form').style.display='none';
+  document.getElementById('lb-sala').style.display='none';
+  document.getElementById('lb-menu').style.display='';
+}
+function irLocal(){
+  document.getElementById('lobby').style.display='none';
+  document.getElementById('setup').style.display='';
+  renderSetup();
+}
+
+function nuevoJugador(nombre,charId,uid){
+  return {nombre:nombre,charId:charId,color:charColor(charId),uid:uid,capital:150000,
+    fortalezas:[],debilidades:[],cartas:[],riesgoFiscal:0,eliminado:false,turnosBancarrota:0,
+    ultimoRendimiento:null,ultimoFactorDelta:null,oro:0,oroNuevo:0,carcel:0,carcelPendiente:false,
+    pillado:0,desconectado:false};
+}
+
+async function confirmarLobby(){
+  const err=document.getElementById('lb-error');
+  const nombre=(document.getElementById('lb-nombre').value||'').trim();
+  if(!nombre){ err.textContent='Escribe el nombre de tu empresa.'; return; }
+  MP.yo='u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  document.getElementById('lb-ok').disabled=true;
+  try{
+    if(MP.accion==='crear'){
+      MP.code=codigoAleatorio(); MP.host=true; MP.on=true;
+      S.iniciada=false; S.ver=0; S.host=MP.yo; S.sector=SECTOR_ID;
+      S.jugadores=[nuevoJugador(nombre,LB.charId,MP.yo)];
+      S.interes={}; S.cursores={};
+      await mpGuardar();
+    } else {
+      const cod=(document.getElementById('lb-codigo').value||'').trim().toUpperCase();
+      if(cod.length<4){ err.textContent='El código tiene 4 letras.'; document.getElementById('lb-ok').disabled=false; return; }
+      MP.code=cod; MP.on=true;
+      const d=await mpLeer();
+      if(!d){ err.textContent='No existe ninguna sala con ese código.'; MP.on=false; document.getElementById('lb-ok').disabled=false; return; }
+      if(d.iniciada){ err.textContent='Esa partida ya ha empezado.'; MP.on=false; document.getElementById('lb-ok').disabled=false; return; }
+      if(d.jugadores.length>=6){ err.textContent='La sala está llena (6 jugadores).'; MP.on=false; document.getElementById('lb-ok').disabled=false; return; }
+      if(d.jugadores.some(j=>j.nombre.toLowerCase()===nombre.toLowerCase())){ err.textContent='Ya hay una empresa con ese nombre.'; document.getElementById('lb-ok').disabled=false; return; }
+      let ch=LB.charId;
+      if(d.jugadores.some(j=>j.charId===ch)){
+        const libre=CHARACTERS.find(c=>!d.jugadores.some(j=>j.charId===c.id));
+        if(!libre){ err.textContent='No quedan personajes libres.'; document.getElementById('lb-ok').disabled=false; return; }
+        ch=libre.id;
+      }
+      aplicar(d);
+      MP.host=(S.host===MP.yo);
+      S.jugadores.push(nuevoJugador(nombre,ch,MP.yo));
+      await mpGuardar();
+    }
+    document.getElementById('lb-form').style.display='none';
+    document.getElementById('lb-sala').style.display='';
+    document.getElementById('sala-codigo').textContent=MP.code;
+    renderSala();
+    arrancarSync();
+  }catch(e){
+    console.warn(e); err.textContent='No se ha podido conectar. Inténtalo otra vez.';
+    MP.on=false;
+  }
+  document.getElementById('lb-ok').disabled=false;
+}
+
+const OPC_RONDA=[45,60,90,120,180], OPC_DEAL=[120,180,300,420,600];
+function fmtSeg(n){ const m=Math.floor(n/60),s=n%60; return m?(s?m+'m '+s+'s':m+' min'):n+'s'; }
+function ponSector(id){ if(!MP.host)return; S.sector=id; cargarSector(id); mpGuardar(); renderSala(); }
+function ponRonda(v){ if(!MP.host)return; S.cfgRonda=Number(v); mpGuardar(); renderSala(); }
+function ponDeal(v){ if(!MP.host)return; S.cfgDeal=Number(v); mpGuardar(); renderSala(); }
+
+function gridSectores(actual, fn, editable){
+  return `<div class="sec-grid">`+Object.keys(SECTORES).map(id=>{
+    const sc=SECTORES[id];
+    const on=id===actual;
+    const cols=Object.values(sc.cats).slice(0,6).map(c=>`<i style="background:${c}"></i>`).join('');
+    return `<button class="sec-btn ${on?'on':''}" ${editable?`onclick="${fn}('${id}')"`:'disabled'}>
+      <div class="sec-ico">${sc.icono}</div>
+      <div class="sec-nom">${sc.nombre[LANG]||sc.nombre.es}</div>
+      <div class="sec-cols">${cols}</div>
+    </button>`;
+  }).join('')+`</div>`;
+}
+
+function renderAjustes(){
+  const c=document.getElementById('sala-ajustes'); if(!c) return;
+  const en=LANG==='en';
+  const r=S.cfgRonda||RONDA_SEG, d=S.cfgDeal||DEAL_SEG;
+  const linea=(tit,val,ops,fn)=>`
+    <div class="aj-fila">
+      <div class="aj-tit">${tit}</div>
+      ${MP.host
+        ? `<div class="aj-ops">${ops.map(o=>`<button class="aj-btn ${o===val?'on':''}" onclick="${fn}(${o})">${fmtSeg(o)}</button>`).join('')}</div>`
+        : `<div class="aj-val">${fmtSeg(val)}</div>`}
+    </div>`;
+  c.innerHTML=`
+    <div class="ajustes-caja">
+      <div class="slot-label">${en?'Game settings':'Ajustes de la partida'}${MP.host?'':en?' (set by the host)':' (los fija el anfitrión)'}</div>
+      <div class="aj-fila" style="display:block">
+        <div class="aj-tit" style="margin-bottom:8px">${en?'Sector':'Sector'}${MP.host?'':en?' (set by the host)':' (lo fija el anfitrión)'}</div>
+        ${gridSectores(S.sector||'industrial','ponSector',MP.host)}
+      </div>
+      ${linea(en?'Time per round':'Tiempo por ronda', r, OPC_RONDA,'ponRonda')}
+      ${linea('Deal Time', d, OPC_DEAL,'ponDeal')}
+      <div class="aj-fila">
+        <div class="aj-tit">${en?'Your language':'Tu idioma'}</div>
+        <div class="aj-ops">
+          <button class="aj-btn ${LANG==='es'?'on':''}" onclick="setLangLocal('es')">Español</button>
+          <button class="aj-btn ${LANG==='en'?'on':''}" onclick="setLangLocal('en')">English</button>
+        </div>
+      </div>
+      <div class="aj-nota">${en?'Language is personal: each player sees the game in their own.':'El idioma es individual: cada jugador ve el juego en el suyo.'}</div>
+    </div>`;
+}
+function setLangLocal(l){
+  LANG=l;
+  try{ localStorage.setItem('dafo-lang',l); }catch(e){}
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('on', b.dataset.l===LANG));
+  if(S.iniciada&&document.getElementById('game').style.display==='block') repintar();
+  renderSala();
+}
+
+function renderSala(){
+  const cont=document.getElementById('sala-lista'); if(!cont) return;
+  document.getElementById('sala-codigo').textContent=MP.code||'····';
+  renderAjustes();
+  const lc=document.getElementById('lbl-conectados');
+  if(lc) lc.textContent=LANG==='en'?'Connected players':'Jugadores conectados';
+  cont.innerHTML=(S.jugadores||[]).map(j=>`
+    <div class="sala-jug" style="--pc:${j.color}">
+      <span class="avatar-rival" style="--pc:${j.color}">${charSVG(j.charId,26)}</span>
+      <span class="sj-nombre" style="color:${j.color}">${j.nombre}</span>
+      ${j.uid===S.host?'<span class="sj-rol">Anfitrión</span>':''}
+      ${j.uid===MP.yo?'<span class="sj-rol">Tú</span>':''}
+    </div>`).join('');
+  const btn=document.getElementById('sala-empezar');
+  const nota=document.getElementById('sala-nota');
+  if(MP.host){
+    btn.style.display=''; btn.disabled=(S.jugadores||[]).length<2;
+    nota.textContent=(S.jugadores||[]).length<2?'Hacen falta al menos 2 empresas para empezar.':'';
+  } else {
+    btn.style.display='none';
+    nota.textContent='Esperando a que el anfitrión empiece la partida…';
+  }
+  marcaConexion(true);
+}
+
+function arrancarSync(){
+  clearInterval(MP.timer);
+  MP.timer=setInterval(mpSincronizar,1500);
+}
+function salirSala(){
+  clearInterval(MP.timer); MP.on=false; MP.code=null;
+  const b=document.getElementById('mp-badge'); if(b) b.remove();
+  document.getElementById('lb-sala').style.display='none';
+  document.getElementById('lb-menu').style.display='';
+}
+
+async function empezarOnline(){
+  if(!MP.host) return;
+  S.iniciada=true; S.turno=1; S.fase='factor_externo';
+  S.interes={}; S.jugadores.forEach(j=>S.interes[j.nombre]=100/S.jugadores.length);
+  S.banco=BANCO_POR_JUGADOR*S.jugadores.length;
+  cargarSector(S.sector||'industrial');
+  S.mazo=shuffle(POOL.inversion.map((c,i)=>({...c,id:i})));
+  S.prestamos=[]; S.avisos=[]; S.rachaLider={nombre:null,turnos:0}; S.rachaGanada=false;
+  S.factorActual={titulo:'Aparición de nuevo mercado',categoria:'Tecnológico',
+    descripcion:(LANG==='en'?'The '+nombreSector()+' market is born. The race to lead it begins.':'Nace el mercado de '+nombreSector()+'. Empieza la carrera por liderarlo.'),efectos:[]};
+  await mpGuardar();
+  entrarAlJuego();
+}
+
+function entrarAlJuego(){
+  document.getElementById('lobby').style.display='none';
+  document.getElementById('setup').style.display='none';
+  document.getElementById('game').style.display='block';
+  const idx=S.jugadores.findIndex(j=>j.uid===MP.yo);
+  S.yo=idx>-1?idx:0;
+  renderTop(); repintar();
+}
+
+function abandonar(){
+  if(!MP.on) return;
+  const j=S.jugadores[S.yo]; if(!j) return;
+  j.cartas.forEach(c=>{
+    if(tierDe(c)==='normal'&&typeof c.id==='number'&&!S.mazo.some(x=>x.id===c.id)){
+      const o=POOL.inversion[c.id]; if(o) S.mazo.push({...o,id:c.id});
+    }
+  });
+  j.cartas=[];
+  S.prestamos.filter(p=>p.a===j.nombre).forEach(p=>{
+    const rec=Math.round(p.totalRestante*0.3);
+    if(!p.banco){ const acr=porNombre(p.de); if(acr) acr.capital+=rec; }
+    else S.banco+=rec;
+  });
+  S.prestamos=S.prestamos.filter(p=>p.a!==j.nombre&&p.de!==j.nombre);
+  const sobra=Math.max(0,j.capital)+Math.max(0,j.oro||0)+Math.max(0,j.oroNuevo||0);
+  S.banco+=sobra;
+  j.capital=0;j.oro=0;j.oroNuevo=0;j.eliminado=true;j.desconectado=true;
+  delete S.interes[j.nombre];
+  renormalizarInteres();
+  S.avisos.push(`${j.nombre} abandona la partida. Sus cartas vuelven al mercado y los acreedores recuperan el 30%.`);
+  if(S.host===MP.yo){
+    const otro=S.jugadores.find(x=>!x.desconectado&&!x.eliminado);
+    if(otro){ S.host=otro.uid; }
+  }
+  mpGuardar();
+  clearInterval(MP.timer); MP.on=false;
+  const b=document.getElementById('mp-badge'); if(b) b.remove();
+  toast(LANG==='en'?'You left the game':'Has abandonado la partida');
+}
+
+function esMio(idxExp){
+  if(!MP.on) return true;
+  const d=S.rondaData[idxExp]; if(!d) return false;
+  const j=porNombre(d.nombre);
+  return j && j.uid===MP.yo;
+}
+
+/* ================== IDIOMA ================== */
+let LANG='es';
+const TR={
+  tagline:{es:'Convierte tu empresa en la líder del sector industrial',en:'Turn your company into the leader of the industrial sector'},
+  crear:{es:'Crea las empresas',en:'Set up the companies'},
+  de6:{es:'de 6',en:'of 6'},
+  nombreEmpresa:{es:'Nombre de la empresa',en:'Company name'},
+  eligeChar:{es:'Elige personaje',en:'Pick a character'},
+  quitar:{es:'Quitar',en:'Remove'},
+  anadir:{es:'+ Añadir empresa',en:'+ Add company'},
+  jugar:{es:'Jugar',en:'Play'},
+  idioma:{es:'Idioma',en:'Language'},
+  turno:{es:'Turno',en:'Turn'},
+  trimestre:{es:'Trimestre',en:'Quarter'},
+  juegasComo:{es:'Juegas como',en:'Playing as'},
+  tuEmpresa:{es:'Tu empresa',en:'Your company'},
+  inversores:{es:'Inversores',en:'Investors'},
+  rivales:{es:'Rivales',en:'Rivals'},
+  banco:{es:'Banco',en:'Bank'},
+  tesoreria:{es:'Tesorería',en:'Treasury'},
+  factorExterno:{es:'Factor externo',en:'External factor'},
+  ordenDia:{es:'Orden del día',en:'Agenda'},
+  dealTime:{es:'Deal Time',en:'Deal Time'},
+  partidaFin:{es:'Partida terminada',en:'Game over'},
+  abrirOrden:{es:'Abrir orden del día',en:'Open the agenda'},
+  ronda:{es:'Ronda',en:'Round'},
+  de4:{es:'de 4',en:'of 4'},
+  todasVez:{es:'Todas las empresas abren su expediente a la vez.',en:'Every company opens its file at the same time.'},
+  faltan:{es:'Faltan',en:'Still'},
+  porDecidir:{es:'por decidir.',en:'to decide.'},
+  todasDecidido:{es:'Todas han decidido.',en:'Everyone has decided.'},
+  libresMercado:{es:'inversiones libres en el mercado',en:'investments left on the market'},
+  siguienteRonda:{es:'Siguiente ronda',en:'Next round'},
+  irDeal:{es:'Ir a Deal Time',en:'Go to Deal Time'},
+  resultado:{es:'Resultado',en:'Result'},
+  continuar:{es:'Continuar',en:'Continue'},
+  pagar:{es:'Pagar',en:'Pay'},
+  evadir:{es:'Evadir (50% de librarte)',en:'Evade (50% chance)'},
+  aceptar:{es:'Aceptar',en:'Accept'},
+  rechazar:{es:'Rechazar',en:'Decline'},
+  noInvertir:{es:'No invertir',en:'Do not invest'},
+  absorber:{es:'Absorber',en:'Absorb'},
+  mitigarBtn:{es:'Mitigar $2.000 (70% sale bien)',en:'Mitigate $2,000 (70% works)'},
+  eligeInv:{es:'Elige una inversión o ninguna ·',en:'Pick one investment or none ·'},
+  soloUna:{es:'solo existe una carta de cada',en:'only one card of each exists'},
+  carteraLlena:{es:'Cartera llena (4/4).',en:'Portfolio full (4/4).'},
+  carteraLlenaAyuda:{es:'Para volver a invertir: fusiona 4 del mismo color, o negocia en Deal Time.',en:'To invest again: merge 4 of the same colour, or trade in Deal Time.'},
+  sinHueco:{es:'cartera llena',en:'portfolio full'},
+  sinMercado:{es:'El mercado se ha quedado sin inversiones libres.',en:'The market has run out of free investments.'},
+  negociad:{es:'Negociad en la app. Todo se transfiere al cerrar el trato.',en:'Negotiate in the app. Everything transfers when the deal closes.'},
+  mesaTab:{es:'Mesa de intercambio',en:'Trading table'},
+  prestamoTab:{es:'Préstamo entre empresas',en:'Company loan'},
+  bancoTab:{es:'Banco central',en:'Central bank'},
+  terminarDeal:{es:'Terminar Deal Time',en:'End Deal Time'},
+  ponerMesa:{es:'Pone sobre la mesa',en:'Puts on the table'},
+  dinero:{es:'Dinero $',en:'Money $'},
+  caja:{es:'Caja:',en:'Cash:'},
+  cerrarTrato:{es:'Cerrar trato',en:'Close deal'},
+  mesaInter:{es:'Mesa de<br>intercambio',en:'Trading<br>table'},
+  mesaExpl:{es:'Cada lado pone cartas y/o dinero. Al cerrar, se intercambia todo a la vez.',en:'Each side puts in cards and/or money. On closing, everything swaps at once.'},
+  normales:{es:'normales',en:'basic'},
+  oroTit:{es:'Oro · +5% cada turno',en:'Gold · +5% each turn'},
+  comprar:{es:'Comprar',en:'Buy'},
+  rescatar:{es:'Rescatar',en:'Withdraw'},
+  oroNota:{es:'Refugio seguro: crece solo y lo sacas cuando quieras, pero no impresiona a los inversores.',en:'Safe haven: it grows by itself and you can pull it out anytime, but investors are not impressed.'},
+  descartarTit:{es:'Descartar carta · recuperas el 60%',en:'Discard card · you get back 60%'},
+  descartar:{es:'Descartar',en:'Discard'},
+  descartarNota:{es:'Sale del mercado y vuelve al mazo. Vendérsela a un rival en Deal Time siempre te dará más.',en:'It returns to the deck. Selling it to a rival in Deal Time always pays better.'},
+  deudas:{es:'Deudas',en:'Debts'},
+  sinDeudas:{es:'Sin deudas',en:'No debts'},
+  liquidar:{es:'Liquidar',en:'Pay off'},
+  hacienda:{es:'Hacienda',en:'Tax office'},
+  sinRiesgo:{es:'Sin riesgo fiscal',en:'No tax risk'},
+  sanear:{es:'Sanear',en:'Settle'},
+  riesgoFiscal:{es:'Riesgo fiscal',en:'Tax risk'},
+  sinCartas:{es:'Sin cartas',en:'No cards'},
+  fundamentals:{es:'Fundamentals',en:'Fundamentals'},
+  debe:{es:'Debe',en:'Owes'},
+  oro:{es:'Oro',en:'Gold'},
+  teToca:{es:'Te toca',en:'Your move'},
+  enPrision:{es:'En prisión',en:'In prison'},
+  preso:{es:'Preso',en:'Jailed'},
+  condenado:{es:'Prisión el próximo turno',en:'Prison next turn'},
+  condenadoCorto:{es:'Condenada',en:'Sentenced'},
+  bancarrota:{es:'Bancarrota',en:'Bankruptcy'},
+  desclasificada:{es:'Desclasificada',en:'Disqualified'},
+  mercadoFluct:{es:'Mercado fluctuando…',en:'Market fluctuating…'},
+  seComio:{es:'se come el mercado',en:'has taken over the market'},
+  sinGanador:{es:'Partida sin ganador',en:'No winner'},
+  sinRivales:{es:'Sin rivales',en:'No rivals'}
+};
+function T(k){ const e=TR[k]; return e? (e[LANG]||e.es) : k; }
+const TIPO_EN={impuestos:'Taxes',inversion:'Investment',oportunidades:'Opportunities',amenazas:'Threats'};
+function nombreTipo(t){ return LANG==='en'? TIPO_EN[t] : NOMBRES_TIPO[t]; }
+function setLang(l){
+  LANG=l;
+  try{ localStorage.setItem('dafo-lang',l); }catch(e){}
+  renderSetup();
+  if(document.getElementById('lb-sala')&&document.getElementById('lb-sala').style.display!=='none') renderSala();
+}
+try{ const _l=localStorage.getItem('dafo-lang'); if(_l==='es'||_l==='en') LANG=_l; }catch(e){}
+
+/* ================== PERSONAJES ================== */
+const CHARACTERS=[
+ {id:'duende',nombre:'Duende',color:'#3f9a4f'},
+ {id:'unicornio',nombre:'Unicornio',color:'#a06ad6'},
+ {id:'robot',nombre:'Robot',color:'#5b8db1'},
+ {id:'pulpo',nombre:'Pulpo',color:'#c2379a'},
+ {id:'dragon',nombre:'Dragón',color:'#e05a2b'},
+ {id:'buho',nombre:'Búho',color:'#8a6a3d'}
+];
+
+function charSVG(id,size,estado){
+  const est=estado||'normal';
+  const k=id+'_'+est;
+  const src=RETRATOS[k]||RETRATOS[id+'_normal'];
+  if(!src) return '<svg viewBox="0 0 100 100" width="'+size+'" height="'+size+'"></svg>';
+  return '<img class="retrato" src="'+src+'" alt="" style="width:'+size+'px;height:auto;max-width:none">';
+}
+function charColor(id){const c=CHARACTERS.find(x=>x.id===id);return c?c.color:'#888';}
+
+/* ================== PANTALLA DE INICIO ================== */
+let SETUP=[
+  {nombre:'Forjacero S.A.',charId:'duende'},
+  {nombre:'Norte Industrial',charId:'unicornio'},
+  {nombre:'Vulcano Manufacturas',charId:'robot'}
+];
+
+function renderSetup(){
+  document.querySelector('#setup .hero p').textContent=T('tagline');
+  document.querySelector('#setup .card-title span').textContent=T('crear');
+  document.getElementById('setup-count').textContent=SETUP.length+' '+T('de6');
+  const ls=document.getElementById('lbl-elige-sector');
+  if(ls) ls.textContent=LANG==='en'?'Choose the sector':'Elige el sector';
+  const gs=document.getElementById('setup-sectores');
+  if(gs) gs.innerHTML=gridSectores(SECTOR_ID,'elegirSectorLocal',true);
+  const bA=document.getElementById('btn-add'), bJ=document.getElementById('btn-play');
+  if(bA) bA.textContent=T('anadir');
+  if(bJ) bJ.textContent=T('jugar');
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('on', b.dataset.l===LANG));
+  document.getElementById('slots').innerHTML=SETUP.map((sl,i)=>`
+    <div class="slot">
+      <div class="slot-top">
+        <div class="slot-avatar" style="--sc:${charColor(sl.charId)}">${charSVG(sl.charId,62)}</div>
+        <div class="slot-name">
+          <div class="slot-label">${T('nombreEmpresa')}</div>
+          <input type="text" value="${sl.nombre.replace(/"/g,'&quot;')}" oninput="SETUP[${i}].nombre=this.value" maxlength="26">
+        </div>
+        ${SETUP.length>2?`<button class="slot-del" onclick="quitarSlot(${i})">${T('quitar')}</button>`:''}
+      </div>
+      <div class="slot-label">${T('eligeChar')}</div>
+      <div class="chars">
+        ${CHARACTERS.map(c=>{
+          const mio=sl.charId===c.id;
+          const ocupado=!mio&&SETUP.some(o=>o.charId===c.id);
+          return `<div class="char ${mio?'on':''} ${ocupado?'taken':''}" style="--cc:${c.color}" onclick="elegirChar(${i},'${c.id}')">
+            ${charSVG(c.id,52)}<div class="char-name">${c.nombre}</div></div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+function elegirSectorLocal(id){ cargarSector(id); renderSetup(); }
+function elegirChar(i,id){ if(SETUP.some((o,k)=>k!==i&&o.charId===id))return; SETUP[i].charId=id; renderSetup(); }
+function anadirSlot(){
+  if(SETUP.length>=6)return;
+  const libre=CHARACTERS.find(c=>!SETUP.some(o=>o.charId===c.id));
+  if(!libre)return;
+  SETUP.push({nombre:'Empresa '+(SETUP.length+1),charId:libre.id});
+  renderSetup();
+}
+function quitarSlot(i){ if(SETUP.length<=2)return; SETUP.splice(i,1); renderSetup(); }
+
+function empezarPartida(){
+  const vacio=SETUP.find(s=>!s.nombre.trim());
+  if(vacio){ toast('Todas las empresas necesitan un nombre.'); return; }
+  const nombres=SETUP.map(s=>s.nombre.trim());
+  if(new Set(nombres).size!==nombres.length){ toast('Dos empresas no pueden llamarse igual.'); return; }
+  S.jugadores=SETUP.map(sl=>({
+    nombre:sl.nombre.trim(), charId:sl.charId, color:charColor(sl.charId), capital:150000,
+    fortalezas:[],debilidades:[],cartas:[],riesgoFiscal:0,eliminado:false,turnosBancarrota:0,
+    ultimoRendimiento:null,ultimoFactorDelta:null,oro:0,oroNuevo:0,carcel:0,carcelPendiente:false
+  }));
+  S.interes={};
+  S.jugadores.forEach(j=>S.interes[j.nombre]=100/S.jugadores.length);
+  S.banco=BANCO_POR_JUGADOR*S.jugadores.length;
+  S.sector=SECTOR_ID;
+  S.mazo=shuffle(POOL.inversion.map((c,i)=>({...c,id:i})));
+  S.mazo=shuffle(POOL.inversion.map((c,i)=>({...c,id:i})));
+  document.getElementById('setup').style.display='none';
+  document.getElementById('game').style.display='block';
+  iniciar();
+}
+
+let S={turno:1,yo:0,fase:'factor_externo',dealTab:'mesa',
+  jugadores:[],
+  interes:{},factorActual:null,cofreOrders:{},activosTurno:[],ronda:0,jIdx:0,
+  dealSec:300,dealTimer:null,prestamos:[],avisos:[],rachaLider:{nombre:null,turnos:0},
+  mesa:{ladoA:null,ladoB:null,selA:[],selB:[],dinA:'',dinB:''}, banco:0, mazo:[],
+  ver:0,iniciada:false,host:null,cursores:{},rondaFin:0,dealFin:0,cfgRonda:RONDA_SEG,cfgDeal:DEAL_SEG,sector:'industrial'};
+
+
+function activos(){return S.jugadores.filter(j=>!j.eliminado);}
+function porNombre(n){return S.jugadores.find(j=>j.nombre===n);}
+function ajustarInteres(n,d){if(S.interes[n]===undefined)return;S.interes[n]=Math.max(2,S.interes[n]+d);renorm();}
+function renorm(){const a=activos();const t=a.reduce((s,j)=>s+(S.interes[j.nombre]||0),0);
+  if(t<=0){a.forEach(j=>S.interes[j.nombre]=100/a.length);return;}
+  a.forEach(j=>S.interes[j.nombre]=S.interes[j.nombre]/t*100);}
+function addTag(j,c,t){if(!j[c].includes(t))j[c].push(t);}
+function deuda(j){return S.prestamos.filter(p=>p.a===j.nombre).reduce((s,p)=>s+p.totalRestante,0);}
+function fundamentals(j){return j.capital+j.cartas.reduce((s,c)=>s+(c.coste||0),0)-deuda(j);}
+function nTier(j,t){return j.cartas.filter(c=>tierDe(c)===t).length;}
+function ingresoPorTurno(j){
+  const r=j.cartas.reduce((s,c)=>s+(c.coste||0)*yieldPct(c),0);
+  const div=((S.interes[j.nombre]||0)*DIVIDENDO_POR_PUNTO)/3;
+  const cuotas=S.prestamos.filter(p=>p.a===j.nombre).reduce((s,p)=>s+p.cuota,0);
+  return r+div-cuotas;
+}
+
+function cardHTML(c,j){
+  const t=tierDe(c);
+  const col=COLOR_CAT[c.cat]||'#c9a227';
+  return `<div class="mini-card ${t==='normal'?'':t}" style="border-left-color:${col};background:${t==='holding'?'#fff6da':(t==='consolidada'?'#f2f4f8':col+'14')}">
+    <div class="mc-name">${c.nombre}</div>
+    <div class="mc-data">${fmt(c.coste)} · ${Math.round(yieldPct(c,j)*100)}%/turno (${fmt(c.coste*yieldPct(c,j))})</div></div>`;
+}
+
+function renderTop(){
+  const _cambios=[];
+  S.jugadores.forEach((j,idx)=>{
+    if(j._prev===undefined){ j._prev=j.capital; return; }
+    if(j.capital!==j._prev){
+      _cambios.push([idx, j.capital>j._prev ? 'cap-up' : 'cap-down']);
+      j._prev = j.capital;
+    }
+  });
+  const put=(id,txt)=>{const e=document.getElementById(id); if(e)e.textContent=txt;};
+  put('lbl-tuempresa',T('tuEmpresa')); put('lbl-inversores',T('inversores'));
+  put('lbl-rivales',T('rivales'));
+  put('lbl-sector',(LANG==='en'?'Companies — ':'Empresas — ')+nombreSector()); put('lbl-juegascomo',T('juegasComo'));
+  put('lbl-turno',T('turno')); put('lbl-trim',T('trimestre'));
+  const sal=document.getElementById('mp-salir');
+  if(sal) sal.innerHTML = MP.on
+    ? `<button class="gest-btn" style="width:100%;margin-top:8px;background:#c9c2d8;box-shadow:0 4px 0 #a9a1bd;color:#4a4160" onclick="abandonar()">${LANG==='en'?'Leave game':'Abandonar partida'}</button>`
+    : '';
+  document.getElementById('m-turno').textContent=S.turno;
+  document.getElementById('m-trim').textContent=Math.ceil(S.turno/3);
+  document.getElementById('banco-chip').textContent=T('banco')+': '+fmt(S.banco);
+
+  const sel=document.getElementById('sel-yo');
+  if(sel && sel.options.length!==S.jugadores.length){
+    sel.innerHTML=S.jugadores.map((j,i)=>`<option value="${i}">${j.nombre}</option>`).join('');
+    sel.value=S.yo; sel.disabled=MP.on;
+  }
+
+  const alerta=document.getElementById('alerta-dominio');
+  if(alerta){
+    if(S.rachaLider.nombre&&S.rachaLider.turnos>0){
+      const lj=porNombre(S.rachaLider.nombre);
+      const t=S.rachaLider.turnos;
+      const gan=S.rachaGanada;
+      alerta.innerHTML=`<div class="dominio ${gan?'ganada':(t>=2?'critico':'')}">
+        <div class="dom-cab"><span class="dom-emp" style="color:${gan?'#3a2c00':(lj?lj.color:'#fff')}">${S.rachaLider.nombre}</span>
+          <span class="dom-txt">${gan?(LANG==='en'?'HAS TAKEN OVER THE MARKET!':'¡SE COMIÓ EL MERCADO!'):(LANG==='en'?'is dominating the market':'domina el mercado')}</span></div>
+        <div class="dom-pips">${[1,2,3].map(k=>`<i class="${k<=t?'on':''}"></i>`).join('')}</div>
+        <div class="dom-pie">${t}/3 ${gan?(LANG==='en'?'— VICTORY':'— VICTORIA'):(LANG==='en'?(t>=2?'— one more turn and wins!':'turns'):(t>=2?'— ¡a un turno de ganar!':'turnos consecutivos'))}</div>
+      </div>`;
+    } else alerta.innerHTML='';
+  }
+  document.getElementById('inversores').innerHTML=activos().map(j=>`
+    <div class="inv-row"><div class="inv-name" style="color:${j.color};width:auto;flex:1;font-size:11.5px">${j.nombre}</div>
+    <div class="inv-pct">${S.interes[j.nombre].toFixed(0)}%</div></div>
+    <div class="inv-bar-bg" style="margin-bottom:9px;height:12px"><div class="inv-bar" style="width:${S.interes[j.nombre]}%;background:${j.color}"></div></div>`).join('');
+
+  const yo=S.jugadores[S.yo];
+  const actNom=(S.fase==='cofres'&&S.activosTurno[S.jIdx])?S.activosTurno[S.jIdx].nombre:null;
+
+  if(yo){
+    document.getElementById('mi-empresa').innerHTML=tarjetaCompleta(yo, yo.nombre===actNom);
+    document.getElementById('gestion').innerHTML=panelGestion(yo);
+  }
+  document.getElementById('rivales').innerHTML=S.jugadores
+    .filter((j,i)=>i!==S.yo)
+    .map(j=>tarjetaRival(j, j.nombre===actNom)).join('') || `<div class="rival-line">${T('sinRivales')}</div>`;
+
+  _cambios.forEach(([idx,clase])=>{
+    const cont=document.querySelector('[data-emp="'+idx+'"]');
+    if(!cont)return;
+    const num=cont.querySelector('.player-cap,.rival-cap');
+    if(!num)return;
+    num.classList.remove('cap-up','cap-down'); void num.offsetWidth;
+    num.classList.add(clase);
+  });
+}
+
+function tarjetaCompleta(j, esTurno){
+  const d=deuda(j);
+  let btn='';
+  const catFus=j.eliminado?null:catConCuatro(j);
+  if(catFus) btn=`<button class="btn-silver" onclick="fusionar('${j.nombre}','normal','${catFus}')">Consolidated Portfolio · ${catFus}</button>`;
+  else {
+    const catHold=j.eliminado?null:catConDosPortfolios(j);
+    if(catHold) btn=`<button class="btn-gold" onclick="fusionar('${j.nombre}','consolidada','${catHold}')">Industrial Holding · ${catHold}</button>`;
+  }
+  const rejas = j.carcel>0 ? `<div class="rejas ${j._rejasNew?'cae':''}"><i></i><i></i><i></i><i></i><i></i><i></i></div>` : '';
+  if(j._rejasNew) setTimeout(()=>{j._rejasNew=false;},900);
+  return `<div class="yo-card ${j.eliminado?'eliminado':''}" data-emp="${S.jugadores.indexOf(j)}" style="--pc:${j.color}">${rejas}
+    ${esTurno?`<span class="yo-badge">${T('teToca')}</span>`:''}
+    <div class="player-head"><span class="avatar-mini" style="--pc:${j.color}">${charSVG(j.charId,32)}</span>
+      <span class="player-name" style="color:${j.color}">${j.nombre}</span>
+      ${j.carcel>0?`<span class="bank-chip preso">${T('enPrision')}</span>`:''}
+      ${j.carcelPendiente?`<span class="bank-chip condenado">${T('condenado')}</span>`:''}
+      ${!j.eliminado&&j.turnosBancarrota>0?`<span class="bank-chip">${T('bancarrota')} ${j.turnosBancarrota}/3</span>`:''}
+      ${j.eliminado?`<span class="bank-chip">${T('desclasificada')}</span>`:''}</div>
+    <div class="player-cap ${j.capital<0?'neg':''}">${fmt(j.capital)}</div>
+    ${j.ultimoRendimiento?`<div class="player-yield">+${fmt(j.ultimoRendimiento)} inversiones</div>`:''}
+    ${j.ultimoFactorDelta?`<div class="player-factor ${j.ultimoFactorDelta>0?'pos':'neg'}">${j.ultimoFactorDelta>0?'+':''}${fmt(j.ultimoFactorDelta)} factor externo</div>`:''}
+    ${d>0?`<div class="player-debt">${T('debe')}: ${fmt(d)}</div>`:''}
+    <div class="player-fund">${T('fundamentals')}: ${fmt(fundamentals(j))}</div>
+    <div class="tags">
+      ${j.fortalezas.filter(f=>f!=='consolidada'&&f!=='holding').map(f=>`<span class="tag f">${f}</span>`).join('')}
+      ${j.debilidades.map(x=>`<span class="tag d">${x}</span>`).join('')}
+      ${j.riesgoFiscal>0?`<span class="tag rf">Riesgo fiscal ${j.riesgoFiscal}/3</span>`:''}</div>
+    <div class="cards-list">${j.cartas.map(c=>cardHTML(c,j)).join('')}</div>${btn}</div>`;
+}
+
+function tarjetaRival(j, esTurno){
+  const d=deuda(j);
+  return `<div class="rival ${j.eliminado?'eliminado':''}" data-emp="${S.jugadores.indexOf(j)}" style="--pc:${j.color};${esTurno?'box-shadow:0 0 0 3px '+j.color:''}">${j.carcel>0?`<div class="rejas ${j._rejasNew?'cae':''}"><i></i><i></i><i></i><i></i></div>`:''}
+    <div class="rival-head"><span class="avatar-rival" style="--pc:${j.color}">${charSVG(j.charId,26)}</span>
+      <span class="rival-name" style="color:${j.color}">${j.nombre}</span>
+      ${j.carcel>0?`<span class="bank-chip preso">${T('preso')}</span>`:''}
+      ${j.carcelPendiente?`<span class="bank-chip condenado">${T('condenadoCorto')}</span>`:''}
+      ${!j.eliminado&&j.turnosBancarrota>0?`<span class="bank-chip">${j.turnosBancarrota}/3</span>`:''}</div>
+    <div class="rival-cap ${j.capital<0?'neg':''}">${fmt(j.capital)}</div>
+    ${d>0?`<div class="rival-line deuda">${T('debe')} ${fmt(d)}</div>`:''}
+    ${(j.oro||0)>0?`<div class="rival-line" style="color:#b8860b">${T('oro')} ${fmt(j.oro)}</div>`:''}
+    <div class="rival-line">${T('fundamentals')} ${fmt(fundamentals(j))}</div>
+    ${j.eliminado?'<div class="rival-line deuda">Desclasificada</div>':''}
+    <div class="rival-cards">${j.cartas.map(c=>`<div class="rc ${tierDe(c)==='normal'?'':tierDe(c)}" style="border-left-color:${COLOR_CAT[c.cat]||'#c9a227'}">${c.nombre} · ${fmt(c.coste)} · ${Math.round(yieldPct(c,j)*100)}%</div>`).join('')}</div>
+  </div>`;
+}
+
+function cambiarYo(i){ S.yo=Number(i); renderTop(); }
+
+function panelGestion(j){
+  if(j.eliminado) return '';
+  const misDeudas=S.prestamos.map((p,i)=>({p,i})).filter(x=>x.p.a===j.nombre);
+  const deudasHTML=misDeudas.length? misDeudas.map(x=>{
+    const puede=j.capital>=x.p.totalRestante;
+    return `<div class="gest-row">
+      <span class="gest-lab">${x.p.banco?'Banco':x.p.de}<br><b>${fmt(x.p.totalRestante)}</b></span>
+      <button class="gest-btn ${puede?'':'off'}" onclick="liquidarDeuda(${x.i})">${T('liquidar')}</button>
+    </div>`;}).join('') : `<div class="gest-vacio">${T('sinDeudas')}</div>`;
+
+  const costeRF=COSTE_LIMPIAR_RF*j.riesgoFiscal;
+  const rfHTML=j.riesgoFiscal>0? `
+    <div class="gest-row">
+      <span class="gest-lab">${T('riesgoFiscal')} ${j.riesgoFiscal}/3</span>
+      <button class="gest-btn ${j.capital>=costeRF?'':'off'}" onclick="limpiarRF()">${T('sanear')} ${fmt(costeRF)}</button>
+    </div>` : `<div class="gest-vacio">${T('sinRiesgo')}</div>`;
+
+  return `<div class="card" style="padding:14px 15px">
+    <p class="card-title"><span>${T('tesoreria')}</span></p>
+    <div class="gest-bloque">
+      <div class="gest-tit">Oro · +${Math.round(ORO_CRECIMIENTO*100)}% cada turno</div>
+      <div class="oro-cifra">${fmt(j.oro||0)}</div>
+      ${(j.oroNuevo||0)>0?`<div class="oro-espera">+${fmt(j.oroNuevo)} madurando · disponible el próximo turno</div>`:''}
+      <input type="number" id="oro-monto" class="oro-input" min="0" step="1000" placeholder="Cantidad $">
+      <div class="gest-row" style="margin-top:8px">
+        <button class="gest-btn oro" onclick="moverOro('comprar')">${T('comprar')}</button>
+        <button class="gest-btn oro" onclick="moverOro('rescatar')">${T('rescatar')}</button>
+      </div>
+      <div class="gest-nota">Refugio seguro: crece solo y lo sacas cuando quieras, pero no impresiona a los inversores.</div>
+    </div>
+    <div class="gest-bloque">
+      <div class="gest-tit">Descartar carta · recuperas el ${Math.round(LIQUIDAR_PCT*100)}%</div>
+      ${j.cartas.length? j.cartas.map((c,k)=>{
+        const col=COLOR_CAT[c.cat]||'#c9a227';
+        return `<div class="carta-gest" style="border-left-color:${col};background:${col}12">
+          <button class="x-descartar" title="${T('descartar')}" onclick="pedirDescarte(${k})">✕</button>
+          <div class="cg-nombre" style="color:${col}">${c.nombre}</div>
+          <div class="cg-datos">${fmt(c.coste)} → <b>${fmt(Math.round(c.coste*LIQUIDAR_PCT))}</b></div>
+        </div>`;}).join('') : `<div class="gest-vacio">${T('sinCartas')}</div>`}
+      <div class="gest-nota">Sale del mercado y vuelve al mazo. Vendérsela a un rival en Deal Time siempre te dará más.</div>
+    </div>
+    <div class="gest-bloque"><div class="gest-tit">${T('deudas')}</div>${deudasHTML}</div>
+    <div class="gest-bloque"><div class="gest-tit">${T('hacienda')}</div>${rfHTML}</div>
+  </div>`;
+}
+
+function moverOro(accion){
+  const j=S.jugadores[S.yo];
+  const campo=document.getElementById('oro-monto');
+  const n=Math.round(Number(campo?campo.value:0)||0);
+  const max = accion==='comprar'? Math.max(0,j.capital) : (j.oro||0);
+  const bloqueado = j.oroNuevo||0;
+  if(n<=0){ toast('Escribe una cantidad en el campo antes de pulsar.'); return; }
+  if(n>max){ toast(accion==='comprar'?`Solo tienes ${fmt(max)} en caja.`:(bloqueado?`Solo ${fmt(max)} está disponible: ${fmt(bloqueado)} todavía está madurando.`:`Solo tienes ${fmt(max)} en oro.`)); return; }
+  if(accion==='comprar'){
+    j.capital-=n; j.oroNuevo=(j.oroNuevo||0)+n;
+    toast(`${fmt(n)} convertidos en oro. Disponible para rescatar el turno que viene.`);
+    setTimeout(fxMonedas,40);
+  } else {
+    j.oro-=n; j.capital+=n; toast(`${fmt(n)} de oro rescatados a caja.`);
+  }
+  refrescar();
+}
+
+function pedirDescarte(k){
+  const j=S.jugadores[S.yo]; const c=j.cartas[k]; if(!c)return;
+  const col=COLOR_CAT[c.cat]||'#c9a227';
+  const cobro=Math.round(c.coste*LIQUIDAR_PCT);
+  overlayFX('<div class="fx-box"><div class="confirm-box">'+
+    '<div class="cf-txt">'+(LANG==='en'?'Discard':'¿Seguro que quieres descartar')+' <b style="color:'+col+'">'+c.nombre+'</b> '+
+    (LANG==='en'?'for':'por')+' <b>'+fmt(cobro)+'</b>?</div>'+
+    '<div class="cf-btns">'+
+      '<button class="cf-si" onclick="confirmarDescarte('+k+')">'+(LANG==='en'?'Yes':'Sí')+'</button>'+
+      '<button class="cf-no" onclick="cerrarConfirm()">'+(LANG==='en'?'No':'No')+'</button>'+
+    '</div></div></div>', 60000);
+  const o=document.getElementById('fx'); if(o) o.style.pointerEvents='auto';
+}
+function cerrarConfirm(){
+  const o=document.getElementById('fx');
+  if(o){ o.classList.remove('on'); o.style.pointerEvents='none'; setTimeout(function(){o.innerHTML='';},350); }
+  clearTimeout(window._fxT);
+}
+function confirmarDescarte(k){ cerrarConfirm(); liquidarCarta(k); }
+
+function liquidarCarta(k){
+  const j=S.jugadores[S.yo];
+  const c=j.cartas[k]; if(!c)return;
+  const cobro=Math.round(c.coste*LIQUIDAR_PCT);
+  j.cartas.splice(k,1);
+  j.capital+=cobro;
+  const t=tierDe(c);
+  if(t==='normal' && typeof c.id==='number' && !S.mazo.some(x=>x.id===c.id)){
+    const orig=POOL.inversion.find((x,i)=>i===c.id);
+    if(orig) S.mazo.push({...orig,id:c.id});
+  }
+  if(t!=='normal'){
+    const etiqueta = t==='holding'?'holding':'consolidada';
+    if(!j.cartas.some(x=>tierDe(x)===t)){
+      const q=j.fortalezas.indexOf(etiqueta); if(q>-1) j.fortalezas.splice(q,1);
+    }
+  }
+  ajustarInteres(j.nombre,-2);
+  toast(`${c.nombre} liquidada por ${fmt(cobro)}${t==='normal'?' · vuelve al mercado':''}.`);
+  refrescar();
+}
+
+function liquidarDeuda(idx){
+  const p=S.prestamos[idx]; if(!p)return;
+  const j=porNombre(p.a);
+  if(j.capital<p.totalRestante){ toast(`Necesitas ${fmt(p.totalRestante)} en caja. Tienes ${fmt(j.capital)}.`); return; }
+  j.capital-=p.totalRestante;
+  if(p.banco) S.banco+=p.totalRestante; else porNombre(p.de).capital+=p.totalRestante;
+  toast(`Deuda con ${p.banco?'el banco':p.de} liquidada: ${fmt(p.totalRestante)}.`);
+  S.prestamos.splice(idx,1);
+  refrescar();
+}
+
+function limpiarRF(){
+  const j=S.jugadores[S.yo];
+  if(j.riesgoFiscal<=0)return;
+  const coste=COSTE_LIMPIAR_RF*j.riesgoFiscal;
+  if(j.capital<coste){ toast(`Sanear cuesta ${fmt(coste)} y tienes ${fmt(j.capital)}.`); return; }
+  j.capital-=coste; j.riesgoFiscal=0;
+  const k=j.debilidades.indexOf('riesgo fiscal'); if(k>-1)j.debilidades.splice(k,1);
+  toast(`Situación fiscal regularizada por ${fmt(coste)}.`);
+  refrescar();
+}
+
+function refrescar(){
+  tocado();
+  renderTop();
+  if(S.fase==='cofres') renderRonda();
+  else if(S.fase==='deal_time'){ renderDealBody(); }
+}
+
+function renderFactor(){
+  pararTemblor();
+  document.getElementById('fase-tag').textContent=T('factorExterno');
+  const f=S.factorActual;
+  document.getElementById('fase-content').innerHTML=`
+    <span class="factor-cat">${f.categoria||''}</span>
+    <p class="factor-titulo">${f.titulo}</p>
+    <p class="factor-desc">${f.descripcion}</p>
+    ${(S.avisos||[]).length?`<div class="avisos-box">${S.avisos.map(a=>`<div class="efecto-mini">${a}</div>`).join('')}</div>`:''}
+    ${(f.efectos||[]).map(e=>`<div class="efecto-mini ${e.tipo}"><b>${e.jugador}:</b> ${e.explicacion}</div>`).join('')}
+    ${(!MP.on||MP.host)
+      ?`<button class="btn block" style="margin-top:12px" onclick="comenzarCofres()">${T('abrirOrden')}</button>`
+      :`<div class="lb-nota" style="text-align:center">${LANG==='en'?'Waiting for the host…':'Esperando al anfitrión…'}</div>`}`;
+}
+
+function iniciar(){
+  S.factorActual={titulo:'Aparición de nuevo mercado',categoria:'Tecnológico',
+    descripcion:(LANG==='en'?'The '+nombreSector()+' market is born. The race to lead it begins.':'Nace el mercado de '+nombreSector()+'. Empieza la carrera por liderarlo.'),efectos:[]};
+  renderTop();renderFactor();
+}
+
+function comenzarCofres(){
+  if(MP.on&&!MP.host){ toast(LANG==='en'?'Waiting for the host':'Esperando al anfitrión'); return; }
+  pararTemblor();
+  S.fase='cofres';
+  S.activosTurno=activos();
+  S.activosTurno.forEach(j=>S.cofreOrders[j.nombre]=shuffle(TIPOS));
+  S.ronda=0;
+  document.getElementById('fase-tag').textContent=T('ordenDia');
+  prepararRonda(); tocado();
+}
+
+function generarItem(j,tipo){
+  if(tipo==='impuestos') return pick(POOL.impuestos,1)[0];
+  if(tipo==='oportunidades') return pick(POOL.oportunidades,1)[0];
+  return pick(POOL.amenazas,1)[0];
+}
+
+function reponerMercado(){
+  const enJuego=new Set();
+  S.jugadores.forEach(j=>j.cartas.forEach(c=>{ if(typeof c.id==='number'&&tierDe(c)==='normal') enJuego.add(c.id); }));
+  const enMazo=new Set(S.mazo.map(c=>c.id));
+  const fuera=POOL.inversion.map((c,i)=>({...c,id:i})).filter(c=>!enJuego.has(c.id)&&!enMazo.has(c.id));
+  if(fuera.length){
+    S.mazo=S.mazo.concat(shuffle(fuera));
+    S.avisos.push(`El mercado se renueva: ${fuera.length} ${fuera.length===1?'inversión vuelve':'inversiones vuelven'} a estar disponible${fuera.length===1?'':'s'}.`);
+  }
+}
+
+function prepararRonda(){
+  S.rondaFin=Date.now()+(S.cfgRonda||RONDA_SEG)*1000;
+  const activosRonda=activos().filter(j=>!j.carcel);
+  if(S.mazo.length < activosRonda.length*3) reponerMercado();
+  const disp=shuffle(S.mazo);
+  S.rondaData=activos().filter(j=>!j.carcel).map(j=>{
+    const tipo=S.cofreOrders[j.nombre][S.ronda];
+    let item;
+    if(tipo==='inversion'){
+      const opts=[];
+      const cat=j.debilidades.find(d=>CATS.includes(d));
+      if(cat){ const k=disp.findIndex(c=>c.cat===cat); if(k>-1) opts.push(disp.splice(k,1)[0]); }
+      while(opts.length<3 && disp.length) opts.push(disp.shift());
+      item={opts:shuffle(opts)};
+    } else item=generarItem(j,tipo);
+    return {nombre:j.nombre,tipo,item,resuelto:false,msg:'',golpe:tipo==='amenazas'};
+  });
+  renderRonda();
+}
+
+function panelExpediente(d,i){
+  const j=porNombre(d.nombre);
+  const yo = j.nombre===(S.jugadores[S.yo]||{}).nombre;
+  const _p = esMio(i);
+  const H=(k)=>MP.on&&_p?` onmouseenter="marcarHover(${i},${k})" onmouseleave="marcarHover(${i},null)"`:'';
+  const C=(k)=>cursoresEn(i,k);
+  const G=(fn)=>_p?fn:'toast(&quot;'+(LANG==='en'?'Not your file':'Este expediente no es tuyo')+'&quot;)';
+  let cuerpo='';
+  if(d.resuelto){
+    cuerpo=`<div class="exp-result">${d.msg}</div>`;
+  } else if(d.tipo==='impuestos'){
+    cuerpo=`<div class="exp-item">${d.item.titulo} — ${fmt(-d.item.coste)}${j.riesgoFiscal>0?' · pagar limpia el riesgo fiscal':''}</div>
+      <div class="exp-ops">
+        <button class="opt-btn"${H(0)} onclick="${G(`resolverPara(${i},{delta:${-d.item.coste},curaRF:true})`)}">${T('pagar')}${C(0)}</button>
+        <button class="opt-btn"${H(1)} onclick="${G(`evadir(${i})`)}">${T('evadir')}${C(1)}</button></div>`;
+  } else if(d.tipo==='inversion'){
+    const libre=nTier(j,'normal')<MAX_POR_TIER;
+    cuerpo=`<div class="exp-item">${libre?'Elige una inversión o ninguna · <b>solo existe una carta de cada</b>':'<b>Cartera llena (4/4).</b> Para volver a invertir: fusiona 4 del mismo color, o negocia cartas en Deal Time.'}</div><div class="exp-ops">`;
+    if(!d.item.opts.length) cuerpo+=`<div class="gest-vacio" style="margin-bottom:8px">El mercado se ha quedado sin inversiones libres.</div>`;
+    d.item.opts.forEach((o,_k)=>{
+      const bono=bonoColor(j,o.cat)>1?` · x${bonoColor(j,o.cat)} por color`:'';
+      if(!libre){
+        cuerpo+=`<button class="opt-btn bloqueada" style="background:${COLOR_CAT[o.cat]};box-shadow:0 6px 0 rgba(0,0,0,.28)" onclick="negar(this)">
+          <b>${o.nombre}</b><br><span style="font-size:11.5px;opacity:.92">${o.cat} · ${fmt(-o.coste)} · cartera llena</span></button>`;
+      } else {
+        cuerpo+=`<button class="opt-btn" style="background:${COLOR_CAT[o.cat]};box-shadow:0 6px 0 rgba(0,0,0,.28)"${H(_k)} onclick='${_p?`resolverPara(${i},{delta:${-o.coste},f:"${o.cat}",carta:{id:${o.id},nombre:"${o.nombre}",cat:"${o.cat}",coste:${o.coste},tier:"normal"},interes:4})`:''}'>
+          <b>${o.nombre}</b><br><span style="font-size:11.5px;opacity:.9">${o.cat} · ${fmt(-o.coste)}${bono}</span>${C(_k)}</button>`;
+      }
+    });
+    cuerpo+=`<button class="opt-btn" style="background:#7a7290;box-shadow:0 6px 0 #55506a"${H(9)} onclick="${G(`resolverPara(${i},{delta:0,interes:-2})`)}">${T('noInvertir')}${C(9)}</button></div>`;
+  } else if(d.tipo==='oportunidades'){
+    cuerpo=`<div class="exp-item">${d.item.nombre} — ${d.item.coste?fmt(-d.item.coste):'sin coste'}</div>
+      <div class="exp-ops">
+        <button class="opt-btn"${H(0)} onclick='${_p?`resolverPara(${i},{delta:${-d.item.coste},f:"oportunidad",interes:3})`:''}'>${T('aceptar')}${C(0)}</button>
+        <button class="opt-btn"${H(1)} onclick="${G(`resolverPara(${i},{delta:0,interes:-1})`)}">${T('rechazar')}${C(1)}</button></div>`;
+  } else {
+    const a=d.item;
+    const prot=j.fortalezas.includes(a.relacion)||j.fortalezas.includes('consolidada')||j.fortalezas.includes('holding');
+    const imp=prot?Math.round(a.impacto/2):a.impacto;
+    cuerpo=`<div class="exp-item">${a.nombre} <span style="color:${COLOR_CAT[a.relacion]||'#888'}">(${a.relacion})</span> — ${fmt(imp)}${prot?' · amortiguado':''}</div>
+      <div class="exp-ops">
+        <button class="opt-btn" onclick='resolverPara(${i},{delta:${imp},msg:"Absorbes el golpe entero (${fmt(imp)}). Sin secuelas ni castigo de los inversores."})'>Absorber (${fmt(imp)})</button>
+        <button class="opt-btn" onclick='mitigar(${i},${imp},"${a.relacion}")'>Mitigar $2.000 (70% sale bien)</button></div>`;
+  }
+  const golpe = d.golpe ? 'golpe' : '';
+  if(d.golpe) d.golpe=false;
+  const puedo = esMio(i);
+  return `<div class="exp ${d.resuelto?'listo':''} ${yo?'mio':''} ${golpe} ${puedo?'':'ajeno'}" style="--pc:${j.color}">
+    <div class="exp-head"><span class="avatar-rival" style="--pc:${j.color}">${charSVG(j.charId,24)}</span>
+      <span class="exp-name" style="color:${j.color}">${j.nombre}${yo?' (tú)':''}</span>
+      <span class="exp-tipo">${nombreTipo(d.tipo)}</span>
+      ${d.resuelto?'<span class="exp-tick">✓</span>':''}</div>
+    ${cuerpo}</div>`;
+}
+
+function renderRonda(){
+  pararTemblor();
+  const faltan=S.rondaData.filter(d=>!d.resuelto).length;
+  document.getElementById('fase-content').innerHTML=`
+    ${MP.on&&S.rondaFin?`<div class="ronda-timer ${(S.rondaFin-Date.now())<20000?'urge':''}" id="ronda-timer">${Math.max(0,Math.ceil((S.rondaFin-Date.now())/1000))}s</div>`:''}
+    <p class="factor-titulo">${T('ronda')} ${S.ronda+1} ${T('de4')}</p>
+    <p class="factor-desc">${T('todasVez')} ${faltan?`${T('faltan')} ${faltan} ${T('porDecidir')}`:T('todasDecidido')} · <b>${S.mazo.length} ${T('libresMercado')}</b></p>
+    ${activos().filter(j=>j.carcel).map(j=>`<div class="preso-aviso"><b style="color:${j.color}">${j.nombre}</b> está en prisión: no abre expedientes este turno, pero sigue cobrando rendimientos y dividendos.</div>`).join('')}
+    <div class="exp-grid">${S.rondaData.map((d,i)=>panelExpediente(d,i)).join('')}</div>
+    ${faltan?'':(!MP.on||MP.host
+        ?`<button class="btn block" style="margin-top:14px" onclick="avanzarRonda()">${S.ronda>=3?T('irDeal'):T('siguienteRonda')}</button>`
+        :`<div class="lb-nota" style="text-align:center">${LANG==='en'?'Waiting for the host to continue…':'Esperando a que el anfitrión continúe…'}</div>`)}`;
+  renderTop();
+}
+
+function resolverPara(i,r){
+  const d=S.rondaData[i]; if(d.resuelto)return;
+  const j=porNombre(d.nombre);
+  if(r.carta && nTier(j,'normal')>=MAX_POR_TIER){
+    toast('Cartera llena: no puedes comprar más cartas normales.'); return;
+  }
+  j.capital+=r.delta;
+  let n=[];
+  if(r.f){addTag(j,'fortalezas',r.f);const k=j.debilidades.indexOf(r.f);if(k>-1){j.debilidades.splice(k,1);n.push('Debilidad de '+r.f+' curada');}}
+  if(r.d)addTag(j,'debilidades',r.d);
+  if(r.curaRF){const k=j.debilidades.indexOf('riesgo fiscal');if(k>-1)j.debilidades.splice(k,1);j.riesgoFiscal=0;n.push('Riesgo fiscal limpiado');}
+  if(r.carta){
+    if(nTier(j,'normal')<MAX_POR_TIER){
+      j.cartas.push(r.carta);
+      const k=S.mazo.findIndex(c=>c.id===r.carta.id); if(k>-1) S.mazo.splice(k,1);
+      const b=bonoColor(j,r.carta.cat);
+      n.push('Carta obtenida'+(b>1?` · bonus de color x${b}`:''));}
+    else n.push('Sin carta: ya tienes 4 normales');}
+  if(r.interes)ajustarInteres(j.nombre,r.interes);
+  d.resuelto=true;
+  d.msg=(r.msg||`${fmt(r.delta)} aplicado`)+(n.length?' · '+n.join(' · '):'');
+  tocado(); renderRonda();
+}
+
+function evadir(i){
+  const d=S.rondaData[i]; if(d.resuelto)return;
+  const j=porNombre(d.nombre), coste=d.item.coste;
+  let msg='';
+  if(Math.random()<.5){
+    j.riesgoFiscal++;
+    if(j.riesgoFiscal>=3){
+      const p=Math.round(coste*2);j.capital-=p;addTag(j,'debilidades','riesgo fiscal');
+      ajustarInteres(j.nombre,-3);j.riesgoFiscal=0;
+      msg=`Auditoría: pagas el doble (${fmt(-p)}). Contador reiniciado.`;
+    } else msg=`Evasión con éxito, no pagas nada. Riesgo fiscal ${j.riesgoFiscal}/3.`;
+  } else {
+    const p=Math.round(coste*1.5);j.capital-=p;addTag(j,'debilidades','riesgo fiscal');
+    j.pillado=(j.pillado||0)+1;
+    if(j.pillado>=3){
+      j.carcelPendiente=true; j.pillado=0; j.riesgoFiscal=0;
+      ajustarInteres(j.nombre,-12);
+      msg=`Te detectan por tercera vez: pagas el 150% (${fmt(-p)}) y la dirección acaba condenada. Terminas este turno con normalidad, pero pierdes ENTERO el turno siguiente.`;
+    } else {
+      ajustarInteres(j.nombre,-2);
+      msg=`Te detectan: pagas el 150% (${fmt(-p)}). Van ${j.pillado}/3 veces — a la tercera, prisión.`;
+    }
+  }
+  d.resuelto=true; d.msg=msg; tocado(); renderRonda();
+}
+
+function mitigar(i,imp,rel){
+  const d=S.rondaData[i]; if(d.resuelto)return;
+  const fee=2000;
+  if(Math.random()<.7){
+    const delta=Math.round(-fee+imp/2);
+    resolverPara(i,{delta,interes:1,msg:`Mitigación con éxito: total ${fmt(delta)}. Sin debilidad.`});
+  } else {
+    const delta=Math.round(-fee+imp);
+    resolverPara(i,{delta,d:rel,interes:-4,msg:`La mitigación falla: total ${fmt(delta)} y queda Debilidad en ${rel}.`});
+  }
+}
+
+function avanzarRonda(){
+  if(MP.on&&!MP.host) return;
+  S.ronda++;
+  if(S.ronda>=4){iniciarDealTime();return;}
+  prepararRonda(); tocado();
+}
+
+function catConCuatro(j){
+  return CATS.find(c=>j.cartas.filter(x=>tierDe(x)==='normal'&&x.cat===c).length>=4)||null;
+}
+function catConDosPortfolios(j){
+  return CATS.find(c=>j.cartas.filter(x=>tierDe(x)==='consolidada'&&x.cat===c).length>=2)||null;
+}
+
+function fusionar(nombre,tier,cat){
+  const j=porNombre(nombre);
+  const normal = tier==='normal';
+  const el = normal
+    ? j.cartas.filter(c=>tierDe(c)==='normal'&&c.cat===cat)
+    : j.cartas.filter(c=>tierDe(c)==='consolidada'&&c.cat===cat);
+  const nec = normal?4:2;
+  if(el.length<nec){ toast(normal?'Necesitas 4 cartas del mismo color.':'Necesitas 2 portfolios del mismo color.'); return; }
+  const usar=el.slice(0,nec), total=Math.round(usar.reduce((s,c)=>s+c.coste,0)*1.15);
+  const _usadas=usar.map(c=>({nombre:c.nombre,cat:c.cat}));
+  usar.forEach(c=>{
+    if(tierDe(c)==='normal'&&typeof c.id==='number'&&!S.mazo.some(x=>x.id===c.id)){
+      const orig=POOL.inversion[c.id];
+      if(orig) S.mazo.push({...orig,id:c.id});
+    }
+  });
+  const nuevoTier = tier==='normal'?'consolidada':'holding';
+  if(nTier(j,nuevoTier)>=MAX_POR_TIER){ toast(`Ya tienes ${MAX_POR_TIER} de ese nivel.`); return; }
+  j.cartas=j.cartas.filter(c=>!usar.includes(c));
+  if(nuevoTier==='consolidada'){
+    j.cartas.push({nombre:'Consolidated Portfolio · '+cat,cat:cat,coste:total,tier:'consolidada'});
+    addTag(j,'fortalezas','consolidada'); ajustarInteres(nombre,6);
+    fxFusion(_usadas,'Consolidated Portfolio · '+cat,'consolidada');
+    toast(`${nombre} consolida 4 cartas de ${cat} en un portfolio de ${fmt(total)} al ${Math.round(YIELD.consolidada*100)}%/turno.`);
+  } else {
+    j.cartas.push({nombre:'Industrial Holding · '+cat,cat:cat,coste:total,tier:'holding'});
+    addTag(j,'fortalezas','holding'); ajustarInteres(nombre,12);
+    fxFusion(_usadas,'Industrial Holding · '+cat,'holding');
+    toast(`${nombre} funda un INDUSTRIAL HOLDING de ${cat}: ${fmt(total)} al ${Math.round(YIELD.holding*100)}%/turno. Ha acaparado el color entero.`);
+  }
+  refrescar();
+}
+
+function iniciarDealTime(){
+  pararTemblor();
+  const _dt=S.cfgDeal||DEAL_SEG;
+  S.fase='deal_time';S.dealSec=_dt;S.dealTab='mesa';
+  if(!MP.on||MP.host) S.dealFin=Date.now()+_dt*1000;
+  const a=activos().filter(x=>!x.carcel);
+  S.mesa={ladoA:a[0]?a[0].nombre:null,ladoB:a[1]?a[1].nombre:null,selA:[],selB:[],dinA:'',dinB:''};
+  document.getElementById('fase-tag').textContent=T('dealTime');
+  renderTop();renderDealTime();
+  S.dealTimer=setInterval(()=>{
+    if(MP.on&&S.dealFin) S.dealSec=Math.max(0,Math.ceil((S.dealFin-Date.now())/1000)); else S.dealSec--;
+    const m=Math.floor(S.dealSec/60),s=String(S.dealSec%60).padStart(2,'0');
+    const e=document.getElementById('deal-timer');if(e)e.textContent=`${m}:${s}`;
+    if(S.dealSec<=0&&(!MP.on||MP.host))terminarDealTime();},1000);
+}
+function renderDealTime(){
+  const _m=Math.floor((S.cfgDeal||DEAL_SEG)/60), _s=String((S.cfgDeal||DEAL_SEG)%60).padStart(2,'0');
+  document.getElementById('fase-content').innerHTML=`
+    <p class="deal-sub">${T('negociad')}</p>
+    <div class="timer" id="deal-timer">${_m}:${_s}</div>
+    <div class="deal-tabs">
+      <button class="deal-tab ${S.dealTab==='mesa'?'on':''}" onclick="setTab('mesa')">${T('mesaTab')}</button>
+      <button class="deal-tab ${S.dealTab==='prestamo'?'on':''}" onclick="setTab('prestamo')">${T('prestamoTab')}</button>
+      <button class="deal-tab ${S.dealTab==='banco'?'on':''}" onclick="setTab('banco')">${T('bancoTab')}</button>
+    </div>
+    <div id="deal-body"></div>
+    <button class="btn block" style="margin-top:6px" onclick="terminarDealTime()">${T('terminarDeal')}</button>`;
+  renderDealBody();
+}
+function setTab(t){S.dealTab=t;renderDealTime();}
+function renderDealBody(){
+  const b=document.getElementById('deal-body');if(!b)return;
+  b.innerHTML = S.dealTab==='mesa'?mesaHTML():(S.dealTab==='prestamo'?contratoHTML():bancoHTML());
+  renderPrestamos();
+  if(S.dealTab==='banco') actualizarBanco();
+}
+
+function ladoHTML(l){
+  const elegibles=activos().filter(x=>!x.carcel);
+  let nom=l==='A'?S.mesa.ladoA:S.mesa.ladoB;
+  if(!elegibles.some(x=>x.nombre===nom)){
+    const otro=l==='A'?S.mesa.ladoB:S.mesa.ladoA;
+    const alt=elegibles.find(x=>x.nombre!==otro)||elegibles[0];
+    nom=alt?alt.nombre:null;
+    if(l==='A'){S.mesa.ladoA=nom;S.mesa.selA=[];} else {S.mesa.ladoB=nom;S.mesa.selB=[];}
+  }
+  const j=porNombre(nom), sel=l==='A'?S.mesa.selA:S.mesa.selB;
+  const otro = l==='A'?S.mesa.ladoB:S.mesa.ladoA;
+  const ops=elegibles.filter(p=>p.nombre!==otro||p.nombre===nom)
+    .map(p=>`<option value="${p.nombre}" ${p.nombre===nom?'selected':''}>${p.nombre}</option>`).join('');
+  const cartas=j&&j.cartas.length?j.cartas.map((c,i)=>{
+    const col=COLOR_CAT[c.cat]||'#c9a227';
+    const marcada=sel.includes(i);
+    const t=tierDe(c);
+    return `<div class="pick-card ${marcada?'sel':''}" onclick="toggleCarta('${l}',${i})"
+      style="border-left:7px solid ${col};${marcada?`background:${col};border-color:${col};color:#fff`:`background:${col}12`}">
+      <span class="pc-punto" style="background:${col};${marcada?'box-shadow:0 0 0 2px #fff':''}"></span>
+      <span class="pc-txt"><b>${c.nombre}</b><br><span class="pc-sub">${c.cat} · ${fmt(c.coste)} · ${Math.round(yieldPct(c,j)*100)}%${t!=='normal'?' · '+(t==='holding'?'HOLDING':'PORTFOLIO'):''}</span></span>
+    </div>`;}).join(''):`<div class="pick-empty">Sin cartas</div>`;
+  return `<div class="lado" style="--lc:${j?j.color:'#ddd'}">
+    <div class="lado-head"><select onchange="cambiarLado('${l}',this.value)">${ops}</select>
+    <span class="lado-cap">${T('caja')} ${j?fmt(j.capital):'—'}</span>
+    ${j?`<div class="cupos">${CATS.map(c=>{
+        const n=j.cartas.filter(x=>tierDe(x)==='normal'&&x.cat===c).length;
+        return n?`<span class="cupo" style="background:${COLOR_CAT[c]}">${c.slice(0,3)} ${n}</span>`:'';
+      }).join('')}<span class="cupo hueco">${nTier(j,'normal')}/4 ${T('normales')}</span></div>`:''}</div>
+    <div class="pick-label">${T('ponerMesa')}</div>${cartas}
+    <div class="pick-label">${T('dinero')}</div>
+    <input type="number" min="0" class="money-in" id="mesa-dinero-${l}" placeholder="0"
+      value="${l==='A'?S.mesa.dinA:S.mesa.dinB}" oninput="S.mesa.${l==='A'?'dinA':'dinB'}=this.value"></div>`;
+}
+function mesaHTML(){
+  return `<div class="mesa">${ladoHTML('A')}
+    <div class="mesa-centro">
+      <svg class="cenicero" viewBox="0 0 120 160" width="100%">
+        <ellipse cx="60" cy="96" rx="46" ry="42" fill="#fdfbf6" stroke="#ddd3c2" stroke-width="2"/>
+        <ellipse cx="60" cy="96" rx="34" ry="30" fill="#f3eee3" stroke="#e2d9c8" stroke-width="1.5"/>
+        <path d="M28 78 l14 8 M92 78 l-14 8" stroke="#e2d9c8" stroke-width="4" stroke-linecap="round"/>
+        <text x="60" y="132" text-anchor="middle" font-family="Cinzel,serif" font-weight="900"
+          font-size="12.5" letter-spacing="2.4" fill="#c9a227">BUSINESS</text>
+        <g transform="rotate(-24 60 96)">
+          <rect x="46" y="72" width="52" height="13" rx="6" fill="#7b5327"/>
+          <rect x="46" y="72" width="14" height="13" rx="6" fill="#5d3d1c"/>
+          <rect x="58" y="72" width="5" height="13" fill="#a8783f"/>
+          <ellipse class="brasa" cx="99" cy="78.5" rx="5" ry="6.5" fill="#ff7a1a"/>
+        </g>
+        <g class="humo" stroke="#fff" fill="none" stroke-width="2.5" stroke-linecap="round" opacity=".55">
+          <path d="M96 56 q-9 -13 1 -24 q9 -11 0 -22"/>
+        </g>
+      </svg>
+      <div class="mesa-arrows">⇄</div>
+      <div class="mesa-label">${T('mesaInter')}</div></div>
+    ${ladoHTML('B')}</div>
+    <button class="btn block" onclick="cerrarTrato()">${T('cerrarTrato')}</button>`;
+}
+function cambiarLado(l,v){
+  if(l==='A'){ if(v===S.mesa.ladoB)S.mesa.ladoB=S.mesa.ladoA; S.mesa.ladoA=v; S.mesa.selA=[]; S.mesa.selB=[]; }
+  else { if(v===S.mesa.ladoA)S.mesa.ladoA=S.mesa.ladoB; S.mesa.ladoB=v; S.mesa.selA=[]; S.mesa.selB=[]; }
+  renderDealBody();
+}
+function toggleCarta(l,i){const s=l==='A'?S.mesa.selA:S.mesa.selB;const p=s.indexOf(i);if(p>-1)s.splice(p,1);else s.push(i);renderDealBody();}
+
+function cabeTras(j,quita,anade){
+  const t={normal:0,consolidada:0,holding:0};
+  j.cartas.filter(c=>!quita.includes(c)).forEach(c=>t[tierDe(c)]++);
+  anade.forEach(c=>t[tierDe(c)]++);
+  return Object.values(t).every(v=>v<=MAX_POR_TIER);
+}
+function cerrarTrato(){
+  const A=porNombre(S.mesa.ladoA),B=porNombre(S.mesa.ladoB);
+  if(!A||!B||A===B){toast('Elige dos empresas distintas.');return;}
+  const dA=Number(S.mesa.dinA)||0;
+  const dB=Number(S.mesa.dinB)||0;
+  if(dA>0&&dA>A.capital){toast(`${A.nombre} no tiene ${fmt(dA)} en caja.`);return;}
+  if(dB>0&&dB>B.capital){toast(`${B.nombre} no tiene ${fmt(dB)} en caja.`);return;}
+  const cA=S.mesa.selA.map(i=>A.cartas[i]),cB=S.mesa.selB.map(i=>B.cartas[i]);
+  if(!cA.length&&!cB.length&&!dA&&!dB){toast('No hay nada sobre la mesa.');return;}
+  if(!cabeTras(A,cA,cB)){toast(`${A.nombre} superaría el máximo de ${MAX_POR_TIER} en algún nivel de carta.`);return;}
+  if(!cabeTras(B,cB,cA)){toast(`${B.nombre} superaría el máximo de ${MAX_POR_TIER} en algún nivel de carta.`);return;}
+  A.cartas=A.cartas.filter(c=>!cA.includes(c));B.cartas=B.cartas.filter(c=>!cB.includes(c));
+  A.cartas.push(...cB);B.cartas.push(...cA);
+  A.capital+=dB-dA;B.capital+=dA-dB;
+  S.mesa.selA=[];S.mesa.selB=[];S.mesa.dinA='';S.mesa.dinB='';
+  tocado();fxApreton();renderTop();renderDealBody();
+}
+
+function contratoHTML(){
+  const a=activos().filter(j=>!j.carcel);
+  const ops=i=>a.map((p,k)=>`<option value="${p.nombre}" ${k===i?'selected':''}>${p.nombre}</option>`).join('');
+  return `<div class="contrato">
+    <p class="contrato-title">Contrato de préstamo</p>
+    <p class="contrato-sub">Sector industrial · Turno ${S.turno}</p>
+    <div class="contrato-linea">La empresa <select id="loan-de">${ops(0)}</select> presta a <select id="loan-a">${ops(1)}</select></div>
+    <div class="contrato-linea">la cantidad de $<input type="number" id="loan-monto" min="1" placeholder="0"></div>
+    <div class="contrato-linea">que devolverá un total de $<input type="number" id="loan-devol" min="1" placeholder="0"></div>
+    <div class="contrato-linea">en <input type="number" id="loan-turnos" min="1" value="3" style="min-width:55px"> turnos, en cuotas iguales.</div>
+    <p class="contrato-nota">El prestamista puede quedar en números rojos (hasta ${fmt(-ROJO_MAXIMO)}) solo si el deudor demuestra capacidad de devolución con sus ingresos previstos.</p>
+    <button class="contrato-btn" onclick="prestamoEntreEmpresas()">Firmar contrato</button>
+    <svg class="sello" width="76" height="76" viewBox="0 0 76 76">
+      <circle cx="38" cy="38" r="32" fill="none" stroke="#a8452f" stroke-width="2.5" opacity=".85"/>
+      <circle cx="38" cy="38" r="26" fill="none" stroke="#a8452f" stroke-width="1" opacity=".7"/>
+      <text x="38" y="34" text-anchor="middle" fill="#a8452f" font-family="Oswald,sans-serif" font-size="12" letter-spacing="1">DAFO</text>
+      <text x="38" y="47" text-anchor="middle" fill="#a8452f" font-family="Oswald,sans-serif" font-size="8" letter-spacing="1">DEAL TIME</text>
+    </svg></div><div id="prestamos-lista"></div>`;
+}
+function bancoHTML(){
+  const a=activos().filter(j=>!j.carcel);
+  const tope=Math.min(S.banco,Math.round(S.banco*BANCO_TOPE_PRESTAMO));
+  const paso=Math.max(1000,Math.round(tope/40/1000)*1000);
+  return `<div class="contrato">
+    <p class="contrato-title">Banco central del sector</p>
+    <p class="contrato-sub">Caja: ${fmt(S.banco)} · Interés fijo ${Math.round(BANCO_INTERES*100)}%</p>
+    <div class="contrato-linea">Solicita <select id="bank-a" onchange="actualizarBanco()">${a.map((p,k)=>`<option value="${p.nombre}" ${k===0?'selected':''}>${p.nombre}</option>`).join('')}</select></div>
+    <div class="slider-row">
+      <div class="slider-head"><span class="slider-lab">Cantidad solicitada</span><span class="slider-val" id="bk-monto-val">—</span></div>
+      <input type="range" id="bank-monto" min="0" max="${tope}" step="${paso}" value="${Math.round(tope/3/paso)*paso}" oninput="actualizarBanco()">
+    </div>
+    <div class="slider-row">
+      <div class="slider-head"><span class="slider-lab">Turnos para devolver</span><span class="slider-val" id="bk-turnos-val">—</span></div>
+      <input type="range" id="bank-turnos" min="1" max="10" step="1" value="4" oninput="actualizarBanco()">
+    </div>
+    <div class="cifras" id="bk-cifras"></div>
+    <div class="veredicto" id="bk-veredicto"></div>
+    <button class="contrato-btn" id="bk-btn" onclick="prestamoBanco()">Firmar con el banco</button>
+    <svg class="sello" width="76" height="76" viewBox="0 0 76 76">
+      <circle cx="38" cy="38" r="32" fill="none" stroke="#8a7320" stroke-width="2.5" opacity=".85"/>
+      <circle cx="38" cy="38" r="26" fill="none" stroke="#8a7320" stroke-width="1" opacity=".7"/>
+      <text x="38" y="34" text-anchor="middle" fill="#8a7320" font-family="Poppins,sans-serif" font-weight="800" font-size="11">BANCO</text>
+      <text x="38" y="47" text-anchor="middle" fill="#8a7320" font-family="Poppins,sans-serif" font-size="8">CENTRAL</text>
+    </svg></div><div id="prestamos-lista"></div>`;
+}
+
+function datosBanco(){
+  const nombre=document.getElementById('bank-a').value;
+  const deu=porNombre(nombre);
+  const monto=Number(document.getElementById('bank-monto').value)||0;
+  const turnos=Number(document.getElementById('bank-turnos').value)||1;
+  const total=Math.round(monto*(1+BANCO_INTERES));
+  const cuota=turnos>0?Math.ceil(total/turnos):total;
+  const ingreso=Math.round(ingresoPorTurno(deu));
+  const tope=Math.min(S.banco,Math.round(S.banco*BANCO_TOPE_PRESTAMO));
+  const abiertos=S.prestamos.filter(p=>p.banco&&p.a===nombre).length;
+  const yaTiene=abiertos>=MAX_PRESTAMOS_BANCO;
+  const deudaActual=deuda(deu);
+  const techo=Math.max(0,Math.round(fundamentals(deu)*DEUDA_MAX_PCT));
+  const deudaFinal=deudaActual+total;
+  return {deu,monto,turnos,total,cuota,ingreso,tope,yaTiene,abiertos,deudaActual,deudaFinal,techo,
+    okMonto:monto>0&&monto<=tope, okCuota:cuota<=ingreso,
+    okDeuda:deudaFinal<=techo, okUnico:!yaTiene};
+}
+
+function actualizarBanco(){
+  const d=datosBanco();
+  const viable=d.okMonto&&d.okCuota&&d.okDeuda&&d.okUnico;
+  document.getElementById('bk-monto-val').textContent=fmt(d.monto);
+  document.getElementById('bk-turnos-val').textContent=d.turnos+(d.turnos===1?' turno':' turnos');
+  document.getElementById('bk-cifras').innerHTML=`
+    <div class="cifra"><div class="cifra-lab">Recibes ahora</div><div class="cifra-num">${fmt(d.monto)}</div></div>
+    <div class="cifra"><div class="cifra-lab">Devolverás en total</div><div class="cifra-num">${fmt(d.total)}</div></div>
+    <div class="cifra ${d.okCuota?'':'malo tiembla'}"><div class="cifra-lab">Cuota por turno</div><div class="cifra-num">${fmt(d.cuota)}</div></div>
+    <div class="cifra"><div class="cifra-lab">Tu ingreso por turno</div><div class="cifra-num">${fmt(d.ingreso)}</div></div>
+    <div class="cifra ${d.okDeuda?'':'malo tiembla'}"><div class="cifra-lab">Deuda total tras firmar</div><div class="cifra-num">${fmt(d.deudaFinal)} <span style="font-size:11px;opacity:.7">/ ${fmt(d.techo)}</span></div></div>
+    <div class="cifra ${d.okUnico?'':'malo tiembla'}"><div class="cifra-lab">Préstamos bancarios</div><div class="cifra-num">${d.abiertos}<span style="font-size:11px;opacity:.7"> / ${MAX_PRESTAMOS_BANCO} abiertos</span></div></div>`;
+  const v=document.getElementById('bk-veredicto');
+  if(d.yaTiene){ v.className='veredicto ko tiembla';
+    v.textContent=`${d.deu.nombre} ya tiene ${MAX_PRESTAMOS_BANCO} préstamos bancarios abiertos. Liquida uno para poder pedir otro.`; }
+  else if(!d.monto){ v.className='veredicto ko'; v.textContent='Sube la cantidad para solicitar un préstamo.'; }
+  else if(!d.okMonto){ v.className='veredicto ko tiembla'; v.textContent=`El banco no presta más de ${fmt(d.tope)} en una operación.`; }
+  else if(!d.okCuota){ v.className='veredicto ko tiembla';
+    v.textContent=`Rechazado: la cuota de ${fmt(d.cuota)} supera tu ingreso previsto de ${fmt(d.ingreso)} por turno. Alarga el plazo o pide menos.`; }
+  else if(!d.okDeuda){ v.className='veredicto ko tiembla';
+    v.textContent=`Rechazado: tu deuda llegaría a ${fmt(d.deudaFinal)}, por encima del techo de ${fmt(d.techo)} (100% de tus fundamentals).`; }
+  else { v.className='veredicto ok';
+    v.textContent=`Aprobado: ${d.deu.nombre} puede cubrir ${fmt(d.cuota)} por turno con sus ${fmt(d.ingreso)} de ingreso previsto.`; }
+  document.getElementById('bk-btn').disabled=!viable;
+}
+
+function prestamoBanco(){
+  const d=datosBanco();
+  if(!d.okMonto||!d.okCuota||!d.okDeuda||!d.okUnico) return;
+  S.banco-=d.monto; d.deu.capital+=d.monto;
+  S.prestamos.push({de:'__BANCO__',a:d.deu.nombre,cuota:d.cuota,totalRestante:d.total,banco:true});
+  tocado(); fxSello(); renderTop(); renderDealBody();
+}
+
+function prestamoEntreEmpresas(){
+  const de=document.getElementById('loan-de').value,a=document.getElementById('loan-a').value;
+  const monto=Number(document.getElementById('loan-monto').value);
+  const devIn=Number(document.getElementById('loan-devol').value);
+  const turnos=Math.max(1,Number(document.getElementById('loan-turnos').value)||3);
+  if(de===a){toast('Elige dos empresas distintas.');return;}
+  if(!monto||monto<=0){toast('Indica un monto.');return;}
+  const acr=porNombre(de),deu=porNombre(a);
+  const total=devIn>0?devIn:monto;
+  if(total<monto){toast('El total a devolver no puede ser menor que el préstamo.');return;}
+  const cuota=Math.ceil(total/turnos);
+  const saldoTrasPrestar=acr.capital-monto;
+  if(saldoTrasPrestar<-ROJO_MAXIMO){
+    toast(`${acr.nombre} quedaría por debajo del límite de números rojos (${fmt(-ROJO_MAXIMO)}). Reduce el monto.`);return;}
+  if(saldoTrasPrestar<0){
+    const capacidad=ingresoPorTurno(deu);
+    if(capacidad<cuota){
+      toast(`Rechazado: ${acr.nombre} quedaría en rojo y ${deu.nombre} no acredita capacidad de devolución.\nCuota exigida: ${fmt(cuota)}/turno · Ingreso previsto de ${deu.nombre}: ${fmt(capacidad)}/turno.`);return;}
+  }
+  acr.capital-=monto;deu.capital+=monto;
+  S.prestamos.push({de,a,cuota,totalRestante:total,banco:false});
+  tocado();fxFirma();renderTop();renderDealBody();
+}
+function renderPrestamos(){
+  const c=document.getElementById('prestamos-lista');if(!c)return;
+  c.innerHTML=S.prestamos.length?'<div class="prestamos-title">Préstamos activos</div>'+S.prestamos.map(p=>
+    `<div class="efecto-mini">${p.banco?'Banco central':p.de} → ${p.a}: cuota ${fmt(p.cuota)}/turno · quedan ${fmt(p.totalRestante)}</div>`).join(''):'';
+}
+
+function rendimiento(){
+  S.jugadores.forEach(j=>{
+    if(j.eliminado)return;
+    const r=j.cartas.reduce((s,c)=>s+Math.round((c.coste||0)*yieldPct(c,j)),0);
+    j.ultimoRendimiento=r>0?r:null;
+    if(r>0){j.capital+=r;S.avisos.push(`${j.nombre}: rendimiento de inversiones +${fmt(r)}`);ajustarInteres(j.nombre,1);
+      setTimeout(()=>{j.ultimoRendimiento=null;renderTop();},10000);}
+  });
+}
+function crecerOro(){
+  let total=0;
+  S.jugadores.forEach(j=>{
+    if(j.eliminado)return;
+    if(j.oro>0){ const g=Math.round(j.oro*ORO_CRECIMIENTO); j.oro+=g; total+=g; }
+    if(j.oroNuevo>0){ j.oro=(j.oro||0)+j.oroNuevo; j.oroNuevo=0; }
+  });
+  if(total) S.avisos.push(`El oro se revaloriza: +${fmt(total)} repartidos entre quienes lo guardan`);
+}
+function dividendos(){
+  if((S.turno-1)%3!==0||S.turno<2)return;
+  S.avisos.push('— Cierre de trimestre: los inversores reparten dividendos —');
+  activos().forEach(j=>{
+    const pct=S.interes[j.nombre]||0,pago=Math.round(pct*DIVIDENDO_POR_PUNTO);
+    j.capital+=pago;
+    S.avisos.push(`${j.nombre}: dividendo por ${pct.toFixed(0)}% de interés +${fmt(pago)}`);
+    (function(emp,porcentaje){ setTimeout(function(){
+      const el=document.querySelector('[data-emp="'+S.jugadores.indexOf(emp)+'"]');
+      lluviaSobre(el, Math.max(3,Math.round(porcentaje/6)), 'moneda');
+    },420); })(j,pct);
+  });
+}
+function cobrarPrestamos(){
+  let n=0,suma=0;
+  S.prestamos=S.prestamos.filter(p=>{
+    if(p.totalRestante<=0)return false;
+    const deu=porNombre(p.a),pago=Math.min(p.cuota,p.totalRestante);
+    deu.capital-=pago;p.totalRestante-=pago;
+    if(p.banco)S.banco+=pago; else porNombre(p.de).capital+=pago;
+    n++;suma+=pago;
+    return p.totalRestante>0;
+  });
+  if(n) S.avisos.push(`Cuotas de préstamo cobradas: ${n} ${n===1?'operación':'operaciones'} · ${fmt(suma)} en total`);
+}
+function bancarrotas(){
+  S.jugadores.forEach(j=>{
+    if(j.eliminado)return;
+    if(j.capital<=0){j.turnosBancarrota++;
+      fxBancarrota(j.nombre,j.turnosBancarrota);
+      if(j.turnosBancarrota>=3){j.eliminado=true;delete S.interes[j.nombre];
+        S.avisos.push(`${j.nombre} queda DESCLASIFICADA tras 3 turnos en bancarrota.`);}}
+  });
+  renorm();
+}
+function victoria(){
+  const a=activos();
+  if(a.length<=1){fin(a[0]?a[0].nombre:null,a.length===1?'Única empresa en pie: gana automáticamente.':'Todas las empresas han quebrado.');return true;}
+  const r=[...a].sort((x,y)=>S.interes[y.nombre]-S.interes[x.nombre]);
+  const ratio=S.interes[r[0].nombre]/Math.max(1,S.interes[r[1].nombre]);
+  if(ratio>=2){
+    if(S.rachaLider.nombre===r[0].nombre)S.rachaLider.turnos++;else S.rachaLider={nombre:r[0].nombre,turnos:1};
+    S.avisos.push(`⚠ ${r[0].nombre} dobla en interés inversor a ${r[1].nombre} · ${S.rachaLider.turnos}/3 turnos para ganar la partida.`);
+    if(S.rachaLider.turnos>=3){
+      S.rachaLider.turnos=3; S.rachaGanada=true;
+      fin(r[0].nombre,`${r[0].nombre} dobla en interés inversor a ${r[1].nombre} durante 3 turnos seguidos.`);
+      return true;}
+  } else {
+    if(S.rachaLider.nombre&&S.rachaLider.turnos>0)
+      S.avisos.push(`${S.rachaLider.nombre} pierde su ventaja de dominio: el contador vuelve a cero.`);
+    S.rachaLider={nombre:null,turnos:0};
+  }
+  return false;
+}
+function fin(g,motivo){
+  clearInterval(S.dealTimer);S.fase='fin';
+  const gj=g?porNombre(g):null; if(gj) fxVictoria(gj);
+  document.getElementById('fase-tag').textContent=T('partidaFin');
+  const r=[...S.jugadores].sort((a,b)=>fundamentals(b)-fundamentals(a));
+  document.getElementById('fase-content').innerHTML=`
+    <p class="factor-titulo">${g?g+' '+T('seComio'):T('sinGanador')}</p>
+    <p class="factor-desc">${motivo}</p>
+    ${r.map((j,i)=>`<div class="efecto-mini"><b>${i+1}. ${j.nombre}${j.eliminado?' (desclasificada)':''}</b> — Fundamentals: ${fmt(fundamentals(j))}${!j.eliminado?` · Interés: ${S.interes[j.nombre].toFixed(0)}%`:''}</div>`).join('')}`;
+  renderTop();
+}
+function terminarDealTime(){
+  if(MP.on&&!MP.host){ toast(LANG==='en'?'Only the host can end Deal Time':'Solo el anfitrión puede terminar el Deal Time'); return; }
+  clearInterval(S.dealTimer);S.turno++;S.avisos=[];
+  bancarrotas();
+  if(victoria())return;
+  S.jugadores.forEach(j=>{ if(j.carcel>0){ j.carcel--; if(!j.carcel) S.avisos.push(`${j.nombre} sale de prisión y vuelve a operar.`); } });
+  S.jugadores.forEach(j=>{ if(j.carcelPendiente&&!j.eliminado){
+    j.carcelPendiente=false; j.carcel=1; j._rejasNew=true;
+    S.avisos.push(`${j.nombre} entra en prisión: se pierde este turno completo.`);
+  } });
+  cobrarPrestamos();rendimiento();crecerOro();dividendos();
+  tocado();
+  generarFactor();
+}
+
+function sysPrompt(){
+  return `Eres el árbitro del juego "DAFO". Genera el factor externo del turno actual.
+Reglas:
+- Un único evento (marco PESTEL o 5 fuerzas de Porter), coherente con el sector.
+- Léelo contra el perfil DAFO de cada jugador: una fortaleza relacionada amortigua, una debilidad agrava.
+- Si el evento toca un área (marketing, infraestructura, i+d, talento) y un jugador no tiene NI fortaleza NI debilidad ahí, trátalo como "negativo" con magnitud "leve". Usa "neutro" solo si el evento no tiene relación clara con ninguna área.
+- No repitas el mismo efecto para todos.
+- En cada explicacion, nombra siempre el área implicada tal cual (infraestructura, marketing, i+d, talento).\n- Sé muy breve: titulo máx 6 palabras, descripcion máx 18 palabras, explicacion máx 12 palabras por jugador.
+- Escribe TODO el contenido en ${LANG==='en'?'inglés':'español'}.\n- Responde SOLO JSON, sin backticks:
+{"titulo":"","categoria":"","descripcion":"","efectos":[{"jugador":"","tipo":"positivo|negativo|neutro","magnitud":"leve|moderado|fuerte","explicacion":""}]}`;
+}
+function userPrompt(){
+  return `Sector: ${nombreSector()}\nTurno: ${S.turno}\n`+activos().map(j=>`- ${j.nombre}: F:${j.fortalezas.join(',')||'-'} D:${j.debilidades.join(',')||'-'}`).join('\n');
+}
+const FACTORES_RESERVA=[
+  {titulo:'Subida del precio de la energía',categoria:'Económico',descripcion:'El coste energético industrial se dispara un 30% este trimestre.',area:'infraestructura'},
+  {titulo:'Nueva normativa de emisiones',categoria:'Ecológico',descripcion:'Bruselas endurece los límites de emisiones para plantas industriales.',area:'infraestructura'},
+  {titulo:'Escasez de perfiles técnicos',categoria:'Social',descripcion:'El sector no encuentra ingenieros cualificados y los sueldos suben.',area:'talento'},
+  {titulo:'Competidor asiático irrumpe',categoria:'Fuerzas de Porter',descripcion:'Un fabricante extranjero entra con precios un 25% más bajos.',area:'marketing'},
+  {titulo:'Salto tecnológico en el sector',categoria:'Tecnológico',descripcion:'Una nueva generación de maquinaria deja obsoletos los procesos antiguos.',area:'i+d'},
+  {titulo:'Plan público de reindustrialización',categoria:'Político-legal',descripcion:'El Gobierno abre ayudas para modernizar plantas industriales.',area:'infraestructura'}
+];
+
+function factorLocal(){
+  const base=pick(FACTORES_RESERVA,1)[0];
+  const efectos=activos().map(j=>{
+    if(j.fortalezas.includes(base.area)||j.fortalezas.includes('consolidada')||j.fortalezas.includes('holding'))
+      return {jugador:j.nombre,tipo:'positivo',magnitud:'moderado',explicacion:`Su fortaleza en ${base.area} le da ventaja.`};
+    if(j.debilidades.includes(base.area))
+      return {jugador:j.nombre,tipo:'negativo',magnitud:'fuerte',explicacion:`Su debilidad en ${base.area} agrava el golpe.`};
+    return {jugador:j.nombre,tipo:'negativo',magnitud:'leve',explicacion:`Sin posición en ${base.area}, queda expuesta.`};
+  });
+  return {titulo:base.titulo,categoria:base.categoria,descripcion:base.descripcion,efectos};
+}
+
+function extraerJSON(txt){
+  if(!txt) throw new Error('respuesta vacía');
+  const limpio=txt.replace(/```json|```/g,'').trim();
+  const ini=limpio.indexOf('{'), fin=limpio.lastIndexOf('}');
+  if(ini===-1||fin===-1) throw new Error('sin JSON en la respuesta');
+  return JSON.parse(limpio.slice(ini,fin+1));
+}
+
+function aplicarFactor(f){
+  S.factorActual=f;
+  const D={leve:3000,moderado:7000,fuerte:12000};
+  const nombres=activos().map(j=>j.nombre);
+  (f.efectos||[]).forEach(e=>{
+    let j=porNombre(e.jugador);
+    if(!j){
+      const aprox=nombres.find(n=>n.toLowerCase().startsWith(String(e.jugador||'').toLowerCase().slice(0,6)));
+      if(aprox) j=porNombre(aprox);
+    }
+    if(!j||j.eliminado)return;
+    const mag=D[e.magnitud]||0;
+    const delta=e.tipo==='positivo'?mag:(e.tipo==='negativo'?-mag:0);
+    if(e.tipo==='negativo'&&e.magnitud==='fuerte'){
+      const area=CATS.find(c=>String(e.explicacion||'').toLowerCase().includes(c));
+      if(area&&!j.fortalezas.includes(area)) addTag(j,'debilidades',area);
+    }
+    j.capital+=delta;j.ultimoFactorDelta=delta!==0?delta:null;
+    if(e.tipo==='negativo'&&(e.magnitud==='fuerte'||e.magnitud==='moderado'))
+      setTimeout(function(){sacudirPantalla('factor_externo');},140);
+    if(delta!==0)setTimeout(()=>{j.ultimoFactorDelta=null;renderTop();},10000);
+    ajustarInteres(j.nombre,e.tipo==='positivo'?4:(e.tipo==='negativo'?-4:0));
+  });
+  renderFactor();
+}
+
+async function pedirFactorIA(){
+  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:sysPrompt(),messages:[{role:"user",content:userPrompt()}]})});
+  const data=await res.json();
+  if(data.error) throw new Error(data.error.message||'error de la API');
+  const txt=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  return extraerJSON(txt);
+}
+
+async function generarFactor(){
+  S.fase='factor_externo';
+  if(MP.on&&!MP.host){ renderFactor(); return; }
+  document.getElementById('fase-tag').textContent=T('factorExterno');
+  document.getElementById('fase-content').innerHTML=`<div class="market-loading">
+    ${graficoMercado()}
+    <div class="market-label">${T('mercadoFluct')}</div></div>`;
+  renderTop();
+  for(let intento=1;intento<=2;intento++){
+    try{
+      const f=await pedirFactorIA();
+      if(!f.titulo||!Array.isArray(f.efectos)) throw new Error('formato inesperado');
+      aplicarFactor(f); tocado();
+      return;
+    }catch(err){
+      console.warn('Factor externo, intento '+intento+':',err);
+      if(intento===2){
+        const f=factorLocal();
+        f.descripcion+=' (generado sin conexión con el árbitro IA)';
+        aplicarFactor(f); tocado();
+      }
+    }
+  }
+}
+renderSetup();
+pintarCharsLobby();
+</script>
+</body>
+</html>
