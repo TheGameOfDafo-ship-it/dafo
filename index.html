@@ -663,6 +663,12 @@
   .alcance.ok{background:#dff5e1;color:#1a6108;}
   .lb-error{color:var(--neg);font-size:12.5px;font-weight:700;margin-top:10px;min-height:16px;}
   .lb-nota{color:var(--ink-dim);font-size:12px;font-weight:600;margin-top:10px;}
+  .auto-aviso{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:14px;
+    background:#efe9ff;border-radius:14px;padding:12px 16px;font-size:14px;font-weight:700;color:var(--p1);}
+  .auto-aviso b{font-size:20px;font-family:var(--lux);}
+  .saltar{font-family:var(--f);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+    background:var(--p1);color:#fff;border:none;border-radius:999px;padding:8px 16px;cursor:pointer;box-shadow:0 4px 0 #3d1a99;}
+  .saltar:active{transform:translateY(3px);box-shadow:0 1px 0 #3d1a99;}
   .ronda-timer{font-family:var(--lux);font-weight:900;font-size:19px;color:var(--p1);text-align:center;
     background:#efe9ff;border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:10px;}
   .ronda-timer.urge{background:#ffe3e7;color:var(--neg);animation:late .6s ease-in-out infinite;}
@@ -1289,7 +1295,7 @@ function serializar(){
     factorActual:S.factorActual, rachaLider:S.rachaLider, rachaGanada:!!S.rachaGanada,
     banco:S.banco, cofreOrders:S.cofreOrders, mesa:S.mesa,
     rondaFin:S.rondaFin||0, dealFin:S.dealFin||0, cursores:S.cursores||{},
-    cfgRonda:S.cfgRonda||RONDA_SEG, cfgDeal:S.cfgDeal||DEAL_SEG, sector:S.sector||'industrial'
+    cfgRonda:S.cfgRonda||RONDA_SEG, cfgDeal:S.cfgDeal||DEAL_SEG, sector:S.sector||'industrial', factorFin:S.factorFin||0
   };
 }
 
@@ -1298,7 +1304,7 @@ function aplicar(d){
   try{
     ['ver','iniciada','host','turno','fase','ronda','rondaData','interes','mazo','prestamos',
      'avisos','factorActual','rachaLider','rachaGanada','banco','cofreOrders','mesa',
-     'rondaFin','dealFin','cursores','cfgRonda','cfgDeal','sector'].forEach(k=>{ if(d[k]!==undefined) S[k]=d[k]; });
+     'rondaFin','dealFin','cursores','cfgRonda','cfgDeal','sector','factorFin'].forEach(k=>{ if(d[k]!==undefined) S[k]=d[k]; });
     if(d.sector&&d.sector!==SECTOR_ID) cargarSector(d.sector);
     S.jugadores=d.jugadores.map(j=>Object.assign({ultimoRendimiento:null,ultimoFactorDelta:null,_prev:j.capital},j));
     const idx=S.jugadores.findIndex(j=>j.uid===MP.yo);
@@ -1621,6 +1627,7 @@ async function empezarOnline(){
   cargarSector(S.sector||'industrial');
   S.mazo=shuffle(POOL.inversion.map((c,i)=>({...c,id:i})));
   S.prestamos=[]; S.avisos=[]; S.rachaLider={nombre:null,turnos:0}; S.rachaGanada=false;
+  S.factorFin=Date.now()+11000;
   S.factorActual={titulo:'Aparición de nuevo mercado',categoria:'Tecnológico',
     descripcion:(LANG==='en'?'The '+nombreSector()+' market is born. The race to lead it begins.':'Nace el mercado de '+nombreSector()+'. Empieza la carrera por liderarlo.'),efectos:[]};
   await mpGuardar();
@@ -1631,9 +1638,10 @@ function entrarAlJuego(){
   document.getElementById('lobby').style.display='none';
   document.getElementById('setup').style.display='none';
   document.getElementById('game').style.display='block';
+  arrancarLatido();
   const idx=S.jugadores.findIndex(j=>j.uid===MP.yo);
   S.yo=idx>-1?idx:0;
-  renderTop(); repintar();
+  renderTop(); repintar(); arrancarLatido();
 }
 
 function abandonar(){
@@ -1665,6 +1673,61 @@ function abandonar(){
   clearInterval(MP.timer); MP.on=false;
   const b=document.getElementById('mp-badge'); if(b) b.remove();
   toast(LANG==='en'?'You left the game':'Has abandonado la partida');
+}
+
+function soyConductor(){
+  if(!MP.on) return true;
+  const act=(S.jugadores||[]).filter(j=>!j.desconectado&&!j.eliminado);
+  return act.length? act[0].uid===MP.yo : true;
+}
+
+function resolverPendientesPorTiempo(){
+  let hubo=false;
+  (S.rondaData||[]).forEach((d,i)=>{
+    if(d.resuelto)return;
+    hubo=true;
+    const en=LANG==='en';
+    if(d.tipo==='impuestos') resolverPara(i,{delta:-d.item.coste,curaRF:true,msg:en?'Time up: tax paid.':'Tiempo agotado: se paga el impuesto.'});
+    else if(d.tipo==='inversion') resolverPara(i,{delta:0,interes:-2,msg:en?'Time up: no investment.':'Tiempo agotado: no invierte.'});
+    else if(d.tipo==='oportunidades') resolverPara(i,{delta:0,interes:-1,msg:en?'Time up: opportunity declined.':'Tiempo agotado: rechaza la oportunidad.'});
+    else{
+      const j=porNombre(d.nombre);
+      const prot=j.fortalezas.includes(d.item.relacion)||j.fortalezas.includes('consolidada')||j.fortalezas.includes('holding');
+      const imp=prot?Math.round(d.item.impacto/2):d.item.impacto;
+      resolverPara(i,{delta:imp,msg:(en?'Time up: absorbs the hit ':'Tiempo agotado: absorbe el golpe ')+'('+fmt(imp)+').'});
+    }
+  });
+  if(hubo) tocado();
+}
+
+let LATIDO=null;
+function arrancarLatido(){
+  if(LATIDO) return;
+  LATIDO=setInterval(function(){
+    try{
+      if(S.fase==='factor_externo'&&S.factorFin){
+        const q=Math.max(0,Math.ceil((S.factorFin-Date.now())/1000));
+        const el=document.getElementById('cuenta-factor'); if(el) el.textContent=q;
+        if(q<=0&&soyConductor()){ S.factorFin=0; comenzarCofres(); }
+      }
+      if(S.fase==='cofres'){
+        const rd=S.rondaData||[];
+        const el=document.getElementById('ronda-timer');
+        if(el&&S.rondaFin){
+          const q=Math.max(0,Math.ceil((S.rondaFin-Date.now())/1000));
+          el.textContent=q+'s'; el.classList.toggle('urge',q<=20);
+        }
+        if(MP.on&&S.rondaFin&&Date.now()>S.rondaFin&&rd.some(d=>!d.resuelto)&&soyConductor())
+          resolverPendientesPorTiempo();
+        if(rd.length&&rd.every(d=>d.resuelto)){
+          if(!S._avance) S._avance=Date.now()+2500;
+          const q=Math.max(0,Math.ceil((S._avance-Date.now())/1000));
+          const e2=document.getElementById('cuenta-ronda'); if(e2) e2.textContent=q;
+          if(q<=0&&soyConductor()){ S._avance=0; avanzarRonda(); }
+        } else S._avance=0;
+      }
+    }catch(e){}
+  },400);
 }
 
 function esMio(idxExp){
@@ -1864,6 +1927,7 @@ function empezarPartida(){
   S.mazo=shuffle(POOL.inversion.map((c,i)=>({...c,id:i})));
   document.getElementById('setup').style.display='none';
   document.getElementById('game').style.display='block';
+  arrancarLatido();
   iniciar();
 }
 
@@ -2163,10 +2227,17 @@ function renderFactor(){
     <p class="factor-desc">${f.descripcion}</p>
     ${(S.avisos||[]).length?`<div class="avisos-box">${S.avisos.map(a=>`<div class="efecto-mini">${a}</div>`).join('')}</div>`:''}
     ${(f.efectos||[]).map(e=>`<div class="efecto-mini ${e.tipo}"><b>${e.jugador}:</b> ${e.explicacion}</div>`).join('')}
-    <button class="btn block" style="margin-top:12px" onclick="comenzarCofres()">${T('abrirOrden')}</button>`;
+    <div class="auto-aviso">${LANG==='en'?'The agenda opens in':'La orden del día se abre en'} <b id="cuenta-factor">·</b> s
+      <button class="saltar" onclick="saltarEspera()">${LANG==='en'?'Skip':'Continuar ya'}</button></div>`;
+}
+
+function saltarEspera(){
+  if(S.fase==='factor_externo'){ S.factorFin=0; comenzarCofres(); }
+  else if(S.fase==='cofres'){ S._avance=0; avanzarRonda(); }
 }
 
 function iniciar(){
+  S.factorFin=Date.now()+11000;
   S.factorActual={titulo:'Aparición de nuevo mercado',categoria:'Tecnológico',
     descripcion:(LANG==='en'?'The '+nombreSector()+' market is born. The race to lead it begins.':'Nace el mercado de '+nombreSector()+'. Empieza la carrera por liderarlo.'),efectos:[]};
   renderTop();renderFactor();
@@ -2283,7 +2354,8 @@ function renderRonda(){
     <p class="factor-desc">${T('todasVez')} ${faltan?`${T('faltan')} ${faltan} ${T('porDecidir')}`:T('todasDecidido')} · <b>${S.mazo.length} ${T('libresMercado')}</b></p>
     ${activos().filter(j=>j.carcel).map(j=>`<div class="preso-aviso"><b style="color:${j.color}">${j.nombre}</b> está en prisión: no abre expedientes este turno, pero sigue cobrando rendimientos y dividendos.</div>`).join('')}
     <div class="exp-grid">${S.rondaData.map((d,i)=>panelExpediente(d,i)).join('')}</div>
-    ${faltan?'':`<button class="btn block" style="margin-top:14px" onclick="avanzarRonda()">${S.ronda>=3?T('irDeal'):T('siguienteRonda')}</button>`}`;
+    ${faltan?'':`<div class="auto-aviso">${S.ronda>=3?(LANG==='en'?'Deal Time in':'Deal Time en'):(LANG==='en'?'Next round in':'Siguiente ronda en')} <b id="cuenta-ronda">·</b> s
+      <button class="saltar" onclick="saltarEspera()">${LANG==='en'?'Skip':'Continuar ya'}</button></div>`}`;
   renderTop();
 }
 
@@ -2791,6 +2863,7 @@ function extraerJSON(txt){
 
 function aplicarFactor(f){
   S.factorActual=f;
+  S.factorFin=Date.now()+11000;
   const D={leve:3000,moderado:7000,fuerte:12000};
   const nombres=activos().map(j=>j.nombre);
   (f.efectos||[]).forEach(e=>{
