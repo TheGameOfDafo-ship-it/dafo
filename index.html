@@ -293,6 +293,7 @@
 
   header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;}
   h1{font-size:28px;font-weight:800;letter-spacing:.06em;margin:0;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.22);}
+  .ver-tag{font-size:10px;font-weight:700;opacity:.55;letter-spacing:.04em;vertical-align:super;}
   .meta{background:rgba(255,255,255,.2);color:#fff;font-weight:700;font-size:13px;
     padding:8px 16px;border-radius:999px;backdrop-filter:blur(4px);}
 
@@ -405,6 +406,35 @@
   .lado *{max-width:100%;}
   .lado select,.lado input{min-width:0;width:100%;}
   .lado .pick-card{word-break:break-word;}
+
+  /* ---- CENICERO CON PURO ---- */
+  .cenicero-esc{position:relative;width:100%;max-width:150px;margin:0 auto 4px;aspect-ratio:1/1;}
+  .cen-base{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45));}
+  .cen-brasa{position:absolute;left:46.8%;top:46.6%;width:15%;transform:translate(-50%,-50%);}
+  .cen-brasa .br{position:absolute;inset:0;width:100%;height:auto;opacity:0;
+    filter:drop-shadow(0 0 7px rgba(255,120,20,.85));}
+  .br.b1{animation:brasaA 1.6s steps(1,end) infinite;}
+  .br.b2{animation:brasaB 1.6s steps(1,end) infinite;}
+  .br.b3{animation:brasaC 1.6s steps(1,end) infinite;}
+  @keyframes brasaA{0%,38%{opacity:1}39%,100%{opacity:0}}
+  @keyframes brasaB{0%,37%{opacity:0}38%,74%{opacity:1}75%,100%{opacity:0}}
+  @keyframes brasaC{0%,73%{opacity:0}74%,88%{opacity:1}89%,100%{opacity:0}}
+  .cen-humo{position:absolute;left:52%;bottom:56%;width:34%;pointer-events:none;}
+  .cen-humo .hu{position:absolute;bottom:0;left:0;width:100%;height:auto;opacity:0;transform-origin:bottom center;}
+  .hu.h1{animation:humoA 4.2s ease-in-out infinite;}
+  .hu.h2{animation:humoB 4.2s ease-in-out infinite;}
+  .hu.h3{animation:humoC 4.2s ease-in-out infinite;}
+  @keyframes humoA{0%{opacity:0;transform:translateY(6px) scale(.7)}
+    8%{opacity:.95;transform:translateY(0) scale(1)}
+    26%{opacity:.9}30%{opacity:0}100%{opacity:0}}
+  @keyframes humoB{0%,27%{opacity:0}
+    32%{opacity:.95;transform:translateY(4px) scale(.95)}
+    56%{opacity:.85;transform:translateY(-2px) scale(1)}
+    62%{opacity:0}100%{opacity:0}}
+  @keyframes humoC{0%,59%{opacity:0}
+    64%{opacity:.9;transform:translateY(2px) scale(.97)}
+    88%{opacity:.5;transform:translateY(-10px) scale(1.06)}
+    100%{opacity:0;transform:translateY(-18px) scale(1.12)}}
   .mesa-centro{min-width:0;padding:10px 6px;}
   .lado{background:#faf8ff;border-radius:18px;padding:14px;border:3px solid var(--lc,#ddd);}
   .lado-head{display:flex;flex-direction:column;gap:7px;margin-bottom:10px;}
@@ -424,14 +454,43 @@
   .cupos{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px;}
   .cupo{font-size:9px;font-weight:800;color:#fff;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em;}
   .cupo.hueco{background:#cfc7e0;color:#4a4160;}
-  .mesa{background:
-      repeating-linear-gradient(92deg,rgba(90,55,24,.10) 0 3px,transparent 3px 11px) ,
-      linear-gradient(150deg,#8a5a2b,#6b4320 45%,#7d5127) !important;
-    border-radius:20px;padding:12px;box-shadow:inset 0 0 44px rgba(0,0,0,.45);}
-  .mesa .lado{box-shadow:0 6px 16px rgba(0,0,0,.34);}
+  .mesa{background-image:var(--mesa-img);background-size:cover;background-position:center 12%;
+    border-radius:20px;padding:96px 16px 18px;box-shadow:inset 0 0 60px rgba(0,0,0,.5),0 10px 26px rgba(0,0,0,.35);}
+  @media(max-width:900px){.mesa{padding:64px 12px 14px;background-position:center top;}}
+  @media(max-width:700px){.mesa{padding:48px 10px 12px;}}
+  .mesa .lado{box-shadow:0 8px 20px rgba(0,0,0,.45);background:rgba(250,248,255,.965);}
   .mesa .mesa-label{color:#f4e3c4;}
   .mesa .mesa-arrows{color:#ffd76e;}
-  .mesa .cenicero{filter:drop-shadow(0 5px 8px rgba(0,0,0,.45));}
+
+
+  /* ---- CENICERO CON PURO ---- */
+  .cenicero-esc{position:relative;width:100%;max-width:150px;margin:0 auto 4px;aspect-ratio:1/1;}
+  .cen-base{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45));}
+  .cen-brasa{position:absolute;left:46.8%;top:46.6%;width:15%;transform:translate(-50%,-50%);}
+  .cen-brasa .br{position:absolute;inset:0;width:100%;height:auto;opacity:0;
+    filter:drop-shadow(0 0 7px rgba(255,120,20,.85));}
+  .br.b1{animation:brasaA 1.6s steps(1,end) infinite;}
+  .br.b2{animation:brasaB 1.6s steps(1,end) infinite;}
+  .br.b3{animation:brasaC 1.6s steps(1,end) infinite;}
+  @keyframes brasaA{0%,38%{opacity:1}39%,100%{opacity:0}}
+  @keyframes brasaB{0%,37%{opacity:0}38%,74%{opacity:1}75%,100%{opacity:0}}
+  @keyframes brasaC{0%,73%{opacity:0}74%,88%{opacity:1}89%,100%{opacity:0}}
+  .cen-humo{position:absolute;left:52%;bottom:56%;width:34%;pointer-events:none;}
+  .cen-humo .hu{position:absolute;bottom:0;left:0;width:100%;height:auto;opacity:0;transform-origin:bottom center;}
+  .hu.h1{animation:humoA 4.2s ease-in-out infinite;}
+  .hu.h2{animation:humoB 4.2s ease-in-out infinite;}
+  .hu.h3{animation:humoC 4.2s ease-in-out infinite;}
+  @keyframes humoA{0%{opacity:0;transform:translateY(6px) scale(.7)}
+    8%{opacity:.95;transform:translateY(0) scale(1)}
+    26%{opacity:.9}30%{opacity:0}100%{opacity:0}}
+  @keyframes humoB{0%,27%{opacity:0}
+    32%{opacity:.95;transform:translateY(4px) scale(.95)}
+    56%{opacity:.85;transform:translateY(-2px) scale(1)}
+    62%{opacity:0}100%{opacity:0}}
+  @keyframes humoC{0%,59%{opacity:0}
+    64%{opacity:.9;transform:translateY(2px) scale(.97)}
+    88%{opacity:.5;transform:translateY(-10px) scale(1.06)}
+    100%{opacity:0;transform:translateY(-18px) scale(1.12)}}
   .mesa-centro{background:transparent !important;box-shadow:none;border-radius:18px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:14px 10px;}
   .mesa-arrows{font-size:34px;color:var(--p1);line-height:1;}
@@ -840,7 +899,7 @@
 
 <div id="game" class="wrap" style="display:none">
   <header>
-    <h1>DAFO</h1>
+    <h1>DAFO <span class="ver-tag" id="ver-tag"></span></h1>
     <div class="meta"><span id="lbl-turno">Turno</span> <b id="m-turno">1</b> · <span id="lbl-trim">Trimestre</span> <b id="m-trim">1</b></div>
   </header>
 
@@ -991,6 +1050,12 @@ function tierDe(c){return c.tier||'normal';}
 
 
 const ASSETS='assets/';
+const CENICERO={
+  base:ASSETS+'cenicero/base.webp',
+  humo:[ASSETS+'cenicero/humo1.webp',ASSETS+'cenicero/humo2.webp',ASSETS+'cenicero/humo3.webp'],
+  brasa:[ASSETS+'cenicero/brasa1.webp',ASSETS+'cenicero/brasa2.webp',ASSETS+'cenicero/brasa3.webp']
+};
+const MESA_IMG=ASSETS+'mesa/escritorio.webp';
 const RETRATOS={
   'buho_derrota':ASSETS+'personajes/buho_derrota.webp',
   'buho_normal':ASSETS+'personajes/buho_normal.webp',
@@ -1029,7 +1094,9 @@ const MANOS={
 
 (function(){ try{ ['f1','f2','f3'].forEach(function(k){ var i=new Image(); i.src=MANOS[k]; });
   ['s1','s2','s3'].forEach(function(k){ var i=new Image(); i.src=SELLO[k]; });
-  ['g1','g2','g3'].forEach(function(k){ var i=new Image(); i.src=FIRMA[k]; }); }catch(e){} })();
+  ['g1','g2','g3'].forEach(function(k){ var i=new Image(); i.src=FIRMA[k]; });
+  [CENICERO.base].concat(CENICERO.humo,CENICERO.brasa).forEach(function(u){ var i=new Image(); i.src=u; });
+  (function(){ var i=new Image(); i.src=MESA_IMG; })(); }catch(e){} })();
 
 /* ================== ANIMACIONES ================== */
 function overlayFX(html,ms){
@@ -1209,6 +1276,8 @@ function fxVictoria(j){
 
 /* ================== MULTIJUGADOR ================== */
 
+const VERSION='v7-2026-08-12';
+
 /* ================== CONFIGURACIÓN ==================
    Para jugar entre dispositivos distintos, pega aquí la URL de tu base de
    datos de Firebase. Instrucciones completas en SERVIDOR.md
@@ -1220,6 +1289,27 @@ const CONFIG = {
 
 
 /* ---- Almacén compartido: nube si existe, si no entre pestañas ---- */
+function mostrarFallo(msg){
+  try{
+    console.error(msg);
+    let av=document.getElementById('mp-fallo');
+    if(!av){ av=document.createElement('div'); av.id='mp-fallo'; av.className='mp-fallo'; document.body.appendChild(av); }
+    av.textContent='['+VERSION+'] '+msg;
+  }catch(e){}
+}
+
+(function(){
+  try{
+    window.onerror=function(msg,src,ln,col){
+      try{ mostrarFallo('JS '+ln+':'+col+' — '+msg); }catch(e){}
+      return false;
+    };
+    window.addEventListener('unhandledrejection',function(ev){
+      try{ mostrarFallo('promesa: '+((ev.reason&&ev.reason.message)||ev.reason)); }catch(e){}
+    });
+  }catch(e){}
+})();
+
 const ALMACEN=(function(){
   // 1) Servidor propio (Firebase): funciona entre dispositivos distintos
   if(CONFIG.servidor && /^https?:\/\//.test(CONFIG.servidor)){
@@ -1391,7 +1481,7 @@ async function mpSincronizar(){
 }
 
 function repintar(){
-  try{ renderTop(); }catch(e){ mostrarFallo('renderTop: '+e.message); }
+  renderTop();
   try{
     if(S.fase==='cofres') renderRonda();
     else if(S.fase==='deal_time'){ if(!document.getElementById('deal-timer')) renderDealTime(); else renderDealBody(); }
@@ -1399,14 +1489,6 @@ function repintar(){
   }catch(e){ mostrarFallo('repintar('+S.fase+'): '+e.message); }
 }
 
-function mostrarFallo(msg){
-  try{
-    console.error(msg);
-    let av=document.getElementById('mp-fallo');
-    if(!av){ av=document.createElement('div'); av.id='mp-fallo'; av.className='mp-fallo'; document.body.appendChild(av); }
-    av.textContent=(LANG==='en'?'Error: ':'Error: ')+msg;
-  }catch(e){}
-}
 
 function comprobarRelojes(){
   if(!MP.on||!S.iniciada) return;
@@ -2005,7 +2087,8 @@ function cardHTML(c,j){
     <div class="mc-data">${fmt(c.coste)} · ${Math.round(yieldPct(c,j)*100)}%/turno (${fmt(c.coste*yieldPct(c,j))})</div></div>`;
 }
 
-function renderTop(){
+function renderTop(){ try{ _renderTop(); }catch(e){ mostrarFallo('renderTop: '+e.message); } }
+function _renderTop(){
   const _cambios=[];
   S.jugadores.forEach((j,idx)=>{
     if(j._prev===undefined){ j._prev=j.capital; return; }
@@ -2018,7 +2101,7 @@ function renderTop(){
   put('lbl-tuempresa',T('tuEmpresa')); put('lbl-inversores',T('inversores'));
   put('lbl-rivales',T('rivales'));
   put('lbl-sector',(LANG==='en'?'Companies — ':'Empresas — ')+nombreSector()); put('lbl-juegascomo',T('juegasComo'));
-  put('lbl-turno',T('turno')); put('lbl-trim',T('trimestre'));
+  put('lbl-turno',T('turno')); put('lbl-trim',T('trimestre')); put('ver-tag',VERSION);
   const sal=document.getElementById('mp-salir');
   if(sal) sal.innerHTML = MP.on
     ? `<button class="gest-btn" style="width:100%;margin-top:8px;background:#c9c2d8;box-shadow:0 4px 0 #a9a1bd;color:#4a4160" onclick="abandonar()">${LANG==='en'?'Leave game':'Abandonar partida'}</button>`
@@ -2582,24 +2665,21 @@ function ladoHTML(l){
       value="${l==='A'?S.mesa.dinA:S.mesa.dinB}" oninput="S.mesa.${l==='A'?'dinA':'dinB'}=this.value"></div>`;
 }
 function mesaHTML(){
-  return `<div class="mesa">${ladoHTML('A')}
+  return `<div class="mesa" style="--mesa-img:url('${MESA_IMG}')">${ladoHTML('A')}
     <div class="mesa-centro">
-      <svg class="cenicero" viewBox="0 0 120 160" width="100%">
-        <ellipse cx="60" cy="96" rx="46" ry="42" fill="#fdfbf6" stroke="#ddd3c2" stroke-width="2"/>
-        <ellipse cx="60" cy="96" rx="34" ry="30" fill="#f3eee3" stroke="#e2d9c8" stroke-width="1.5"/>
-        <path d="M28 78 l14 8 M92 78 l-14 8" stroke="#e2d9c8" stroke-width="4" stroke-linecap="round"/>
-        <text x="60" y="132" text-anchor="middle" font-family="Cinzel,serif" font-weight="900"
-          font-size="12.5" letter-spacing="2.4" fill="#c9a227">BUSINESS</text>
-        <g transform="rotate(-24 60 96)">
-          <rect x="46" y="72" width="52" height="13" rx="6" fill="#7b5327"/>
-          <rect x="46" y="72" width="14" height="13" rx="6" fill="#5d3d1c"/>
-          <rect x="58" y="72" width="5" height="13" fill="#a8783f"/>
-          <ellipse class="brasa" cx="99" cy="78.5" rx="5" ry="6.5" fill="#ff7a1a"/>
-        </g>
-        <g class="humo" stroke="#fff" fill="none" stroke-width="2.5" stroke-linecap="round" opacity=".55">
-          <path d="M96 56 q-9 -13 1 -24 q9 -11 0 -22"/>
-        </g>
-      </svg>
+      <div class="cenicero-esc">
+        <img class="cen-base" src="${CENICERO.base}" alt="">
+        <div class="cen-brasa">
+          <img class="br b1" src="${CENICERO.brasa[0]}" alt="">
+          <img class="br b2" src="${CENICERO.brasa[1]}" alt="">
+          <img class="br b3" src="${CENICERO.brasa[2]}" alt="">
+        </div>
+        <div class="cen-humo">
+          <img class="hu h1" src="${CENICERO.humo[0]}" alt="">
+          <img class="hu h2" src="${CENICERO.humo[1]}" alt="">
+          <img class="hu h3" src="${CENICERO.humo[2]}" alt="">
+        </div>
+      </div>
       <div class="mesa-arrows">⇄</div>
       <div class="mesa-label">${T('mesaInter')}</div></div>
     ${ladoHTML('B')}</div>
