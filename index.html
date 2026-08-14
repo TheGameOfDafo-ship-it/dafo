@@ -707,6 +707,42 @@
   .sec-nom{font-size:11.5px;font-weight:800;color:var(--ink);margin:3px 0 5px;line-height:1.2;}
   .sec-cols{display:flex;gap:3px;justify-content:center;}
   .sec-cols i{width:9px;height:9px;border-radius:50%;display:block;}
+  .lang-juego{display:flex;gap:6px;margin-top:8px;}
+  .lang-mini{flex:1;font-family:var(--f);font-size:11px;font-weight:800;padding:7px;border-radius:10px;
+    border:2px solid #e4dff2;background:#fff;color:var(--ink-dim);cursor:pointer;}
+  .lang-mini.on{background:var(--p1);border-color:var(--p1);color:#fff;}
+  .oferta{background:#faf8ff;border-radius:16px;padding:13px 15px;margin-bottom:12px;border-left:6px solid var(--pc,#ccc);}
+  .oferta.enviada{background:#f3eeff;border-left-color:var(--p1);}
+  .of-cab{font-size:13.5px;font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .of-cuerpo{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:11px;}
+  @media(max-width:620px){.of-cuerpo{grid-template-columns:1fr;}}
+  .of-tit{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-dim);margin-bottom:5px;}
+  .of-item{background:#fff;border-left:5px solid #ccc;border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700;margin-bottom:4px;}
+  .of-item.dinero{border-left-color:var(--verde);color:var(--verde);}
+  .of-item.vacio{color:var(--ink-dim);font-style:italic;font-weight:600;border-left-color:#e4dff2;}
+  .of-flecha{font-size:24px;color:var(--p1);text-align:center;}
+  .of-btns{display:flex;gap:10px;}
+  .of-btns button{flex:1;padding:11px;font-size:13px;}
+  .of-cancel{margin-left:auto;background:#ffe3e7;color:var(--neg);border:none;border-radius:9px;
+    font-family:var(--f);font-size:11px;font-weight:800;padding:6px 12px;cursor:pointer;}
+  .lado-yo{font-weight:800;font-size:13.5px;}
+
+  .btn-ayuda{width:38px;height:38px;border-radius:50%;border:2px solid rgba(255,255,255,.6);
+    background:rgba(255,255,255,.18);color:#fff;font-family:var(--lux);font-weight:900;font-size:19px;
+    cursor:pointer;margin-left:auto;margin-right:10px;}
+  .btn-ayuda:hover{background:rgba(255,255,255,.32);}
+  .ayuda-modo{border-color:#ffd76e;background:#fff9e6;}
+  #ayuda{position:fixed;inset:0;z-index:140;display:none;align-items:center;justify-content:center;
+    background:rgba(28,18,52,.62);backdrop-filter:blur(3px);padding:18px;}
+  #ayuda.on{display:flex;}
+  .ayuda-caja{position:relative;background:#fff;border-radius:22px;padding:26px 30px;max-width:min(94vw,620px);
+    max-height:86vh;overflow-y:auto;box-shadow:0 18px 50px rgba(0,0,0,.45);}
+  .ayuda-caja h2{font-family:var(--lux);font-size:26px;margin:0 0 14px;color:var(--p1);}
+  .ayuda-caja h3{font-size:15px;margin:16px 0 5px;color:var(--ink);}
+  .ayuda-caja p{font-size:13.5px;line-height:1.6;color:var(--ink-dim);margin:0 0 8px;font-weight:500;}
+  .ayuda-caja b{color:var(--ink);}
+  .ayuda-x{position:absolute;top:14px;right:16px;width:32px;height:32px;border-radius:50%;border:none;
+    background:#efe9ff;color:var(--p1);font-weight:800;font-size:15px;cursor:pointer;}
   .ajustes-caja{background:#faf8ff;border:3px solid #ece6fa;border-radius:16px;padding:13px 15px;margin-top:14px;}
   .aj-fila{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px;}
   .aj-tit{font-size:12.5px;font-weight:700;color:var(--ink);min-width:120px;}
@@ -829,6 +865,10 @@
         <div class="modo-tit">Crear sala</div>
         <div class="modo-sub" id="lb-sub-crear">Cada jugador en su propia pantalla</div>
       </button>
+      <button class="modo-btn ayuda-modo" onclick="abrirAyuda()">
+        <div class="modo-tit" id="lb-ayuda-tit">¿Cómo se juega?</div>
+        <div class="modo-sub" id="lb-ayuda-sub">Léelo antes de empezar, se tarda un minuto</div>
+      </button>
       <button class="modo-btn" onclick="mostrarUnirse()">
         <div class="modo-tit">Unirse a una sala</div>
         <div class="modo-sub">Con el código que te han pasado</div>
@@ -860,6 +900,8 @@
       <div class="codigo-val" id="sala-codigo">····</div>
       <div class="codigo-ayuda">Compártelo con los demás jugadores</div>
     </div>
+    <div class="slot-label" style="margin-top:6px" id="lbl-tuchar">Tu personaje</div>
+    <div class="chars" id="sala-chars"></div>
     <div id="sala-ajustes"></div>
     <div class="slot-label" style="margin-top:16px" id="lbl-conectados">Jugadores conectados</div>
     <div id="sala-lista"></div>
@@ -900,6 +942,7 @@
 <div id="game" class="wrap" style="display:none">
   <header>
     <h1>DAFO <span class="ver-tag" id="ver-tag"></span></h1>
+    <button class="btn-ayuda" onclick="abrirAyuda()" title="Cómo se juega">?</button>
     <div class="meta"><span id="lbl-turno">Turno</span> <b id="m-turno">1</b> · <span id="lbl-trim">Trimestre</span> <b id="m-trim">1</b></div>
   </header>
 
@@ -910,6 +953,10 @@
         <div class="quien-soy">
           <span class="quien-lab" id="lbl-juegascomo">Juegas como</span>
           <select id="sel-yo" onchange="cambiarYo(this.value)"></select>
+        </div>
+        <div class="lang-juego">
+          <button class="lang-mini" data-l="es" onclick="setLangLocal('es')">ES</button>
+          <button class="lang-mini" data-l="en" onclick="setLangLocal('en')">EN</button>
         </div>
         <div id="mp-salir"></div>
       </div>
@@ -1274,9 +1321,53 @@ function fxVictoria(j){
 }
 
 
+
+/* ================== AYUDA ================== */
+function textoAyuda(){
+  const en=LANG==='en';
+  if(en) return `
+    <h3>The goal</h3>
+    <p>You run a company. Everyone competes in the same sector. You win by convincing the <b>investors</b> that yours is the market leader — not by having the most money.</p>
+    <h3>Each turn</h3>
+    <p><b>1. External factor.</b> Something happens in the market. It hits every company differently depending on what each has built.</p>
+    <p><b>2. Agenda.</b> Four rounds. Everyone opens a file at the same time: Taxes, Investment, Opportunities or Threats. You pick, and the round advances when everyone has decided.</p>
+    <p><b>3. Deal Time.</b> Trade cards and money, lend to each other, or borrow from the central bank.</p>
+    <h3>The key: investors</h3>
+    <p>They reward <b>movement</b>, not size. Investing and taking opportunities raises their interest; sitting still lowers it. Every quarter they pay dividends based on that interest.</p>
+    <h3>Cards</h3>
+    <p>Each investment gives you a card that pays you every turn. <b>Only one copy of each card exists in the whole game.</b> Collect 4 of the same colour and you can merge them into something far better — but you can only hold 4 at a time, so you will have to trade.</p>
+    <h3>How it ends</h3>
+    <p>You win by <b>doubling the investor interest of your closest rival for 3 turns in a row</b>. You are out if you start a turn broke three times.</p>`;
+  return `
+    <h3>El objetivo</h3>
+    <p>Diriges una empresa. Todos competís en el mismo sector. Ganas convenciendo a los <b>inversores</b> de que la tuya es la líder del mercado — no por tener más dinero.</p>
+    <h3>Cada turno</h3>
+    <p><b>1. Factor externo.</b> Pasa algo en el mercado. Afecta distinto a cada empresa según lo que haya construido.</p>
+    <p><b>2. Orden del día.</b> Cuatro rondas. Todos abrís un expediente a la vez: Impuestos, Inversión, Oportunidades o Amenazas. Eliges, y la ronda avanza cuando todos habéis decidido.</p>
+    <p><b>3. Deal Time.</b> Intercambiáis cartas y dinero, os prestáis entre vosotros o pedís al banco central.</p>
+    <h3>La clave: los inversores</h3>
+    <p>Premian el <b>movimiento</b>, no el tamaño. Invertir y aceptar oportunidades sube su interés; quedarte quieto lo baja. Cada trimestre reparten dividendos según ese interés.</p>
+    <h3>Las cartas</h3>
+    <p>Cada inversión te da una carta que te renta cada turno. <b>Solo existe una carta de cada en toda la partida.</b> Junta 4 del mismo color y podrás fusionarlas en algo mucho mejor — pero solo caben 4 a la vez, así que tendrás que negociar.</p>
+    <h3>Cómo termina</h3>
+    <p>Ganas si <b>doblas en interés inversor a tu rival más cercano durante 3 turnos seguidos</b>. Quedas fuera si empiezas un turno arruinado tres veces.</p>`;
+}
+
+function abrirAyuda(){
+  let m=document.getElementById('ayuda');
+  if(!m){ m=document.createElement('div'); m.id='ayuda'; document.body.appendChild(m); }
+  m.innerHTML=`<div class="ayuda-caja">
+    <button class="ayuda-x" onclick="cerrarAyuda()">✕</button>
+    <h2>${LANG==='en'?'How to play':'Cómo se juega'}</h2>
+    ${textoAyuda()}
+  </div>`;
+  m.className='on';
+}
+function cerrarAyuda(){ const m=document.getElementById('ayuda'); if(m) m.className=''; }
+
 /* ================== MULTIJUGADOR ================== */
 
-const VERSION='v7-2026-08-12';
+const VERSION='v8-2026-08-13';
 
 /* ================== CONFIGURACIÓN ==================
    Para jugar entre dispositivos distintos, pega aquí la URL de tu base de
@@ -1331,6 +1422,11 @@ const ALMACEN=(function(){
           if(!r.ok) throw new Error('respuesta '+r.status);
           return {key:k,value:v};
         });
+      },
+      setRuta:function(k,sub,v){
+        return fetch(base+'/salas/'+encodeURIComponent(k)+'/'+sub+'.json',
+          {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)})
+          .then(function(r){ if(!r.ok) throw new Error('respuesta '+r.status); return true; });
       }};
   }
   // 2) Almacenamiento de la nube del chat, si existe
@@ -1383,12 +1479,11 @@ function serializar(){
       fortalezas:j.fortalezas,debilidades:j.debilidades,cartas:j.cartas,riesgoFiscal:j.riesgoFiscal,
       eliminado:j.eliminado,turnosBancarrota:j.turnosBancarrota,oro:j.oro||0,oroNuevo:j.oroNuevo||0,
       carcel:j.carcel||0,carcelPendiente:!!j.carcelPendiente,pillado:j.pillado||0,
-      desconectado:!!j.desconectado,uid:j.uid})),
-    interesL:Object.keys(S.interes||{}).map(k=>({n:k,v:S.interes[k]})),
+      desconectado:!!j.desconectado,uid:j.uid,peso:Number(j.peso)||30,v:Number(j.v)||0})),
     cofreOrdersL:Object.keys(S.cofreOrders||{}).map(k=>({n:k,v:S.cofreOrders[k]})),
     mazo:S.mazo, prestamos:S.prestamos, avisos:S.avisos,
     factorActual:S.factorActual, rachaLider:S.rachaLider, rachaGanada:!!S.rachaGanada,
-    banco:S.banco, mesa:S.mesa,
+    banco:S.banco, ofertas:S.ofertas||[],
     rondaFin:S.rondaFin||0, dealFin:S.dealFin||0, cursores:S.cursores||{},
     cfgRonda:S.cfgRonda||RONDA_SEG, cfgDeal:S.cfgDeal||DEAL_SEG, sector:S.sector||'industrial', factorFin:S.factorFin||0
   };
@@ -1398,24 +1493,37 @@ function aplicar(d){
   MP.aplicando=true;
   try{
     ['ver','iniciada','host','turno','fase','ronda','rondaData','mazo','prestamos',
-     'avisos','factorActual','rachaLider','rachaGanada','banco','mesa',
+     'avisos','factorActual','rachaLider','rachaGanada','banco','ofertas',
      'rondaFin','dealFin','cursores','cfgRonda','cfgDeal','sector','factorFin'].forEach(k=>{ if(d[k]!==undefined) S[k]=d[k]; });
-    if(d.interesL){ S.interes={}; (d.interesL||[]).forEach(o=>{ if(o&&o.n!=null) S.interes[o.n]=o.v; }); }
-    else if(d.interes) S.interes=d.interes;
     if(d.cofreOrdersL){ S.cofreOrders={}; (d.cofreOrdersL||[]).forEach(o=>{ if(o&&o.n!=null) S.cofreOrders[o.n]=o.v; }); }
     else if(d.cofreOrders) S.cofreOrders=d.cofreOrders;
     S.rondaData=S.rondaData||[]; S.avisos=S.avisos||[]; S.prestamos=S.prestamos||[];
-    S.mazo=S.mazo||[]; S.cursores=S.cursores||{};
+    S.mazo=S.mazo||[]; S.cursores=S.cursores||{}; S.ofertas=S.ofertas||[];
     if(d.sector&&d.sector!==SECTOR_ID) cargarSector(d.sector);
+    const _localPorUid={}; (S.jugadores||[]).forEach(j=>{ if(j&&j.uid) _localPorUid[j.uid]=j; });
+    const _rondaLocal=(S.rondaData||[]).slice();
     S.jugadores=(d.jugadores||[]).map(j=>Object.assign({ultimoRendimiento:null,ultimoFactorDelta:null,_prev:j.capital},j,{
       fortalezas:Array.isArray(j.fortalezas)?j.fortalezas:[],
       debilidades:Array.isArray(j.debilidades)?j.debilidades:[],
       cartas:Array.isArray(j.cartas)?j.cartas:[],
       capital:Number(j.capital)||0, oro:Number(j.oro)||0, oroNuevo:Number(j.oroNuevo)||0,
+      peso:Number(j.peso)||30, v:Number(j.v)||0,
       riesgoFiscal:Number(j.riesgoFiscal)||0, turnosBancarrota:Number(j.turnosBancarrota)||0,
       carcel:Number(j.carcel)||0, pillado:Number(j.pillado)||0,
       eliminado:!!j.eliminado, carcelPendiente:!!j.carcelPendiente, desconectado:!!j.desconectado
-    }));
+    })).map(j=>{
+      const loc=_localPorUid[j.uid];
+      // si mi copia local de MI empresa es más reciente, la conservo
+      if(loc && (Number(loc.v)||0)>(Number(j.v)||0)) return Object.assign({},loc);
+      return j;
+    });
+    // conservo mi decisión si el envío remoto aún no la refleja
+    (S.rondaData||[]).forEach((rd,i)=>{
+      const loc=_rondaLocal[i];
+      if(loc && loc.nombre===rd.nombre && loc.resuelto && !rd.resuelto){
+        rd.resuelto=true; rd.msg=loc.msg;
+      }
+    });
     (S.rondaData||[]).forEach(d2=>{
       if(!d2) return;
       if(d2.tipo==='inversion'&&(!d2.item||!Array.isArray(d2.item.opts))) d2.item={opts:(d2.item&&d2.item.opts)||[]};
@@ -1442,7 +1550,44 @@ async function mpGuardar(){
     if(MP.pendiente){ MP.pendiente=false; setTimeout(mpGuardar,120); }
   }
 }
-function tocado(){ if(MP.on) mpGuardar(); }
+async function setRutaGenerica(clave,sub,valor){
+  if(ALMACEN.setRuta) return ALMACEN.setRuta(clave,sub,valor);
+  let doc={};
+  try{ const r=await ALMACEN.get(clave); doc=(typeof r.value==='string')?JSON.parse(r.value):r.value; }catch(e){}
+  const partes=sub.split('/'); let n=doc;
+  for(let i=0;i<partes.length-1;i++){ if(typeof n[partes[i]]!=='object'||n[partes[i]]===null) n[partes[i]]={}; n=n[partes[i]]; }
+  n[partes[partes.length-1]]=valor;
+  return ALMACEN.set(clave, ALMACEN.tipo==='servidor'?doc:JSON.stringify(doc));
+}
+
+// guarda SOLO mi empresa y mi expediente: nunca pisa lo de los demás
+async function tocado(){
+  if(!MP.on) return;
+  const idx=S.jugadores.findIndex(j=>j.uid===MP.yo);
+  if(idx<0) return mpGuardar();
+  const j=S.jugadores[idx];
+  j.v=(Number(j.v)||0)+1;
+  const ahora=Date.now();
+  try{
+    await setRutaGenerica(claveSala(MP.code),'jugadores/'+idx, jugadorPlano(j));
+    const ri=(S.rondaData||[]).findIndex(d=>d&&d.nombre===j.nombre);
+    if(ri>=0) await setRutaGenerica(claveSala(MP.code),'rondaData/'+ri, S.rondaData[ri]);
+    await setRutaGenerica(claveSala(MP.code),'ver', ahora);
+    S.ver=ahora;
+    marcaConexion(true);
+  }catch(e){ MP.ultimoError=(e&&e.message)||'error'; marcaConexion(false); }
+}
+
+// cambios que afectan a todos (fases, préstamos, ofertas, banco)
+function tocadoGlobal(){ if(MP.on) mpGuardar(); }
+
+function jugadorPlano(j){
+  return {nombre:j.nombre,charId:j.charId,color:j.color,capital:j.capital,
+    fortalezas:j.fortalezas,debilidades:j.debilidades,cartas:j.cartas,riesgoFiscal:j.riesgoFiscal,
+    eliminado:j.eliminado,turnosBancarrota:j.turnosBancarrota,oro:j.oro||0,oroNuevo:j.oroNuevo||0,
+    carcel:j.carcel||0,carcelPendiente:!!j.carcelPendiente,pillado:j.pillado||0,
+    desconectado:!!j.desconectado,uid:j.uid,peso:Number(j.peso)||30,v:Number(j.v)||0};
+}
 
 async function mpLeer(){
   try{
@@ -1471,7 +1616,8 @@ async function mpSincronizar(){
   if(!MP.on) return;
   const d=await mpLeer();
   if(!d) return;
-  if((d.ver||0)<=(S.ver||0)) { comprobarRelojes(); return; }
+  if(d.ver===MP.visto){ comprobarRelojes(); return; }
+  MP.visto=d.ver;
   const faseAnterior=S.fase, iniAnterior=S.iniciada;
   aplicar(d);
   if(!S.iniciada){ renderSala(); return; }
@@ -1509,7 +1655,7 @@ function comprobarRelojes(){
         resolverPara(i,{delta:imp,msg:'Tiempo agotado: absorbe el golpe ('+fmt(imp)+').'});
       }
     });
-    if(hubo) tocado();
+    if(hubo) tocadoGlobal();
   }
   if(S.fase==='deal_time'&&S.dealFin&&ahora>S.dealFin+desfase) terminarDealTime();
 }
@@ -1573,7 +1719,7 @@ function irLocal(){
 }
 
 function nuevoJugador(nombre,charId,uid){
-  return {nombre:nombre,charId:charId,color:charColor(charId),uid:uid,capital:150000,
+  return {nombre:nombre,charId:charId,color:charColor(charId),uid:uid,capital:150000,peso:30,v:0,
     fortalezas:[],debilidades:[],cartas:[],riesgoFiscal:0,eliminado:false,turnosBancarrota:0,
     ultimoRendimiento:null,ultimoFactorDelta:null,oro:0,oroNuevo:0,carcel:0,carcelPendiente:false,
     pillado:0,desconectado:false};
@@ -1590,7 +1736,7 @@ async function confirmarLobby(){
       MP.code=codigoAleatorio(); MP.host=true; MP.on=true;
       S.iniciada=false; S.ver=0; S.host=MP.yo; S.sector=SECTOR_ID;
       S.jugadores=[nuevoJugador(nombre,LB.charId,MP.yo)];
-      S.interes={}; S.cursores={};
+      S.cursores={};
       await mpGuardar();
     } else {
       const cod=(document.getElementById('lb-codigo').value||'').trim().toUpperCase();
@@ -1601,12 +1747,15 @@ async function confirmarLobby(){
       if(d.iniciada){ err.textContent='Esa partida ya ha empezado.'; MP.on=false; document.getElementById('lb-ok').disabled=false; return; }
       if(d.jugadores.length>=6){ err.textContent='La sala está llena (6 jugadores).'; MP.on=false; document.getElementById('lb-ok').disabled=false; return; }
       if(d.jugadores.some(j=>j.nombre.toLowerCase()===nombre.toLowerCase())){ err.textContent='Ya hay una empresa con ese nombre.'; document.getElementById('lb-ok').disabled=false; return; }
-      let ch=LB.charId;
+      let ch=LB.charId, cambiado=null;
       if(d.jugadores.some(j=>j.charId===ch)){
         const libre=CHARACTERS.find(c=>!d.jugadores.some(j=>j.charId===c.id));
         if(!libre){ err.textContent='No quedan personajes libres.'; document.getElementById('lb-ok').disabled=false; return; }
-        ch=libre.id;
+        cambiado=libre; ch=libre.id;
       }
+      if(cambiado) setTimeout(()=>toast(LANG==='en'
+        ?'That character was taken — you got '+cambiado.nombre+'. You can change it in the room.'
+        :'Ese personaje estaba cogido, te hemos puesto '+cambiado.nombre+'. Puedes cambiarlo en la sala.'),500);
       aplicar(d);
       MP.host=(S.host===MP.yo);
       S.jugadores.push(nuevoJugador(nombre,ch,MP.yo));
@@ -1680,8 +1829,12 @@ function setLangLocal(l){
   LANG=l;
   try{ localStorage.setItem('dafo-lang',l); }catch(e){}
   document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('on', b.dataset.l===LANG));
-  if(S.iniciada&&document.getElementById('game').style.display==='block') repintar();
-  renderSala();
+  document.querySelectorAll('.lang-mini').forEach(b=>b.classList.toggle('on', b.dataset.l===LANG));
+  const g=document.getElementById('game');
+  if(g&&g.style.display==='block'){ renderTop(); repintar(); }
+  const sala=document.getElementById('lb-sala');
+  if(sala&&sala.style.display!=='none') renderSala();
+  renderSetup();
 }
 
 function avisoAlcance(){
@@ -1702,6 +1855,18 @@ function renderSala(){
   const cont=document.getElementById('sala-lista'); if(!cont) return;
   document.getElementById('sala-codigo').textContent=MP.code||'····';
   renderAjustes();
+  const lt=document.getElementById('lbl-tuchar');
+  if(lt) lt.textContent=LANG==='en'?'Your character':'Tu personaje';
+  const sc=document.getElementById('sala-chars');
+  if(sc){
+    const mio=(S.jugadores||[]).find(j=>j.uid===MP.yo);
+    sc.innerHTML=CHARACTERS.map(c=>{
+      const soyYo=mio&&mio.charId===c.id;
+      const cogido=(S.jugadores||[]).some(j=>j.charId===c.id&&j.uid!==MP.yo);
+      return `<div class="char ${soyYo?'on':''} ${cogido?'taken':''}" style="--cc:${c.color}"
+        onclick="${cogido?'':`cambiarMiChar('${c.id}')`}">${charSVG(c.id,48)}<div class="char-name">${c.nombre}</div></div>`;
+    }).join('');
+  }
   const lc=document.getElementById('lbl-conectados');
   if(lc) lc.textContent=LANG==='en'?'Connected players':'Jugadores conectados';
   cont.innerHTML=(S.jugadores||[]).map(j=>`
@@ -1721,6 +1886,13 @@ function renderSala(){
     nota.textContent='Esperando a que el anfitrión empiece la partida…';
   }
   marcaConexion(true);
+}
+
+function cambiarMiChar(id){
+  if((S.jugadores||[]).some(j=>j.charId===id&&j.uid!==MP.yo)) return;
+  const mio=(S.jugadores||[]).find(j=>j.uid===MP.yo); if(!mio) return;
+  mio.charId=id; mio.color=charColor(id); mio.v=(Number(mio.v)||0)+1;
+  mpGuardar(); renderSala();
 }
 
 function arrancarSync(){
@@ -1745,7 +1917,7 @@ function salirSala(){
 async function empezarOnline(){
   if(!MP.host) return;
   S.iniciada=true; S.turno=1; S.fase='factor_externo';
-  S.interes={}; S.jugadores.forEach(j=>S.interes[j.nombre]=100/S.jugadores.length);
+  S.jugadores.forEach(j=>{ j.peso=30; j.v=0; });
   S.banco=BANCO_POR_JUGADOR*S.jugadores.length;
   cargarSector(S.sector||'industrial');
   S.mazo=shuffle(POOL.inversion.map((c,i)=>({...c,id:i})));
@@ -1785,7 +1957,7 @@ function abandonar(){
   const sobra=Math.max(0,j.capital)+Math.max(0,j.oro||0)+Math.max(0,j.oroNuevo||0);
   S.banco+=sobra;
   j.capital=0;j.oro=0;j.oroNuevo=0;j.eliminado=true;j.desconectado=true;
-  delete S.interes[j.nombre];
+  delete interesPct(j);
   renormalizarInteres();
   S.avisos.push(`${j.nombre} abandona la partida. Sus cartas vuelven al mercado y los acreedores recuperan el 30%.`);
   if(S.host===MP.yo){
@@ -1820,7 +1992,7 @@ function resolverPendientesPorTiempo(){
       resolverPara(i,{delta:imp,msg:(en?'Time up: absorbs the hit ':'Tiempo agotado: absorbe el golpe ')+'('+fmt(imp)+').'});
     }
   });
-  if(hubo) tocado();
+  if(hubo) tocadoGlobal();
 }
 
 let LATIDO=null;
@@ -1996,6 +2168,9 @@ function renderSetup(){
   if(ls) ls.textContent=LANG==='en'?'Choose the sector':'Elige el sector';
   const gs=document.getElementById('setup-sectores');
   if(gs) gs.innerHTML=gridSectores(SECTOR_ID,'elegirSectorLocal',true);
+  const at=document.getElementById('lb-ayuda-tit'), asub=document.getElementById('lb-ayuda-sub');
+  if(at) at.textContent=LANG==='en'?'How to play':'¿Cómo se juega?';
+  if(asub) asub.textContent=LANG==='en'?'Read this before starting, it takes a minute':'Léelo antes de empezar, se tarda un minuto';
   const bA=document.getElementById('btn-add'), bJ=document.getElementById('btn-play');
   if(bA) bA.textContent=T('anadir');
   if(bJ) bJ.textContent=T('jugar');
@@ -2040,10 +2215,9 @@ function empezarPartida(){
   S.jugadores=SETUP.map(sl=>({
     nombre:sl.nombre.trim(), charId:sl.charId, color:charColor(sl.charId), capital:150000,
     fortalezas:[],debilidades:[],cartas:[],riesgoFiscal:0,eliminado:false,turnosBancarrota:0,
-    ultimoRendimiento:null,ultimoFactorDelta:null,oro:0,oroNuevo:0,carcel:0,carcelPendiente:false
+    ultimoRendimiento:null,ultimoFactorDelta:null,oro:0,oroNuevo:0,carcel:0,carcelPendiente:false,peso:30,v:0
   }));
-  S.interes={};
-  S.jugadores.forEach(j=>S.interes[j.nombre]=100/S.jugadores.length);
+  S.jugadores.forEach(j=>{ j.peso=30; j.v=0; });
   S.banco=BANCO_POR_JUGADOR*S.jugadores.length;
   S.sector=SECTOR_ID;
   S.mazo=shuffle(POOL.inversion.map((c,i)=>({...c,id:i})));
@@ -2058,23 +2232,23 @@ let S={turno:1,yo:0,fase:'factor_externo',dealTab:'mesa',
   jugadores:[],
   interes:{},factorActual:null,cofreOrders:{},activosTurno:[],ronda:0,jIdx:0,
   dealSec:300,dealTimer:null,prestamos:[],avisos:[],rachaLider:{nombre:null,turnos:0},
-  mesa:{ladoA:null,ladoB:null,selA:[],selB:[],dinA:'',dinB:''}, banco:0, mazo:[],
+  mesa:{destino:null,selA:[],selB:[],dinA:'',dinB:''}, ofertas:[], banco:0, mazo:[],
   ver:0,iniciada:false,host:null,cursores:{},rondaFin:0,dealFin:0,cfgRonda:RONDA_SEG,cfgDeal:DEAL_SEG,sector:'industrial'};
 
 
 function activos(){return S.jugadores.filter(j=>!j.eliminado);}
 function porNombre(n){return S.jugadores.find(j=>j.nombre===n);}
-function ajustarInteres(n,d){if(S.interes[n]===undefined)return;S.interes[n]=Math.max(2,S.interes[n]+d);renorm();}
-function renorm(){const a=activos();const t=a.reduce((s,j)=>s+(S.interes[j.nombre]||0),0);
-  if(t<=0){a.forEach(j=>S.interes[j.nombre]=100/a.length);return;}
-  a.forEach(j=>S.interes[j.nombre]=S.interes[j.nombre]/t*100);}
+function pesoTotal(){const a=activos();return Math.max(1,a.reduce((s,j)=>s+(Number(j.peso)||0),0));}
+function interesPct(j){ if(!j||j.eliminado) return 0; return (Number(j.peso)||0)/pesoTotal()*100; }
+function ajustarInteres(n,d){const j=porNombre(n);if(!j)return;j.peso=Math.max(2,(Number(j.peso)||0)+d);}
+function renorm(){}
 function addTag(j,c,t){if(!j[c].includes(t))j[c].push(t);}
 function deuda(j){return S.prestamos.filter(p=>p.a===j.nombre).reduce((s,p)=>s+p.totalRestante,0);}
 function fundamentals(j){return j.capital+j.cartas.reduce((s,c)=>s+(c.coste||0),0)-deuda(j);}
 function nTier(j,t){return j.cartas.filter(c=>tierDe(c)===t).length;}
 function ingresoPorTurno(j){
   const r=j.cartas.reduce((s,c)=>s+(c.coste||0)*yieldPct(c),0);
-  const div=((S.interes[j.nombre]||0)*DIVIDENDO_POR_PUNTO)/3;
+  const div=((interesPct(j)||0)*DIVIDENDO_POR_PUNTO)/3;
   const cuotas=S.prestamos.filter(p=>p.a===j.nombre).reduce((s,p)=>s+p.cuota,0);
   return r+div-cuotas;
 }
@@ -2102,6 +2276,7 @@ function _renderTop(){
   put('lbl-rivales',T('rivales'));
   put('lbl-sector',(LANG==='en'?'Companies — ':'Empresas — ')+nombreSector()); put('lbl-juegascomo',T('juegasComo'));
   put('lbl-turno',T('turno')); put('lbl-trim',T('trimestre')); put('ver-tag',VERSION);
+  document.querySelectorAll('.lang-mini').forEach(b=>b.classList.toggle('on', b.dataset.l===LANG));
   const sal=document.getElementById('mp-salir');
   if(sal) sal.innerHTML = MP.on
     ? `<button class="gest-btn" style="width:100%;margin-top:8px;background:#c9c2d8;box-shadow:0 4px 0 #a9a1bd;color:#4a4160" onclick="abandonar()">${LANG==='en'?'Leave game':'Abandonar partida'}</button>`
@@ -2132,8 +2307,8 @@ function _renderTop(){
   }
   document.getElementById('inversores').innerHTML=activos().map(j=>`
     <div class="inv-row"><div class="inv-name" style="color:${j.color};width:auto;flex:1;font-size:11.5px">${j.nombre}</div>
-    <div class="inv-pct">${S.interes[j.nombre].toFixed(0)}%</div></div>
-    <div class="inv-bar-bg" style="margin-bottom:9px;height:12px"><div class="inv-bar" style="width:${S.interes[j.nombre]}%;background:${j.color}"></div></div>`).join('');
+    <div class="inv-pct">${interesPct(j).toFixed(0)}%</div></div>
+    <div class="inv-bar-bg" style="margin-bottom:9px;height:12px"><div class="inv-bar" style="width:${interesPct(j)}%;background:${j.color}"></div></div>`).join('');
 
   const yo=S.jugadores[S.yo];
   const actNom=(S.fase==='cofres'&&S.activosTurno[S.jIdx])?S.activosTurno[S.jIdx].nombre:null;
@@ -2229,7 +2404,7 @@ function panelGestion(j){
       <div class="gest-tit">Oro · +${Math.round(ORO_CRECIMIENTO*100)}% cada turno</div>
       <div class="oro-cifra">${fmt(j.oro||0)}</div>
       ${(j.oroNuevo||0)>0?`<div class="oro-espera">+${fmt(j.oroNuevo)} madurando · disponible el próximo turno</div>`:''}
-      <input type="number" id="oro-monto" class="oro-input" min="0" step="1000" placeholder="Cantidad $">
+      <input type="number" id="oro-monto" class="oro-input" min="0" step="1000" placeholder="${LANG==='en'?'Amount $':'Cantidad $'}" value="${S._oro||''}" oninput="S._oro=this.value">
       <div class="gest-row" style="margin-top:8px">
         <button class="gest-btn oro" onclick="moverOro('comprar')">${T('comprar')}</button>
         <button class="gest-btn oro" onclick="moverOro('rescatar')">${T('rescatar')}</button>
@@ -2255,11 +2430,12 @@ function panelGestion(j){
 function moverOro(accion){
   const j=S.jugadores[S.yo];
   const campo=document.getElementById('oro-monto');
-  const n=Math.round(Number(campo?campo.value:0)||0);
+  const n=Math.round(Number((campo&&campo.value)||S._oro||0)||0);
   const max = accion==='comprar'? Math.max(0,j.capital) : (j.oro||0);
   const bloqueado = j.oroNuevo||0;
   if(n<=0){ toast('Escribe una cantidad en el campo antes de pulsar.'); return; }
   if(n>max){ toast(accion==='comprar'?`Solo tienes ${fmt(max)} en caja.`:(bloqueado?`Solo ${fmt(max)} está disponible: ${fmt(bloqueado)} todavía está madurando.`:`Solo tienes ${fmt(max)} en oro.`)); return; }
+  S._oro='';
   if(accion==='comprar'){
     j.capital-=n; j.oroNuevo=(j.oroNuevo||0)+n;
     toast(`${fmt(n)} convertidos en oro. Disponible para rescatar el turno que viene.`);
@@ -2374,7 +2550,7 @@ function comenzarCofres(){
   S.activosTurno.forEach(j=>S.cofreOrders[j.nombre]=shuffle(TIPOS));
   S.ronda=0;
   document.getElementById('fase-tag').textContent=T('ordenDia');
-  prepararRonda(); tocado();
+  prepararRonda(); tocadoGlobal();
 }
 
 function generarItem(j,tipo){
@@ -2550,7 +2726,7 @@ function mitigar(i,imp,rel){
 function avanzarRonda(){
   S.ronda++;
   if(S.ronda>=4){iniciarDealTime();return;}
-  prepararRonda(); tocado();
+  prepararRonda(); tocadoGlobal();
 }
 
 function catConCuatro(j){
@@ -2599,7 +2775,7 @@ function iniciarDealTime(){
   S.fase='deal_time';S.dealSec=_dt;S.dealTab='mesa';
   if(!MP.on||!S.dealFin||S.dealFin<Date.now()) S.dealFin=Date.now()+_dt*1000;
   const a=activos().filter(x=>!x.carcel);
-  S.mesa={ladoA:a[0]?a[0].nombre:null,ladoB:a[1]?a[1].nombre:null,selA:[],selB:[],dinA:'',dinB:''};
+  S.mesa={destino:null,selA:[],selB:[],dinA:'',dinB:''};
   document.getElementById('fase-tag').textContent=T('dealTime');
   renderTop();renderDealTime();
   S.dealTimer=setInterval(()=>{
@@ -2625,72 +2801,10 @@ function renderDealTime(){
 function setTab(t){S.dealTab=t;renderDealTime();}
 function renderDealBody(){
   const b=document.getElementById('deal-body');if(!b)return;
-  b.innerHTML = S.dealTab==='mesa'?mesaHTML():(S.dealTab==='prestamo'?contratoHTML():bancoHTML());
+  b.innerHTML = S.dealTab==='mesa'?ofertaHTML():(S.dealTab==='prestamo'?contratoHTML():bancoHTML());
   renderPrestamos();
   if(S.dealTab==='banco') actualizarBanco();
 }
-
-function ladoHTML(l){
-  const elegibles=activos().filter(x=>!x.carcel);
-  let nom=l==='A'?S.mesa.ladoA:S.mesa.ladoB;
-  if(!elegibles.some(x=>x.nombre===nom)){
-    const otro=l==='A'?S.mesa.ladoB:S.mesa.ladoA;
-    const alt=elegibles.find(x=>x.nombre!==otro)||elegibles[0];
-    nom=alt?alt.nombre:null;
-    if(l==='A'){S.mesa.ladoA=nom;S.mesa.selA=[];} else {S.mesa.ladoB=nom;S.mesa.selB=[];}
-  }
-  const j=porNombre(nom), sel=l==='A'?S.mesa.selA:S.mesa.selB;
-  const otro = l==='A'?S.mesa.ladoB:S.mesa.ladoA;
-  const ops=elegibles.filter(p=>p.nombre!==otro||p.nombre===nom)
-    .map(p=>`<option value="${p.nombre}" ${p.nombre===nom?'selected':''}>${p.nombre}</option>`).join('');
-  const cartas=j&&j.cartas.length?j.cartas.map((c,i)=>{
-    const col=COLOR_CAT[c.cat]||'#c9a227';
-    const marcada=sel.includes(i);
-    const t=tierDe(c);
-    return `<div class="pick-card ${marcada?'sel':''}" onclick="toggleCarta('${l}',${i})"
-      style="border-left:7px solid ${col};${marcada?`background:${col};border-color:${col};color:#fff`:`background:${col}12`}">
-      <span class="pc-punto" style="background:${col};${marcada?'box-shadow:0 0 0 2px #fff':''}"></span>
-      <span class="pc-txt"><b>${c.nombre}</b><br><span class="pc-sub">${c.cat} · ${fmt(c.coste)} · ${Math.round(yieldPct(c,j)*100)}%${t!=='normal'?' · '+(t==='holding'?'HOLDING':'PORTFOLIO'):''}</span></span>
-    </div>`;}).join(''):`<div class="pick-empty">Sin cartas</div>`;
-  return `<div class="lado" style="--lc:${j?j.color:'#ddd'}">
-    <div class="lado-head"><select onchange="cambiarLado('${l}',this.value)">${ops}</select>
-    <span class="lado-cap">${T('caja')} ${j?fmt(j.capital):'—'}</span>
-    ${j?`<div class="cupos">${CATS.map(c=>{
-        const n=j.cartas.filter(x=>tierDe(x)==='normal'&&x.cat===c).length;
-        return n?`<span class="cupo" style="background:${COLOR_CAT[c]}">${c.slice(0,3)} ${n}</span>`:'';
-      }).join('')}<span class="cupo hueco">${nTier(j,'normal')}/4 ${T('normales')}</span></div>`:''}</div>
-    <div class="pick-label">${T('ponerMesa')}</div>${cartas}
-    <div class="pick-label">${T('dinero')}</div>
-    <input type="number" min="0" class="money-in" id="mesa-dinero-${l}" placeholder="0"
-      value="${l==='A'?S.mesa.dinA:S.mesa.dinB}" oninput="S.mesa.${l==='A'?'dinA':'dinB'}=this.value"></div>`;
-}
-function mesaHTML(){
-  return `<div class="mesa" style="--mesa-img:url('${MESA_IMG}')">${ladoHTML('A')}
-    <div class="mesa-centro">
-      <div class="cenicero-esc">
-        <img class="cen-base" src="${CENICERO.base}" alt="">
-        <div class="cen-brasa">
-          <img class="br b1" src="${CENICERO.brasa[0]}" alt="">
-          <img class="br b2" src="${CENICERO.brasa[1]}" alt="">
-          <img class="br b3" src="${CENICERO.brasa[2]}" alt="">
-        </div>
-        <div class="cen-humo">
-          <img class="hu h1" src="${CENICERO.humo[0]}" alt="">
-          <img class="hu h2" src="${CENICERO.humo[1]}" alt="">
-          <img class="hu h3" src="${CENICERO.humo[2]}" alt="">
-        </div>
-      </div>
-      <div class="mesa-arrows">⇄</div>
-      <div class="mesa-label">${T('mesaInter')}</div></div>
-    ${ladoHTML('B')}</div>
-    <button class="btn block" onclick="cerrarTrato()">${T('cerrarTrato')}</button>`;
-}
-function cambiarLado(l,v){
-  if(l==='A'){ if(v===S.mesa.ladoB)S.mesa.ladoB=S.mesa.ladoA; S.mesa.ladoA=v; S.mesa.selA=[]; S.mesa.selB=[]; }
-  else { if(v===S.mesa.ladoA)S.mesa.ladoA=S.mesa.ladoB; S.mesa.ladoB=v; S.mesa.selA=[]; S.mesa.selB=[]; }
-  renderDealBody();
-}
-function toggleCarta(l,i){const s=l==='A'?S.mesa.selA:S.mesa.selB;const p=s.indexOf(i);if(p>-1)s.splice(p,1);else s.push(i);renderDealBody();}
 
 function cabeTras(j,quita,anade){
   const t={normal:0,consolidada:0,holding:0};
@@ -2698,22 +2812,154 @@ function cabeTras(j,quita,anade){
   anade.forEach(c=>t[tierDe(c)]++);
   return Object.values(t).every(v=>v<=MAX_POR_TIER);
 }
-function cerrarTrato(){
-  const A=porNombre(S.mesa.ladoA),B=porNombre(S.mesa.ladoB);
-  if(!A||!B||A===B){toast('Elige dos empresas distintas.');return;}
-  const dA=Number(S.mesa.dinA)||0;
-  const dB=Number(S.mesa.dinB)||0;
-  if(dA>0&&dA>A.capital){toast(`${A.nombre} no tiene ${fmt(dA)} en caja.`);return;}
-  if(dB>0&&dB>B.capital){toast(`${B.nombre} no tiene ${fmt(dB)} en caja.`);return;}
-  const cA=S.mesa.selA.map(i=>A.cartas[i]),cB=S.mesa.selB.map(i=>B.cartas[i]);
-  if(!cA.length&&!cB.length&&!dA&&!dB){toast('No hay nada sobre la mesa.');return;}
-  if(!cabeTras(A,cA,cB)){toast(`${A.nombre} superaría el máximo de ${MAX_POR_TIER} en algún nivel de carta.`);return;}
-  if(!cabeTras(B,cB,cA)){toast(`${B.nombre} superaría el máximo de ${MAX_POR_TIER} en algún nivel de carta.`);return;}
-  A.cartas=A.cartas.filter(c=>!cA.includes(c));B.cartas=B.cartas.filter(c=>!cB.includes(c));
-  A.cartas.push(...cB);B.cartas.push(...cA);
-  A.capital+=dB-dA;B.capital+=dA-dB;
+
+function ofertaHTML(){
+  const yo=S.jugadores[S.yo];
+  const en=LANG==='en';
+  if(!yo) return '';
+  const rivales=activos().filter(j=>!j.carcel&&j.uid!==yo.uid&&j.nombre!==yo.nombre);
+  const pendientes=(S.ofertas||[]).filter(o=>o.para===yo.nombre&&o.estado==='pendiente');
+  const mias=(S.ofertas||[]).filter(o=>o.de===yo.nombre&&o.estado==='pendiente');
+
+  const recibidas=pendientes.map((o,k)=>{
+    const otro=porNombre(o.de);
+    return `<div class="oferta recibida" style="--pc:${otro?otro.color:'#888'}">
+      <div class="of-cab">${en?'Offer from':'Oferta de'} <b style="color:${otro?otro.color:''}">${o.de}</b></div>
+      <div class="of-cuerpo">
+        <div class="of-lado"><div class="of-tit">${en?'You receive':'Recibes'}</div>${resumenLote(o.daCartas,o.daDinero,en)}</div>
+        <div class="of-flecha">⇄</div>
+        <div class="of-lado"><div class="of-tit">${en?'You give':'Entregas'}</div>${resumenLote(o.pideCartas,o.pideDinero,en)}</div>
+      </div>
+      <div class="of-btns">
+        <button class="cf-si" onclick="responderOferta('${o.id}',true)">${en?'Accept':'Aceptar'}</button>
+        <button class="cf-no" onclick="responderOferta('${o.id}',false)">${en?'Reject':'Rechazar'}</button>
+      </div></div>`;
+  }).join('');
+
+  const enviadas=mias.map(o=>`<div class="oferta enviada">
+      <div class="of-cab">${en?'Waiting for':'Esperando a'} <b>${o.para}</b>…
+        <button class="of-cancel" onclick="cancelarOferta('${o.id}')">${en?'Cancel':'Cancelar'}</button></div>
+    </div>`).join('');
+
+  if(!rivales.length) return recibidas+enviadas+`<div class="gest-vacio" style="padding:12px">${en?'No rivals available.':'No hay rivales disponibles.'}</div>`;
+
+  const destino = S.mesa.destino && rivales.some(r=>r.nombre===S.mesa.destino) ? S.mesa.destino : rivales[0].nombre;
+  S.mesa.destino=destino;
+  const otro=porNombre(destino);
+
+  const misCartas = yo.cartas.length? yo.cartas.map((c,i)=>{
+      const col=COLOR_CAT[c.cat]||'#c9a227';
+      const sel=(S.mesa.selA||[]).includes(i);
+      return `<div class="pick-card ${sel?'sel':''}" onclick="toggleCarta('A',${i})"
+        style="border-left:7px solid ${col};${sel?`background:${col};border-color:${col};color:#fff`:`background:${col}12`}">
+        <span class="pc-punto" style="background:${col}"></span>
+        <span class="pc-txt"><b>${c.nombre}</b><br><span class="pc-sub">${fmt(c.coste)} · ${Math.round(yieldPct(c,yo)*100)}%</span></span></div>`;
+    }).join('') : `<div class="pick-empty">${en?'No cards':'Sin cartas'}</div>`;
+
+  const susCartas = otro&&otro.cartas.length? otro.cartas.map((c,i)=>{
+      const col=COLOR_CAT[c.cat]||'#c9a227';
+      const sel=(S.mesa.selB||[]).includes(i);
+      return `<div class="pick-card ${sel?'sel':''}" onclick="toggleCarta('B',${i})"
+        style="border-left:7px solid ${col};${sel?`background:${col};border-color:${col};color:#fff`:`background:${col}12`}">
+        <span class="pc-punto" style="background:${col}"></span>
+        <span class="pc-txt"><b>${c.nombre}</b><br><span class="pc-sub">${fmt(c.coste)} · ${Math.round(yieldPct(c,otro)*100)}%</span></span></div>`;
+    }).join('') : `<div class="pick-empty">${en?'No cards':'Sin cartas'}</div>`;
+
+  return recibidas+enviadas+`
+    <div class="mesa" style="--mesa-img:url('${MESA_IMG}')">
+      <div class="lado" style="--lc:${yo.color}">
+        <div class="lado-head"><span class="lado-yo" style="color:${yo.color}">${yo.nombre} · ${en?'you':'tú'}</span>
+        <span class="lado-cap">${T('caja')} ${fmt(yo.capital)}</span></div>
+        <div class="pick-label">${en?'You offer':'Ofreces'}</div>${misCartas}
+        <div class="pick-label">${T('dinero')}</div>
+        <input type="number" min="0" class="money-in" id="mesa-dinero-A" placeholder="0"
+          value="${S.mesa.dinA||''}" oninput="S.mesa.dinA=this.value">
+      </div>
+      <div class="mesa-centro">
+        <div class="cenicero-esc">
+          <img class="cen-base" src="${CENICERO.base}" alt="">
+          <div class="cen-brasa"><img class="br b1" src="${CENICERO.brasa[0]}"><img class="br b2" src="${CENICERO.brasa[1]}"><img class="br b3" src="${CENICERO.brasa[2]}"></div>
+          <div class="cen-humo"><img class="hu h1" src="${CENICERO.humo[0]}"><img class="hu h2" src="${CENICERO.humo[1]}"><img class="hu h3" src="${CENICERO.humo[2]}"></div>
+        </div>
+        <div class="mesa-arrows">⇄</div>
+      </div>
+      <div class="lado" style="--lc:${otro?otro.color:'#888'}">
+        <div class="lado-head">
+          <select onchange="S.mesa.destino=this.value;S.mesa.selB=[];renderDealBody()">
+            ${rivales.map(r=>`<option value="${r.nombre}" ${r.nombre===destino?'selected':''}>${r.nombre}</option>`).join('')}
+          </select>
+          <span class="lado-cap">${T('caja')} ${otro?fmt(otro.capital):'—'}</span>
+        </div>
+        <div class="pick-label">${en?'You ask for':'Le pides'}</div>${susCartas}
+        <div class="pick-label">${T('dinero')}</div>
+        <input type="number" min="0" class="money-in" id="mesa-dinero-B" placeholder="0"
+          value="${S.mesa.dinB||''}" oninput="S.mesa.dinB=this.value">
+      </div>
+    </div>
+    <button class="btn block" onclick="enviarOferta()">${en?'Send offer':'Enviar oferta'}</button>`;
+}
+
+function resumenLote(cartas,dinero,en){
+  const partes=[];
+  (cartas||[]).forEach(c=>{
+    const col=COLOR_CAT[c.cat]||'#c9a227';
+    partes.push(`<div class="of-item" style="border-left-color:${col}">${c.nombre}</div>`);
+  });
+  if(dinero>0) partes.push(`<div class="of-item dinero">${fmt(dinero)}</div>`);
+  if(!partes.length) partes.push(`<div class="of-item vacio">${en?'nothing':'nada'}</div>`);
+  return partes.join('');
+}
+
+function enviarOferta(){
+  const yo=S.jugadores[S.yo];
+  const otro=porNombre(S.mesa.destino);
+  const en=LANG==='en';
+  if(!yo||!otro){ toast(en?'Pick a rival.':'Elige un rival.'); return; }
+  const dinA=Math.max(0,Number(S.mesa.dinA)||0), dinB=Math.max(0,Number(S.mesa.dinB)||0);
+  const cA=(S.mesa.selA||[]).map(i=>yo.cartas[i]).filter(Boolean);
+  const cB=(S.mesa.selB||[]).map(i=>otro.cartas[i]).filter(Boolean);
+  if(!cA.length&&!cB.length&&!dinA&&!dinB){ toast(en?'Nothing on the table.':'No hay nada sobre la mesa.'); return; }
+  if(dinA>yo.capital){ toast(en?'You do not have that cash.':'No tienes esa cantidad en caja.'); return; }
+  S.ofertas=S.ofertas||[];
+  S.ofertasNuevas=1;
+  S.ofertas.push({id:'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+    de:yo.nombre, para:otro.nombre, daCartas:cA, daDinero:dinA, pideCartas:cB, pideDinero:dinB, estado:'pendiente'});
   S.mesa.selA=[];S.mesa.selB=[];S.mesa.dinA='';S.mesa.dinB='';
-  tocado();fxApreton();renderTop();renderDealBody();
+  toast(en?'Offer sent':'Oferta enviada');
+  tocadoGlobal(); renderDealBody();
+}
+
+function cancelarOferta(id){
+  S.ofertas=(S.ofertas||[]).filter(o=>o.id!==id);
+  tocadoGlobal(); renderDealBody();
+}
+
+function responderOferta(id,acepta){
+  const en=LANG==='en';
+  const o=(S.ofertas||[]).find(x=>x.id===id); if(!o) return;
+  if(!acepta){
+    S.ofertas=S.ofertas.filter(x=>x.id!==id);
+    toast(en?'Offer rejected':'Oferta rechazada'); tocadoGlobal(); renderDealBody(); return;
+  }
+  const A=porNombre(o.de), B=porNombre(o.para);
+  if(!A||!B){ S.ofertas=S.ofertas.filter(x=>x.id!==id); return; }
+  if(o.daDinero>A.capital){ toast(en?'They no longer have that cash.':'Ya no tiene esa cantidad.'); return; }
+  if(o.pideDinero>B.capital){ toast(en?'You do not have that cash.':'No tienes esa cantidad.'); return; }
+  const quitaA=(o.daCartas||[]).map(c=>A.cartas.find(x=>x.id===c.id&&x.nombre===c.nombre)).filter(Boolean);
+  const quitaB=(o.pideCartas||[]).map(c=>B.cartas.find(x=>x.id===c.id&&x.nombre===c.nombre)).filter(Boolean);
+  if(quitaA.length!==(o.daCartas||[]).length||quitaB.length!==(o.pideCartas||[]).length){
+    toast(en?'The cards are no longer available.':'Las cartas ya no están disponibles.');
+    S.ofertas=S.ofertas.filter(x=>x.id!==id); tocadoGlobal(); renderDealBody(); return;
+  }
+  if(!cabeTras(A,quitaA,quitaB)||!cabeTras(B,quitaB,quitaA)){
+    toast(en?'Card limit exceeded.':'Se superaría el límite de cartas.'); return;
+  }
+  A.cartas=A.cartas.filter(c=>!quitaA.includes(c)); B.cartas=B.cartas.filter(c=>!quitaB.includes(c));
+  A.cartas.push(...quitaB); B.cartas.push(...quitaA);
+  A.capital+=o.pideDinero-o.daDinero; B.capital+=o.daDinero-o.pideDinero;
+  A.v=(Number(A.v)||0)+1; B.v=(Number(B.v)||0)+1;
+  S.ofertas=(S.ofertas||[]).filter(x=>x.id!==id);
+  fxApreton(); tocadoGlobal(); renderTop(); renderDealBody();
 }
 
 function contratoHTML(){
@@ -2812,7 +3058,7 @@ function prestamoBanco(){
   if(!d.okMonto||!d.okCuota||!d.okDeuda||!d.okUnico) return;
   S.banco-=d.monto; d.deu.capital+=d.monto;
   S.prestamos.push({de:'__BANCO__',a:d.deu.nombre,cuota:d.cuota,totalRestante:d.total,banco:true});
-  tocado(); fxSello(); renderTop(); renderDealBody();
+  tocadoGlobal(); fxSello(); renderTop(); renderDealBody();
 }
 
 function prestamoEntreEmpresas(){
@@ -2836,7 +3082,7 @@ function prestamoEntreEmpresas(){
   }
   acr.capital-=monto;deu.capital+=monto;
   S.prestamos.push({de,a,cuota,totalRestante:total,banco:false});
-  tocado();fxFirma();renderTop();renderDealBody();
+  tocadoGlobal();fxFirma();renderTop();renderDealBody();
 }
 function renderPrestamos(){
   const c=document.getElementById('prestamos-lista');if(!c)return;
@@ -2866,7 +3112,7 @@ function dividendos(){
   if((S.turno-1)%3!==0||S.turno<2)return;
   S.avisos.push('— Cierre de trimestre: los inversores reparten dividendos —');
   activos().forEach(j=>{
-    const pct=S.interes[j.nombre]||0,pago=Math.round(pct*DIVIDENDO_POR_PUNTO);
+    const pct=interesPct(j)||0,pago=Math.round(pct*DIVIDENDO_POR_PUNTO);
     j.capital+=pago;
     S.avisos.push(`${j.nombre}: dividendo por ${pct.toFixed(0)}% de interés +${fmt(pago)}`);
     (function(emp,porcentaje){ setTimeout(function(){
@@ -2892,7 +3138,7 @@ function bancarrotas(){
     if(j.eliminado)return;
     if(j.capital<=0){j.turnosBancarrota++;
       fxBancarrota(j.nombre,j.turnosBancarrota);
-      if(j.turnosBancarrota>=3){j.eliminado=true;delete S.interes[j.nombre];
+      if(j.turnosBancarrota>=3){j.eliminado=true;delete interesPct(j);
         S.avisos.push(`${j.nombre} queda DESCLASIFICADA tras 3 turnos en bancarrota.`);}}
   });
   renorm();
@@ -2900,8 +3146,8 @@ function bancarrotas(){
 function victoria(){
   const a=activos();
   if(a.length<=1){fin(a[0]?a[0].nombre:null,a.length===1?'Única empresa en pie: gana automáticamente.':'Todas las empresas han quebrado.');return true;}
-  const r=[...a].sort((x,y)=>S.interes[y.nombre]-S.interes[x.nombre]);
-  const ratio=S.interes[r[0].nombre]/Math.max(1,S.interes[r[1].nombre]);
+  const r=[...a].sort((x,y)=>interesPct(y)-interesPct(x));
+  const ratio=interesPct(r[0])/Math.max(1,interesPct(r[1]));
   if(ratio>=2){
     if(S.rachaLider.nombre===r[0].nombre)S.rachaLider.turnos++;else S.rachaLider={nombre:r[0].nombre,turnos:1};
     S.avisos.push(`⚠ ${r[0].nombre} dobla en interés inversor a ${r[1].nombre} · ${S.rachaLider.turnos}/3 turnos para ganar la partida.`);
@@ -2924,7 +3170,7 @@ function fin(g,motivo){
   document.getElementById('fase-content').innerHTML=`
     <p class="factor-titulo">${g?g+' '+T('seComio'):T('sinGanador')}</p>
     <p class="factor-desc">${motivo}</p>
-    ${r.map((j,i)=>`<div class="efecto-mini"><b>${i+1}. ${j.nombre}${j.eliminado?' (desclasificada)':''}</b> — Fundamentals: ${fmt(fundamentals(j))}${!j.eliminado?` · Interés: ${S.interes[j.nombre].toFixed(0)}%`:''}</div>`).join('')}`;
+    ${r.map((j,i)=>`<div class="efecto-mini"><b>${i+1}. ${j.nombre}${j.eliminado?' (desclasificada)':''}</b> — Fundamentals: ${fmt(fundamentals(j))}${!j.eliminado?` · Interés: ${interesPct(j).toFixed(0)}%`:''}</div>`).join('')}`;
   renderTop();
 }
 function terminarDealTime(){
@@ -2937,7 +3183,7 @@ function terminarDealTime(){
     S.avisos.push(`${j.nombre} entra en prisión: se pierde este turno completo.`);
   } });
   cobrarPrestamos();rendimiento();crecerOro();dividendos();
-  tocado();
+  tocadoGlobal();
   generarFactor();
 }
 
@@ -3031,14 +3277,14 @@ async function generarFactor(){
     try{
       const f=await pedirFactorIA();
       if(!f.titulo||!Array.isArray(f.efectos)) throw new Error('formato inesperado');
-      aplicarFactor(f); tocado();
+      aplicarFactor(f); tocadoGlobal();
       return;
     }catch(err){
       console.warn('Factor externo, intento '+intento+':',err);
       if(intento===2){
         const f=factorLocal();
         f.descripcion+=' (generado sin conexión con el árbitro IA)';
-        aplicarFactor(f); tocado();
+        aplicarFactor(f); tocadoGlobal();
       }
     }
   }
